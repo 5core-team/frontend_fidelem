@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -37,7 +36,6 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 
-// Mock data for charts
 const userStatsData = [
   { name: 'Jan', "Nouveaux utilisateurs": 30, "Conseillers": 5 },
   { name: 'Fév', "Nouveaux utilisateurs": 40, "Conseillers": 8 },
@@ -60,7 +58,6 @@ const FinancialManagerDashboard = () => {
   const { user, isAuthenticated } = useAuth();
   const [isLoadingStats, setIsLoadingStats] = useState(true);
   
-  // Simulate loading of statistics
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoadingStats(false);
@@ -69,7 +66,6 @@ const FinancialManagerDashboard = () => {
     return () => clearTimeout(timer);
   }, []);
   
-  // Redirect if not authenticated or not a manager
   if (!isAuthenticated || user?.role !== "manager") {
     return <Navigate to="/login" replace />;
   }
