@@ -15,7 +15,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { 
-  Chart, 
+  BarChart,
+  LineChart,
   Bar, 
   Line, 
   XAxis, 
@@ -142,7 +143,7 @@ const FinancialManagerDashboard = () => {
                 <h3 className="text-lg font-medium mb-4">Évolution des demandes de crédit</h3>
                 <div className="h-80">
                   <ResponsiveContainer width="100%" height="100%">
-                    <Chart data={creditStatsData}>
+                    <BarChart data={creditStatsData}>
                       <XAxis dataKey="name" />
                       <YAxis yAxisId="left" orientation="left" />
                       <YAxis yAxisId="right" orientation="right" />
@@ -150,7 +151,7 @@ const FinancialManagerDashboard = () => {
                       <Legend />
                       <Bar yAxisId="left" dataKey="Demandes" fill="#0F3460" />
                       <Line yAxisId="right" type="monotone" dataKey="Montant" stroke="#3EDBF0" strokeWidth={2} />
-                    </Chart>
+                    </BarChart>
                   </ResponsiveContainer>
                 </div>
                 <div className="mt-8 text-center">
