@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -34,7 +35,6 @@ import {
   AlertCircle,
   Download
 } from "lucide-react";
-import { motion } from "framer-motion";
 
 const userStatsData = [
   { name: 'Jan', "Nouveaux utilisateurs": 30, "Conseillers": 5 },
@@ -197,11 +197,9 @@ const DashboardSummary = ({ isLoading }: { isLoading: boolean }) => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       {statsItems.map((item, index) => (
-        <motion.div
+        <div
           key={index}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: isLoading ? 0 : 1, y: isLoading ? 20 : 0 }}
-          transition={{ duration: 0.5, delay: index * 0.1 }}
+          className={`transition-opacity duration-500 opacity-${isLoading ? '0' : '100'}`}
         >
           <Card className={`border ${item.color}`}>
             <CardContent className="p-6">
@@ -227,7 +225,7 @@ const DashboardSummary = ({ isLoading }: { isLoading: boolean }) => {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
       ))}
     </div>
   );

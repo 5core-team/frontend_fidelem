@@ -8,7 +8,6 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Eye, EyeOff, CheckCircle2 } from "lucide-react";
-import { motion } from "framer-motion";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -38,34 +37,9 @@ const Login = () => {
     }
   };
 
-  // Animation variants for form elements
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: { duration: 0.5, ease: "easeOut" },
-    },
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-fidelem-light p-4">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
-      >
+      <div className="w-full max-w-md transition-all duration-300">
         <Card className="border-none shadow-lg">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center text-fidelem">Connexion</CardTitle>
@@ -74,14 +48,8 @@ const Login = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <motion.form 
-              onSubmit={handleSubmit} 
-              className="space-y-4"
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-            >
-              <motion.div className="space-y-2" variants={itemVariants}>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
                 <Label htmlFor="email">Adresse e-mail</Label>
                 <Input
                   id="email"
@@ -92,8 +60,8 @@ const Login = () => {
                   required
                   className="input-field"
                 />
-              </motion.div>
-              <motion.div className="space-y-2" variants={itemVariants}>
+              </div>
+              <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Mot de passe</Label>
                   <Link to="/forgot-password" className="text-xs text-fidelem-accent hover:underline">
@@ -122,8 +90,8 @@ const Login = () => {
                     )}
                   </button>
                 </div>
-              </motion.div>
-              <motion.div variants={itemVariants}>
+              </div>
+              <div>
                 <Button 
                   type="submit" 
                   className="w-full bg-fidelem hover:bg-fidelem/90"
@@ -131,8 +99,8 @@ const Login = () => {
                 >
                   {isLoading ? "Connexion en cours..." : "Se connecter"}
                 </Button>
-              </motion.div>
-              <motion.div variants={itemVariants} className="text-center">
+              </div>
+              <div className="text-center">
                 <p className="text-sm text-gray-600">
                   Pour tester l'application, utilisez:
                 </p>
@@ -141,8 +109,8 @@ const Login = () => {
                   <div>advisor@fidelem.com / password</div>
                   <div>user@fidelem.com / password</div>
                 </div>
-              </motion.div>
-            </motion.form>
+              </div>
+            </form>
           </CardContent>
           <CardFooter>
             <p className="text-sm text-center w-full text-gray-600">
@@ -153,7 +121,7 @@ const Login = () => {
             </p>
           </CardFooter>
         </Card>
-      </motion.div>
+      </div>
     </div>
   );
 };

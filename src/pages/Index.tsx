@@ -1,5 +1,5 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { 
@@ -12,8 +12,6 @@ import {
   Lock,
   Clock
 } from "lucide-react";
-import { motion, useAnimation } from "framer-motion";
-import { useInView } from "react-intersection-observer";
 import Navbar from "../components/Navbar";
 
 const Index = () => {
@@ -37,12 +35,7 @@ const HeroSection = () => {
     <section className="bg-gradient-to-r from-fidelem to-fidelem-dark text-white py-20 lg:py-32 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid md:grid-cols-2 gap-12 items-center">
-          <motion.div 
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="space-y-6"
-          >
+          <div className="space-y-6 transition-all duration-500 opacity-100 transform translate-y-0">
             <h1 className="text-4xl sm:text-5xl font-bold leading-tight">
               Facilitez l'accès au crédit pour vos projets
             </h1>
@@ -61,13 +54,8 @@ const HeroSection = () => {
                 </Button>
               </Link>
             </div>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-            className="relative"
-          >
+          </div>
+          <div className="relative transition-all duration-500 opacity-100 transform translate-y-0">
             <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-xl">
               <div className="bg-white/80 backdrop-blur-lg rounded-xl p-6">
                 <div className="flex justify-between items-center mb-6">
@@ -102,7 +90,7 @@ const HeroSection = () => {
             <div className="absolute -top-4 -right-4 bg-fidelem-secondary text-fidelem p-2 rounded-lg shadow-lg transform rotate-12">
               <div className="text-sm font-medium">Réponse rapide</div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
       
@@ -115,32 +103,15 @@ const HeroSection = () => {
 
 // Features Section
 const FeaturesSection = () => {
-  const controls = useAnimation();
-  const [ref, inView] = useInView({ threshold: 0.2, triggerOnce: true });
-
+  const [isVisible, setIsVisible] = useState(false);
+  
   useEffect(() => {
-    if (inView) {
-      controls.start("visible");
-    }
-  }, [controls, inView]);
-
-  const containerVariants = {
-    hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: 0.2,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6 },
-    },
-  };
+    // Set a timeout to simulate intersection observer
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const features = [
     {
@@ -173,25 +144,19 @@ const FeaturesSection = () => {
           </p>
         </div>
 
-        <motion.div
-          ref={ref}
-          variants={containerVariants}
-          initial="hidden"
-          animate={controls}
-          className="grid md:grid-cols-3 gap-8"
-        >
+        <div className="grid md:grid-cols-3 gap-8">
           {features.map((feature, index) => (
-            <motion.div
+            <div
               key={index}
-              variants={itemVariants}
-              className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow"
+              className={`bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow transition-opacity duration-500 transform ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+              style={{transitionDelay: `${index * 100}ms`}}
             >
               <div className="mb-4">{feature.icon}</div>
               <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
               <p className="text-gray-600">{feature.description}</p>
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );
@@ -199,32 +164,15 @@ const FeaturesSection = () => {
 
 // How It Works Section
 const HowItWorksSection = () => {
-  const controls = useAnimation();
-  const [ref, inView] = useInView({ threshold: 0.1, triggerOnce: true });
-
+  const [isVisible, setIsVisible] = useState(false);
+  
   useEffect(() => {
-    if (inView) {
-      controls.start("visible");
-    }
-  }, [controls, inView]);
-
-  const containerVariants = {
-    hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: 0.3,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6 },
-    },
-  };
+    // Set a timeout to simulate intersection observer
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 800);
+    return () => clearTimeout(timer);
+  }, []);
 
   const steps = [
     {
@@ -267,18 +215,12 @@ const HowItWorksSection = () => {
           </p>
         </div>
 
-        <motion.div
-          ref={ref}
-          variants={containerVariants}
-          initial="hidden"
-          animate={controls}
-          className="grid md:grid-cols-2 lg:grid-cols-4 gap-8"
-        >
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {steps.map((step, index) => (
-            <motion.div
+            <div
               key={index}
-              variants={itemVariants}
-              className="relative"
+              className={`relative transition-opacity duration-500 transform ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+              style={{transitionDelay: `${index * 150}ms`}}
             >
               <div className="bg-fidelem-light rounded-lg p-6 h-full">
                 <div className="flex items-start mb-4">
@@ -297,9 +239,9 @@ const HowItWorksSection = () => {
                   <ChevronRight size={20} className="text-gray-400" />
                 </div>
               )}
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );
@@ -340,19 +282,16 @@ const TestimonialsSection = () => {
 
         <div className="grid md:grid-cols-3 gap-8">
           {testimonials.map((testimonial, index) => (
-            <motion.div
+            <div
               key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.2 }}
-              className="bg-white/10 backdrop-blur-lg rounded-xl p-6 shadow-lg"
+              className="bg-white/10 backdrop-blur-lg rounded-xl p-6 shadow-lg transition-all duration-300 hover:shadow-xl hover:transform hover:-translate-y-1"
             >
               <p className="text-lg mb-6 opacity-90">"{testimonial.content}"</p>
               <div>
                 <p className="font-semibold">{testimonial.author}</p>
                 <p className="text-sm opacity-80">{testimonial.role}</p>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

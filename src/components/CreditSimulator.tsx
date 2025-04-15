@@ -11,7 +11,6 @@ import {
   CardHeader, 
   CardTitle 
 } from "@/components/ui/card";
-import { motion } from "framer-motion";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
 interface CreditSimulatorProps {
@@ -161,12 +160,7 @@ const CreditSimulator = ({ className }: CreditSimulatorProps) => {
         </div>
 
         {simulationResults && (
-          <motion.div 
-            initial={{ opacity: 0, height: 0 }} 
-            animate={{ opacity: 1, height: "auto" }} 
-            transition={{ duration: 0.5 }}
-            className="mt-6 space-y-6"
-          >
+          <div className="mt-6 space-y-6 transition-all duration-300">
             <div className="rounded-lg bg-fidelem-light p-4">
               <h3 className="text-lg font-semibold mb-4">Résultats de la simulation</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -225,7 +219,7 @@ const CreditSimulator = ({ className }: CreditSimulatorProps) => {
                 </LineChart>
               </ResponsiveContainer>
             </div>
-          </motion.div>
+          </div>
         )}
       </CardContent>
       <CardFooter className="flex justify-center border-t pt-4">
