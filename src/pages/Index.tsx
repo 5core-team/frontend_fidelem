@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -35,7 +34,7 @@ const HeroSection = () => {
     <section className="bg-gradient-to-r from-fidelem to-fidelem-dark text-white py-20 lg:py-32 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6 transition-all duration-500 opacity-100 transform translate-y-0">
+          <div className="space-y-6">
             <h1 className="text-4xl sm:text-5xl font-bold leading-tight">
               Facilitez l'accès au crédit pour vos projets
             </h1>
@@ -55,42 +54,7 @@ const HeroSection = () => {
               </Link>
             </div>
           </div>
-          <div className="relative transition-all duration-500 opacity-100 transform translate-y-0">
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-xl">
-              <div className="bg-white/80 backdrop-blur-lg rounded-xl p-6">
-                <div className="flex justify-between items-center mb-6">
-                  <h3 className="font-semibold text-fidelem text-lg">Simulation de crédit</h3>
-                  <div className="bg-fidelem text-white p-1 rounded-full">
-                    <CreditCard size={20} />
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-sm text-gray-500">Montant du crédit</p>
-                    <p className="text-lg font-semibold">€25,000</p>
-                    <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
-                      <div className="bg-fidelem h-2 rounded-full w-3/5"></div>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Durée du crédit</p>
-                    <p className="text-lg font-semibold">48 mois</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Taux d'intérêt</p>
-                    <p className="text-lg font-semibold">3.5%</p>
-                  </div>
-                  <div className="border-t pt-4 mt-4">
-                    <p className="text-sm text-gray-500">Mensualité estimée</p>
-                    <p className="text-2xl font-bold text-fidelem">€559.17</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="absolute -top-4 -right-4 bg-fidelem-secondary text-fidelem p-2 rounded-lg shadow-lg transform rotate-12">
-              <div className="text-sm font-medium">Réponse rapide</div>
-            </div>
-          </div>
+          <QuickCreditSimulator />
         </div>
       </div>
       
