@@ -46,36 +46,34 @@ const CreditSimulator = ({ className }: CreditSimulatorProps) => {
   const handleSimulate = () => {
     setSimulating(true);
     
-    setTimeout(() => {
-      const monthlyPayment = calculateMonthlyPayment(amount, selectedRate.value, duration);
-      const totalAmount = monthlyPayment * duration;
-      const totalInterest = totalAmount - amount;
+    const monthlyPayment = calculateMonthlyPayment(amount, selectedRate.value, duration);
+    const totalAmount = monthlyPayment * duration;
+    const totalInterest = totalAmount - amount;
+    
+    const schedule = [];
+    let remainingBalance = amount;
+    
+    for (let month = 1; month <= duration; month++) {
+      const interestPayment = remainingBalance * (selectedRate.value / 100 / 12);
+      const principalPayment = monthlyPayment - interestPayment;
+      remainingBalance -= principalPayment;
       
-      const schedule = [];
-      let remainingBalance = amount;
-      
-      for (let month = 1; month <= duration; month++) {
-        const interestPayment = remainingBalance * (selectedRate.value / 100 / 12);
-        const principalPayment = monthlyPayment - interestPayment;
-        remainingBalance -= principalPayment;
-        
-        schedule.push({
-          month,
-          principal: principalPayment,
-          interest: interestPayment,
-          balance: remainingBalance > 0 ? remainingBalance : 0
-        });
-      }
-      
-      setSimulationResults({
-        monthlyPayment,
-        totalInterest,
-        totalAmount,
-        amortizationSchedule: schedule
+      schedule.push({
+        month,
+        principal: principalPayment,
+        interest: interestPayment,
+        balance: remainingBalance > 0 ? remainingBalance : 0
       });
-      
-      setSimulating(false);
-    }, 1000);
+    }
+    
+    setSimulationResults({
+      monthlyPayment,
+      totalInterest,
+      totalAmount,
+      amortizationSchedule: schedule
+    });
+    
+    setSimulating(false);
   };
 
   const chartData = simulationResults?.amortizationSchedule

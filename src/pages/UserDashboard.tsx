@@ -31,8 +31,7 @@ import {
   User,
   CreditCard,
   PiggyBank,
-  Bell,
-  ChevronDown
+  Bell
 } from "lucide-react";
 import { toast } from "sonner";
 import { 
@@ -40,6 +39,54 @@ import {
   buildStyles
 } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
+
+const mockUserCreditRequests = [
+  {
+    id: "CR001",
+    amount: 25000,
+    purpose: "Prêt auto",
+    status: "approved",
+    date: "2024-04-15",
+    advisor: "Jean Martin",
+    duration: 48
+  },
+  {
+    id: "CR002",
+    amount: 15000,
+    purpose: "Prêt personnel",
+    status: "pending",
+    date: "2024-04-10",
+    advisor: "Marie Dubois",
+    duration: 36
+  }
+];
+
+const mockActiveCredits = [
+  {
+    id: "AC001",
+    amount: 25000,
+    monthlyPayment: 559.17,
+    remainingMonths: 42,
+    duration: 48,
+    purpose: "Prêt auto",
+    nextPaymentDate: "2024-05-15"
+  }
+];
+
+const mockNotifications = [
+  {
+    id: 1,
+    message: "Votre demande de crédit a été approuvée",
+    date: "2024-04-15",
+    read: false
+  },
+  {
+    id: 2,
+    message: "Nouveau message de votre conseiller",
+    date: "2024-04-14",
+    read: true
+  }
+];
 
 const UserDashboard = () => {
   const { user, isAuthenticated } = useAuth();
@@ -81,48 +128,41 @@ const UserDashboard = () => {
               >
                 <Bell size={20} />
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {notifications.filter(n => !n.read).length}
+                  {mockNotifications.filter(n => !n.read).length}
                 </span>
               </Button>
-              <AnimatePresence>
-                {showNotifications && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg z-50"
-                  >
-                    <div className="p-3 border-b">
-                      <h3 className="font-semibold">Notifications</h3>
-                    </div>
-                    <div className="max-h-80 overflow-y-auto">
-                      {notifications.map(notification => (
-                        <div 
-                          key={notification.id}
-                          className={`p-3 border-b hover:bg-gray-50 cursor-pointer ${notification.read ? 'opacity-70' : ''}`}
-                        >
-                          <div className="flex items-start gap-2">
-                            {!notification.read && (
-                              <div className="h-2 w-2 mt-1.5 rounded-full bg-red-500"></div>
-                            )}
-                            <div>
-                              <p className="text-sm">{notification.message}</p>
-                              <p className="text-xs text-gray-500 mt-1">
-                                {new Date(notification.date).toLocaleDateString("fr-FR")}
-                              </p>
-                            </div>
+              {showNotifications && (
+                <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg z-50 transition-all duration-200">
+                  <div className="p-3 border-b">
+                    <h3 className="font-semibold">Notifications</h3>
+                  </div>
+                  <div className="max-h-80 overflow-y-auto">
+                    {mockNotifications.map(notification => (
+                      <div 
+                        key={notification.id}
+                        className={`p-3 border-b hover:bg-gray-50 cursor-pointer ${notification.read ? 'opacity-70' : ''}`}
+                      >
+                        <div className="flex items-start gap-2">
+                          {!notification.read && (
+                            <div className="h-2 w-2 mt-1.5 rounded-full bg-red-500"></div>
+                          )}
+                          <div>
+                            <p className="text-sm">{notification.message}</p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {new Date(notification.date).toLocaleDateString("fr-FR")}
+                            </p>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                    <div className="p-2 text-center border-t">
-                      <button className="text-sm text-fidelem hover:underline">
-                        Voir toutes les notifications
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="p-2 text-center border-t">
+                    <button className="text-sm text-fidelem hover:underline">
+                      Voir toutes les notifications
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
             <Button className="bg-fidelem hover:bg-fidelem/90">
               Contacter mon conseiller
@@ -150,7 +190,7 @@ const UserDashboard = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    {userCreditRequests.length > 0 ? (
+                    {mockUserCreditRequests.length > 0 ? (
                       <div className="border rounded-lg overflow-hidden">
                         <Table>
                           <TableHeader>
@@ -164,7 +204,7 @@ const UserDashboard = () => {
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {userCreditRequests.map((request) => (
+                            {mockUserCreditRequests.map((request) => (
                               <TableRow key={request.id}>
                                 <TableCell className="font-medium">{request.id}</TableCell>
                                 <TableCell>{request.amount.toLocaleString('fr-FR')} €</TableCell>
@@ -216,7 +256,7 @@ const UserDashboard = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    {activeCredits.length > 0 ? (
+                    {mockActiveCredits.length > 0 ? (
                       <div className="border rounded-lg overflow-hidden">
                         <Table>
                           <TableHeader>
@@ -230,7 +270,7 @@ const UserDashboard = () => {
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {activeCredits.map((credit) => (
+                            {mockActiveCredits.map((credit) => (
                               <TableRow key={credit.id}>
                                 <TableCell className="font-medium">{credit.id}</TableCell>
                                 <TableCell>{credit.amount.toLocaleString('fr-FR')} €</TableCell>
@@ -347,8 +387,8 @@ const UserDashboard = () => {
                   </TabsList>
                   
                   <TabsContent value="active" className="mt-4 space-y-6">
-                    {activeCredits.length > 0 ? (
-                      activeCredits.map((credit) => (
+                    {mockActiveCredits.length > 0 ? (
+                      mockActiveCredits.map((credit) => (
                         <Card key={credit.id} className="overflow-hidden">
                           <div className="bg-fidelem text-white p-4">
                             <div className="flex justify-between items-center">
@@ -447,7 +487,7 @@ const UserDashboard = () => {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {userCreditRequests.map((request) => (
+                          {mockUserCreditRequests.map((request) => (
                             <TableRow key={request.id}>
                               <TableCell className="font-medium">{request.id}</TableCell>
                               <TableCell>{new Date(request.date).toLocaleDateString("fr-FR")}</TableCell>
