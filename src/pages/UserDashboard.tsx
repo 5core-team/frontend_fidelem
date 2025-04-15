@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -36,69 +35,11 @@ import {
   ChevronDown
 } from "lucide-react";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
-import {
+import { 
   CircularProgressbarWithChildren,
   buildStyles
 } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
-
-// Mock data for credit requests
-const userCreditRequests = [
-  {
-    id: "CR001",
-    amount: 15000,
-    duration: 36,
-    purpose: "Achat automobile",
-    status: "approved",
-    date: "2023-04-01",
-    advisor: "Marie Laurent"
-  },
-  {
-    id: "CR002",
-    amount: 5000,
-    duration: 24,
-    purpose: "Personnel",
-    status: "pending",
-    date: "2023-04-03",
-    advisor: "Jean Dupont"
-  }
-];
-
-// Mock data for active credits
-const activeCredits = [
-  {
-    id: "AC001",
-    amount: 15000,
-    duration: 36,
-    remainingMonths: 30,
-    monthlyPayment: 450.75,
-    nextPaymentDate: "2023-05-15",
-    purpose: "Achat automobile"
-  }
-];
-
-// Mock notifications
-const notifications = [
-  {
-    id: 1,
-    message: "Votre demande de crédit CR001 a été approuvée",
-    date: "2023-04-02",
-    read: false
-  },
-  {
-    id: 2,
-    message: "Votre conseiller a envoyé un message concernant votre demande CR002",
-    date: "2023-04-03",
-    read: false
-  },
-  {
-    id: 3,
-    message: "Rappel: Votre prochain paiement pour le crédit AC001 est prévu le 15/05/2023",
-    date: "2023-04-01",
-    read: true
-  }
-];
 
 const UserDashboard = () => {
   const { user, isAuthenticated } = useAuth();
@@ -106,7 +47,6 @@ const UserDashboard = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   
   useEffect(() => {
-    // Simulate loading data
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1000);
@@ -114,7 +54,6 @@ const UserDashboard = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Redirect if not authenticated or not a user
   if (!isAuthenticated || user?.role !== "user") {
     return <Navigate to="/login" replace />;
   }
@@ -565,7 +504,6 @@ const UserDashboard = () => {
   );
 };
 
-// Summary cards for user dashboard
 const UserSummary = ({ isLoading }: { isLoading: boolean }) => {
   const statsItems = [
     {

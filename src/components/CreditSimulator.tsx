@@ -13,6 +13,11 @@ import {
 } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
+const FIXED_RATES = [
+  { value: 5, label: "Taux standard - 5%" },
+  { value: 7, label: "Taux majoré - 7%" }
+];
+
 interface CreditSimulatorProps {
   className?: string;
 }
@@ -20,7 +25,7 @@ interface CreditSimulatorProps {
 const CreditSimulator = ({ className }: CreditSimulatorProps) => {
   const [amount, setAmount] = useState(25000);
   const [duration, setDuration] = useState(48);
-  const [interestRate, setInterestRate] = useState(3.5);
+  const [selectedRate, setSelectedRate] = useState(FIXED_RATES[0]);
   const [simulating, setSimulating] = useState(false);
   const [simulationResults, setSimulationResults] = useState<null | {
     monthlyPayment: number;
@@ -41,18 +46,16 @@ const CreditSimulator = ({ className }: CreditSimulatorProps) => {
   const handleSimulate = () => {
     setSimulating(true);
     
-    // Simulate API call delay
     setTimeout(() => {
-      const monthlyPayment = calculateMonthlyPayment(amount, interestRate, duration);
+      const monthlyPayment = calculateMonthlyPayment(amount, selectedRate.value, duration);
       const totalAmount = monthlyPayment * duration;
       const totalInterest = totalAmount - amount;
       
-      // Generate amortization schedule
       const schedule = [];
       let remainingBalance = amount;
       
       for (let month = 1; month <= duration; month++) {
-        const interestPayment = remainingBalance * (interestRate / 100 / 12);
+        const interestPayment = remainingBalance * (selectedRate.value / 100 / 12);
         const principalPayment = monthlyPayment - interestPayment;
         remainingBalance -= principalPayment;
         
@@ -76,7 +79,7 @@ const CreditSimulator = ({ className }: CreditSimulatorProps) => {
   };
 
   const chartData = simulationResults?.amortizationSchedule
-    .filter((_, index) => index % 6 === 0 || index === duration - 1) // Display every 6 months
+    .filter((_, index) => index % 6 === 0 || index === duration - 1)
     .map(item => ({
       month: item.month,
       principal: amount - item.balance,
@@ -131,22 +134,19 @@ const CreditSimulator = ({ className }: CreditSimulatorProps) => {
           </div>
 
           <div className="space-y-2">
-            <div className="flex justify-between">
-              <Label htmlFor="interestRate">Taux d'intérêt annuel</Label>
-              <span className="font-medium">{interestRate}%</span>
-            </div>
-            <Slider
-              id="interestRate"
-              min={1}
-              max={10}
-              step={0.1}
-              value={[interestRate]}
-              onValueChange={(value) => setInterestRate(value[0])}
-              className="my-4"
-            />
-            <div className="flex justify-between text-xs text-gray-500">
-              <span>1%</span>
-              <span>10%</span>
+            <Label>Taux d'intérêt</Label>
+            <div className="grid grid-cols-2 gap-4">
+              {FIXED_RATES.map((rate) => (
+                <Button
+                  key={rate.value}
+                  type="button"
+                  variant={selectedRate.value === rate.value ? "default" : "outline"}
+                  className={selectedRate.value === rate.value ? "bg-fidelem hover:bg-fidelem/90" : ""}
+                  onClick={() => setSelectedRate(rate)}
+                >
+                  {rate.label}
+                </Button>
+              ))}
             </div>
           </div>
 
@@ -160,7 +160,7 @@ const CreditSimulator = ({ className }: CreditSimulatorProps) => {
         </div>
 
         {simulationResults && (
-          <div className="mt-6 space-y-6 transition-all duration-300">
+          <div className="mt-6 space-y-6">
             <div className="rounded-lg bg-fidelem-light p-4">
               <h3 className="text-lg font-semibold mb-4">Résultats de la simulation</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
