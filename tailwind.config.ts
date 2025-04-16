@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -64,8 +63,8 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				fidelem: {
-					DEFAULT: '#0F3460',
-					secondary: '#3EDBF0',
+					DEFAULT: '#002060',
+					secondary: '#DAA520',
 					light: '#F7F7F7',
 					dark: '#16213E',
 					accent: '#1A73E8',
