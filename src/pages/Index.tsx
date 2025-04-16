@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import {
   Clock
 } from "lucide-react";
 import Navbar from "../components/Navbar";
+import { QuickCreditSimulator } from "@/components/QuickCreditSimulator";
 
 const Index = () => {
   return (

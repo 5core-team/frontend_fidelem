@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -43,9 +42,13 @@ import {
   Eye,
   Edit,
   MessageSquare,
-  UserPlus
+  UserPlus,
+  User
 } from "lucide-react";
 import { toast } from "sonner";
+import { AddClientForm } from "@/components/AddClientForm";
+import { AddCreditRequestForm } from "@/components/AddCreditRequestForm";
+import { EditProfileForm } from "@/components/EditProfileForm";
 
 // Mock data for credit requests
 const creditRequests = [
@@ -139,6 +142,9 @@ const AdvisorDashboard = () => {
   const { user, isAuthenticated } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [addClientOpen, setAddClientOpen] = useState(false);
+  const [addCreditRequestOpen, setAddCreditRequestOpen] = useState(false);
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
   
   useEffect(() => {
     // Simulate loading data
@@ -155,11 +161,11 @@ const AdvisorDashboard = () => {
   }
   
   const handleCreateCreditRequest = () => {
-    toast.success("Redirection vers le formulaire de demande de crédit");
+    setAddCreditRequestOpen(true);
   };
   
   const handleAddClient = () => {
-    toast.success("Redirection vers le formulaire d'ajout de client");
+    setAddClientOpen(true);
   };
   
   return (
@@ -172,7 +178,13 @@ const AdvisorDashboard = () => {
             <h1 className="text-3xl font-bold text-fidelem">Tableau de bord Conseiller</h1>
             <p className="text-gray-600 mt-1">Gérez vos clients et les demandes de crédit</p>
           </div>
-          <div className="mt-4 md:mt-0 space-x-2">
+          <div className="mt-4 md:mt-0 space-x-2 flex">
+            <Button 
+              className="bg-fidelem hover:bg-fidelem/90 flex items-center gap-2"
+              onClick={() => setEditProfileOpen(true)}
+            >
+              <User size={16} /> Mon profil
+            </Button>
             <Button 
               className="bg-fidelem hover:bg-fidelem/90 flex items-center gap-2"
               onClick={handleAddClient}
@@ -198,11 +210,19 @@ const AdvisorDashboard = () => {
           
           <TabsContent value="credit-requests" className="mt-6">
             <Card>
-              <CardHeader>
-                <CardTitle>Demandes de crédit</CardTitle>
-                <CardDescription>
-                  Consultez et gérez les demandes de crédit de vos clients.
-                </CardDescription>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Demandes de crédit</CardTitle>
+                  <CardDescription>
+                    Consultez et gérez les demandes de crédit de vos clients.
+                  </CardDescription>
+                </div>
+                <Button 
+                  className="bg-fidelem hover:bg-fidelem/90 flex items-center gap-2"
+                  onClick={handleCreateCreditRequest}
+                >
+                  <Plus size={16} /> Nouvelle demande
+                </Button>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4">
@@ -286,11 +306,19 @@ const AdvisorDashboard = () => {
           
           <TabsContent value="clients" className="mt-6">
             <Card>
-              <CardHeader>
-                <CardTitle>Clients</CardTitle>
-                <CardDescription>
-                  Consultez et gérez vos clients.
-                </CardDescription>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Clients</CardTitle>
+                  <CardDescription>
+                    Consultez et gérez vos clients.
+                  </CardDescription>
+                </div>
+                <Button 
+                  onClick={handleAddClient}
+                  className="bg-fidelem hover:bg-fidelem/90 flex items-center gap-2"
+                >
+                  <UserPlus size={16} /> Nouveau client
+                </Button>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4">
@@ -303,13 +331,7 @@ const AdvisorDashboard = () => {
                   </div>
                   <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
                     <Button variant="outline" size="sm">Filtrer</Button>
-                    <Button 
-                      onClick={handleAddClient}
-                      className="bg-fidelem hover:bg-fidelem/90"
-                      size="sm"
-                    >
-                      <UserPlus size={14} className="mr-1" /> Nouveau client
-                    </Button>
+                    <Button variant="outline" size="sm">Exporter</Button>
                   </div>
                 </div>
                 
@@ -375,6 +397,10 @@ const AdvisorDashboard = () => {
           </TabsContent>
         </Tabs>
       </div>
+      
+      <AddClientForm open={addClientOpen} onOpenChange={setAddClientOpen} />
+      <AddCreditRequestForm open={addCreditRequestOpen} onOpenChange={setAddCreditRequestOpen} isAdvisor={true} />
+      <EditProfileForm open={editProfileOpen} onOpenChange={setEditProfileOpen} />
     </div>
   );
 };

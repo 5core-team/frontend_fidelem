@@ -31,7 +31,8 @@ import {
   User,
   CreditCard,
   PiggyBank,
-  Bell
+  Bell,
+  Plus
 } from "lucide-react";
 import { toast } from "sonner";
 import { 
@@ -39,6 +40,9 @@ import {
   buildStyles
 } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
+import { AddCreditRequestForm } from "@/components/AddCreditRequestForm";
+import { CreditSimulatorModal } from "@/components/CreditSimulatorModal";
+import { EditProfileForm } from "@/components/EditProfileForm";
 
 const mockUserCreditRequests = [
   {
@@ -92,6 +96,9 @@ const UserDashboard = () => {
   const { user, isAuthenticated } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [addCreditRequestOpen, setAddCreditRequestOpen] = useState(false);
+  const [simulatorModalOpen, setSimulatorModalOpen] = useState(false);
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
   
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -164,8 +171,11 @@ const UserDashboard = () => {
                 </div>
               )}
             </div>
-            <Button className="bg-fidelem hover:bg-fidelem/90">
-              Contacter mon conseiller
+            <Button 
+              className="bg-fidelem hover:bg-fidelem/90"
+              onClick={() => setEditProfileOpen(true)}
+            >
+              <User size={16} className="mr-1" /> Mon profil
             </Button>
           </div>
         </div>
@@ -183,11 +193,19 @@ const UserDashboard = () => {
             <div className="grid md:grid-cols-3 gap-6">
               <div className="md:col-span-2 space-y-6">
                 <Card>
-                  <CardHeader>
-                    <CardTitle>Mes demandes de crédit</CardTitle>
-                    <CardDescription>
-                      Suivez l'état de vos demandes de crédit en cours.
-                    </CardDescription>
+                  <CardHeader className="flex flex-row items-center justify-between">
+                    <div>
+                      <CardTitle>Mes demandes de crédit</CardTitle>
+                      <CardDescription>
+                        Suivez l'état de vos demandes de crédit en cours.
+                      </CardDescription>
+                    </div>
+                    <Button 
+                      className="bg-fidelem hover:bg-fidelem/90 flex items-center gap-2"
+                      onClick={() => setAddCreditRequestOpen(true)}
+                    >
+                      <Plus size={16} /> Nouvelle demande
+                    </Button>
                   </CardHeader>
                   <CardContent>
                     {mockUserCreditRequests.length > 0 ? (
@@ -240,7 +258,7 @@ const UserDashboard = () => {
                   <CardFooter className="flex justify-end">
                     <Button 
                       variant="outline" 
-                      onClick={() => toast.info("Nouvelle demande de crédit")}
+                      onClick={() => setAddCreditRequestOpen(true)}
                       className="text-fidelem border-fidelem hover:bg-fidelem/10"
                     >
                       Nouvelle demande <ChevronRight size={16} className="ml-1" />
@@ -339,7 +357,7 @@ const UserDashboard = () => {
                     <Button 
                       variant="outline" 
                       className="w-full"
-                      onClick={() => toast.info("Modifier mon profil")}
+                      onClick={() => setEditProfileOpen(true)}
                     >
                       Modifier mon profil
                     </Button>
@@ -360,7 +378,7 @@ const UserDashboard = () => {
                     </p>
                     <Button 
                       className="bg-fidelem hover:bg-fidelem/90 w-full"
-                      onClick={() => toast.info("Redirection vers le simulateur")}
+                      onClick={() => setSimulatorModalOpen(true)}
                     >
                       Accéder au simulateur
                     </Button>
@@ -540,6 +558,10 @@ const UserDashboard = () => {
           </TabsContent>
         </Tabs>
       </div>
+      
+      <AddCreditRequestForm open={addCreditRequestOpen} onOpenChange={setAddCreditRequestOpen} />
+      <CreditSimulatorModal open={simulatorModalOpen} onOpenChange={setSimulatorModalOpen} />
+      <EditProfileForm open={editProfileOpen} onOpenChange={setEditProfileOpen} />
     </div>
   );
 };

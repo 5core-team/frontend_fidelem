@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -33,8 +32,13 @@ import {
   CreditCard, 
   TrendingUp,
   AlertCircle,
-  Download
+  Download,
+  UserPlus,
+  User
 } from "lucide-react";
+import { toast } from "sonner";
+import { AddFinancialAdvisorForm } from "@/components/AddFinancialAdvisorForm";
+import { EditProfileForm } from "@/components/EditProfileForm";
 
 const userStatsData = [
   { name: 'Jan', "Nouveaux utilisateurs": 30, "Conseillers": 5 },
@@ -57,6 +61,8 @@ const creditStatsData = [
 const FinancialManagerDashboard = () => {
   const { user, isAuthenticated } = useAuth();
   const [isLoadingStats, setIsLoadingStats] = useState(true);
+  const [addAdvisorOpen, setAddAdvisorOpen] = useState(false);
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
   
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -80,7 +86,19 @@ const FinancialManagerDashboard = () => {
             <h1 className="text-3xl font-bold text-fidelem">Tableau de bord</h1>
             <p className="text-gray-600 mt-1">Gérez les utilisateurs et suivez l'activité de Fidelem</p>
           </div>
-          <div className="mt-4 md:mt-0">
+          <div className="mt-4 md:mt-0 space-x-2 flex">
+            <Button 
+              className="bg-fidelem hover:bg-fidelem/90 flex items-center gap-2"
+              onClick={() => setEditProfileOpen(true)}
+            >
+              <User size={16} /> Mon profil
+            </Button>
+            <Button 
+              className="bg-fidelem hover:bg-fidelem/90 flex items-center gap-2"
+              onClick={() => setAddAdvisorOpen(true)}
+            >
+              <UserPlus size={16} /> Nouveau conseiller
+            </Button>
             <Button className="bg-fidelem hover:bg-fidelem/90 flex items-center gap-2">
               <Download size={16} /> Exporter les données
             </Button>
@@ -113,11 +131,19 @@ const FinancialManagerDashboard = () => {
           </TabsContent>
           <TabsContent value="advisors" className="mt-6">
             <Card>
-              <CardHeader>
-                <CardTitle>Gestion des conseillers</CardTitle>
-                <CardDescription>
-                  Validez les nouveaux comptes conseillers et gérez leurs permissions.
-                </CardDescription>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Gestion des conseillers</CardTitle>
+                  <CardDescription>
+                    Validez les nouveaux comptes conseillers et gérez leurs permissions.
+                  </CardDescription>
+                </div>
+                <Button 
+                  className="bg-fidelem hover:bg-fidelem/90 flex items-center gap-2"
+                  onClick={() => setAddAdvisorOpen(true)}
+                >
+                  <UserPlus size={16} /> Nouveau conseiller
+                </Button>
               </CardHeader>
               <CardContent>
                 <UserTable 
@@ -158,6 +184,9 @@ const FinancialManagerDashboard = () => {
           </TabsContent>
         </Tabs>
       </div>
+      
+      <AddFinancialAdvisorForm open={addAdvisorOpen} onOpenChange={setAddAdvisorOpen} />
+      <EditProfileForm open={editProfileOpen} onOpenChange={setEditProfileOpen} />
     </div>
   );
 };
