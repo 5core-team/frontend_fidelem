@@ -19,7 +19,6 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
-      
       <HeroSection />
       <FeaturesSection />
       <HowItWorksSection />
@@ -44,16 +43,17 @@ const HeroSection = () => {
               Fidelem connecte les usagers et les conseillers financiers pour un accès simplifié et sécurisé aux solutions de crédit.
             </p>
             <div className="flex flex-wrap gap-4 pt-4">
-              <Link to="/register">
+              <Link to="/contact">
                 <Button className="bg-white text-fidelem hover:bg-white/90 text-lg py-6 px-8">
                   Démarrer maintenant
                 </Button>
               </Link>
               <Link to="/services">
-                <Button variant="outline" className="text-white border-white hover:bg-white/10 text-lg py-6 px-8">
-                  Découvrir nos services
+                <Button className="bg-white text-fidelem hover:bg-white/90 text-lg py-6 px-8">
+                Découvrir nos services
                 </Button>
               </Link>
+             
             </div>
           </div>
           <QuickCreditSimulator />
@@ -279,16 +279,12 @@ const CTASection = () => {
               </p>
             </div>
             <div className="flex flex-wrap gap-4">
-              <Link to="/register">
-                <Button className="bg-white text-fidelem hover:bg-white/90 text-lg py-6 px-8">
-                  Créer un compte
-                </Button>
-              </Link>
               <Link to="/contact">
-                <Button variant="outline" className="text-white border-white hover:bg-white/10 text-lg py-6 px-8">
-                  Nous contacter
+                <Button className="bg-white text-fidelem hover:bg-white/90 text-lg py-6 px-8">
+                Nous contacter
                 </Button>
               </Link>
+            
             </div>
           </div>
         </div>

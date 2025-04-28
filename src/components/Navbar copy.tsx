@@ -1,16 +1,16 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ChevronDown, UserCircle, LogOut } from "lucide-react";
-import {
+import { 
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuTrigger
+  DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
-import logo from '@/assets/logo.png'; // Assurez-vous que le chemin est correct
 
 const Navbar = () => {
   const { user, logout, isAuthenticated } = useAuth();
@@ -24,14 +24,16 @@ const Navbar = () => {
 
   const navLinks = [
     { name: "Accueil", href: "/" },
-    { name: "À propos", href: "/about" },
     { name: "Services", href: "/services" },
+    { name: "À propos", href: "/about" },
+    { name: "FAQ", href: "/faq" },
+    { name: "Blog", href: "/blog" },
     { name: "Contact", href: "/contact" }
   ];
 
   const getDashboardLink = () => {
     if (!user) return "/login";
-
+    
     switch (user.role) {
       case "manager":
         return "/financial-manager";
@@ -50,7 +52,7 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
-              <img src={logo} alt="Fidelem Logo" className="h-8 w-auto" />
+              <span className="text-2xl font-bold text-fidelem">Fidelem</span>
             </Link>
           </div>
 

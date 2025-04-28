@@ -105,8 +105,7 @@ const Login = () => {
                   Pour tester l'application, utilisez:
                 </p>
                 <div className="grid grid-cols-1 gap-1 mt-2 text-xs text-gray-500">
-                  <div>manager@fidelem.com / password</div>
-                  <div>advisor@fidelem.com / password</div>
+                
                   <div>user@fidelem.com / password</div>
                 </div>
               </div>
