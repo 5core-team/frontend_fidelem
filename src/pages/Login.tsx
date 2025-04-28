@@ -114,7 +114,7 @@ const Login = () => {
           <CardFooter>
             <p className="text-sm text-center w-full text-gray-600">
               Vous n'avez pas de compte?{" "}
-              <Link to="/register" className="text-fidelem-accent hover:underline">
+              <Link to="#" className="text-fidelem-accent hover:underline">
                 Inscrivez-vous
               </Link>
             </p>

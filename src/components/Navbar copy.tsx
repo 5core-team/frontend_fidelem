@@ -162,13 +162,7 @@ const Navbar = () => {
                 >
                   Connexion
                 </Link>
-                <Link
-                  to="/register"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block px-3 py-2 rounded-md text-base font-medium bg-fidelem text-white hover:bg-fidelem/90 rounded-md px-3 py-2"
-                >
-                  Inscription
-                </Link>
+               
               </>
             )}
           </div>
