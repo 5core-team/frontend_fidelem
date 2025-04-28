@@ -101,11 +101,7 @@ const Navbar = () => {
                     Connexion
                   </Button>
                 </Link>
-                <Link to="/register">
-                  <Button variant="default" size="sm" className="bg-fidelem hover:bg-fidelem/90">
-                    Inscription
-                  </Button>
-                </Link>
+                
               </>
             )}
           </div>
