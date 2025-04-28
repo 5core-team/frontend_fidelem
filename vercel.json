@@ -1,6 +1,7 @@
 {
   "routes": [
     { "src": "/", "dest": "/" },
+    { "src": "/login", "dest": "/" },
     { "src": "/about", "dest": "/" },
     { "src": "/contact", "dest": "/" },
     { "src": "/careers", "dest": "/" },
