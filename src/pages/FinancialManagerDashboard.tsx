@@ -99,19 +99,17 @@ const FinancialManagerDashboard = () => {
             >
               <UserPlus size={16} /> Nouveau conseiller
             </Button>
-            <Button className="bg-fidelem hover:bg-fidelem/90 flex items-center gap-2">
-              <Download size={16} /> Exporter les données
-            </Button>
+            
           </div>
         </div>
         
         <DashboardSummary isLoading={isLoadingStats} />
         
         <Tabs defaultValue="users" className="mt-8">
-          <TabsList className="grid w-full md:w-auto grid-cols-2 md:grid-cols-3">
+          <TabsList className="grid w-full md:w-auto grid-cols-2 md:grid-cols-2">
             <TabsTrigger value="users">Utilisateurs</TabsTrigger>
             <TabsTrigger value="advisors">Conseillers</TabsTrigger>
-            <TabsTrigger value="credits">Demandes de crédit</TabsTrigger>
+       
           </TabsList>
           <TabsContent value="users" className="mt-6">
             <Card>
@@ -153,35 +151,7 @@ const FinancialManagerDashboard = () => {
               </CardContent>
             </Card>
           </TabsContent>
-          <TabsContent value="credits" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Suivi des demandes de crédit</CardTitle>
-                <CardDescription>
-                  Consultez l'ensemble des demandes de crédit et leur statut.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <h3 className="text-lg font-medium mb-4">Évolution des demandes de crédit</h3>
-                <div className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={creditStatsData}>
-                      <XAxis dataKey="name" />
-                      <YAxis yAxisId="left" orientation="left" />
-                      <YAxis yAxisId="right" orientation="right" />
-                      <Tooltip />
-                      <Legend />
-                      <Bar yAxisId="left" dataKey="Demandes" fill="#0F3460" />
-                      <Line yAxisId="right" type="monotone" dataKey="Montant" stroke="#3EDBF0" strokeWidth={2} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-                <div className="mt-8 text-center">
-                  <Button variant="outline">Voir toutes les demandes</Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+     
         </Tabs>
       </div>
       
@@ -196,28 +166,28 @@ const DashboardSummary = ({ isLoading }: { isLoading: boolean }) => {
     {
       title: "Utilisateurs",
       value: "248",
-      change: "+12%",
+      
       icon: <Users className="h-8 w-8 text-blue-600" />,
       color: "bg-blue-50 text-blue-600 border-blue-200"
     },
     {
       title: "Conseillers",
       value: "36",
-      change: "+5%",
+      
       icon: <Users className="h-8 w-8 text-purple-600" />,
       color: "bg-purple-50 text-purple-600 border-purple-200"
     },
     {
       title: "Comptes en attente",
       value: "14",
-      change: "",
+      
       icon: <Clock className="h-8 w-8 text-amber-600" />,
       color: "bg-amber-50 text-amber-600 border-amber-200"
     },
     {
       title: "Demandes de crédit",
       value: "187",
-      change: "+24%",
+      
       icon: <CreditCard className="h-8 w-8 text-green-600" />,
       color: "bg-green-50 text-green-600 border-green-200"
     }
@@ -243,11 +213,7 @@ const DashboardSummary = ({ isLoading }: { isLoading: boolean }) => {
                         item.value
                       )}
                     </h3>
-                    {item.change && !isLoading && (
-                      <p className="ml-2 text-xs font-medium text-green-600">
-                        {item.change}
-                      </p>
-                    )}
+                  
                   </div>
                 </div>
                 {item.icon}

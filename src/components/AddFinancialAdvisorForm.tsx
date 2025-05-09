@@ -124,33 +124,7 @@ export function AddFinancialAdvisorForm({ open, onOpenChange }: AddFinancialAdvi
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="specialization"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Spécialisation</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Sélectionner une spécialisation" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="mortgage">Crédit immobilier</SelectItem>
-                      <SelectItem value="consumer">Crédit consommation</SelectItem>
-                      <SelectItem value="business">Crédit professionnel</SelectItem>
-                      <SelectItem value="auto">Crédit auto</SelectItem>
-                      <SelectItem value="education">Crédit étudiant</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    La spécialisation principale du conseiller.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+           
             <Button type="submit" className="w-full bg-fidelem hover:bg-fidelem/90">Créer le compte</Button>
           </form>
         </Form>

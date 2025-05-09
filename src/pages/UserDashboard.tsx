@@ -401,7 +401,7 @@ const UserDashboard = () => {
                   <TabsList className="w-full grid grid-cols-3">
                     <TabsTrigger value="active">Crédits actifs</TabsTrigger>
                     <TabsTrigger value="requests">Demandes</TabsTrigger>
-                    <TabsTrigger value="history">Historique</TabsTrigger>
+                    
                   </TabsList>
                   
                   <TabsContent value="active" className="mt-4 space-y-6">
@@ -447,30 +447,9 @@ const UserDashboard = () => {
                               </div>
                             </div>
                             
-                            <div className="mt-6 pt-6 border-t">
-                              <div className="grid md:grid-cols-3 gap-6">
-                                <div>
-                                  <p className="text-sm text-gray-500">Prochaine échéance</p>
-                                  <p className="font-medium">
-                                    {new Date(credit.nextPaymentDate).toLocaleDateString("fr-FR")}
-                                  </p>
-                                </div>
-                                <div>
-                                  <p className="text-sm text-gray-500">Durée restante</p>
-                                  <p className="font-medium">{credit.remainingMonths} mois</p>
-                                </div>
-                                <div>
-                                  <p className="text-sm text-gray-500">Échéances restantes</p>
-                                  <p className="font-medium">{credit.remainingMonths}</p>
-                                </div>
-                              </div>
-                            </div>
+                         
                           </CardContent>
-                          <CardFooter className="bg-gray-50 flex justify-end p-4">
-                            <Button variant="outline" onClick={() => toast.info("Détails du crédit")}>
-                              Voir les détails <ChevronRight size={16} className="ml-1" />
-                            </Button>
-                          </CardFooter>
+                         
                         </Card>
                       ))
                     ) : (

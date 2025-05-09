@@ -192,9 +192,7 @@ const UserTable = ({ title, description }: UserTableProps) => {
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => toast.info(`Voir les détails de ${user.name}`)}>
-                          <Eye className="mr-2 h-4 w-4" /> Voir les détails
-                        </DropdownMenuItem>
+                      
                         {user.status === "pending" && (
                           <>
                             <DropdownMenuItem onClick={() => handleApprove(user.id)}>
@@ -205,9 +203,7 @@ const UserTable = ({ title, description }: UserTableProps) => {
                             </DropdownMenuItem>
                           </>
                         )}
-                        <DropdownMenuItem onClick={() => toast.info(`Éditer ${user.name}`)}>
-                          <Edit2 className="mr-2 h-4 w-4" /> Éditer
-                        </DropdownMenuItem>
+                        
                         <DropdownMenuItem 
                           onClick={() => handleDelete(user.id)}
                           className="text-red-600 focus:text-red-600"

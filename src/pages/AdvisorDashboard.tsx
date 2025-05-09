@@ -235,7 +235,7 @@ const AdvisorDashboard = () => {
                   </div>
                   <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
                     <Button variant="outline" size="sm">Filtrer</Button>
-                    <Button variant="outline" size="sm">Exporter</Button>
+            
                   </div>
                 </div>
                 
@@ -250,7 +250,7 @@ const AdvisorDashboard = () => {
                         <TableHead>Objet</TableHead>
                         <TableHead>Statut</TableHead>
                         <TableHead>Date</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
+                        
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -273,28 +273,7 @@ const AdvisorDashboard = () => {
                             )}
                           </TableCell>
                           <TableCell>{new Date(request.date).toLocaleDateString("fr-FR")}</TableCell>
-                          <TableCell className="text-right">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="h-8 w-8 p-0">
-                                  <MoreHorizontal className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => toast.success(`Détails de la demande ${request.id}`)}>
-                                  <Eye className="mr-2 h-4 w-4" /> Voir détails
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => toast.success(`Édition de la demande ${request.id}`)}>
-                                  <Edit className="mr-2 h-4 w-4" /> Éditer
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => toast.success(`Message au client ${request.clientName}`)}>
-                                  <MessageSquare className="mr-2 h-4 w-4" /> Contacter client
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
+                         
                         </TableRow>
                       ))}
                     </TableBody>
