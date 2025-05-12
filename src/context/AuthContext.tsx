@@ -1,10 +1,13 @@
-
 import React, { createContext, useState, useContext, useEffect } from "react";
+import { register as registerAPI, login as loginAPI } from '../config/api'; // Import API functions
 
 type User = {
   id: string;
   name: string;
+  last_name: string; // Use last_name to match backend
   email: string;
+  phone: string;
+  address: string;
   role: "user" | "advisor" | "manager";
 };
 
@@ -12,7 +15,7 @@ type AuthContextType = {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string, role: string) => Promise<void>;
+  register: (name: string, last_name: string, email: string, phone: string, address: string, password: string, role: string) => Promise<void>; // Use last_name
   logout: () => void;
   isAuthenticated: boolean;
 };
@@ -27,46 +30,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Check if user is logged in from localStorage or session
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+      } catch (error) {
+        console.error("Failed to parse user data from localStorage", error);
+        localStorage.removeItem("user"); // Remove invalid data
+      }
     }
     setLoading(false);
   }, []);
 
   const login = async (email: string, password: string) => {
     setLoading(true);
-    // In a real app, this would make an API call to your backend
     try {
-      // Simulate API call with mock data
-      if (email === "manager@fidelem.com" && password === "password") {
-        const userData = {
-          id: "1",
-          name: "Financial Manager",
-          email: "manager@fidelem.com",
-          role: "manager" as const
-        };
-        setUser(userData);
-        localStorage.setItem("user", JSON.stringify(userData));
-      } else if (email === "advisor@fidelem.com" && password === "password") {
-        const userData = {
-          id: "2",
-          name: "Financial Advisor",
-          email: "advisor@fidelem.com",
-          role: "advisor" as const
-        };
-        setUser(userData);
-        localStorage.setItem("user", JSON.stringify(userData));
-      } else if (email === "user@fidelem.com" && password === "password") {
-        const userData = {
-          id: "3",
-          name: "Regular User",
-          email: "user@fidelem.com",
-          role: "user" as const
-        };
-        setUser(userData);
-        localStorage.setItem("user", JSON.stringify(userData));
-      } else {
-        throw new Error("Invalid credentials");
-      }
+      const response = await loginAPI(email, password);
+      const userData = response.data.user; // Adjust according to your response structure
+      setUser(userData);
+      localStorage.setItem("user", JSON.stringify(userData));
     } catch (error) {
       console.error(error);
       throw error;
@@ -75,20 +56,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const register = async (name: string, email: string, password: string, role: string) => {
+  const register = async (name: string, last_name: string, email: string, phone: string, address: string, password: string, role: string) => { // Use last_name
     setLoading(true);
-    // In a real app, this would make an API call to your backend
     try {
-      // Simulate API call with mock data
-      console.log(`Registered: ${name}, ${email}, ${role}`);
-      // For demo purposes, we'll auto-login as a user after registration
+      const response = await registerAPI(name, last_name, email, phone, address, password, role);
+      const userData = response.data.user; // Adjust according to your response structure
       if (role === "user") {
-        const userData = {
-          id: Math.random().toString(36).substring(7),
-          name,
-          email,
-          role: "user" as const
-        };
         setUser(userData);
         localStorage.setItem("user", JSON.stringify(userData));
       }

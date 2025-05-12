@@ -1,17 +1,16 @@
-
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
 } from "@/components/ui/card";
 import {
   Select,
@@ -26,7 +25,10 @@ import { motion } from "framer-motion";
 
 const Register = () => {
   const [name, setName] = useState("");
+  const [last_name, setLastName] = useState(""); // Changed to last_name
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState("user");
@@ -35,31 +37,38 @@ const Register = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (password !== confirmPassword) {
       toast.error("Les mots de passe ne correspondent pas");
       return;
     }
-    
+
     setIsLoading(true);
-    
+
     try {
-      await register(name, email, password, role);
-      
+      await register(name, last_name, email, phone, address, password, role); // Changed to last_name
+
       toast.success("Compte créé avec succès", {
-        description: role === "user" 
-          ? "Vous pouvez maintenant vous connecter" 
+        description: role === "user"
+          ? "Vous pouvez maintenant vous connecter"
           : "Votre compte doit être validé par un responsable financier",
         icon: <CheckCircle2 className="h-4 w-4 text-green-500" />,
       });
-      
+
       navigate(role === "user" ? "/" : "/pending-approval");
     } catch (error) {
-      toast.error("Échec de l'inscription", {
-        description: "Une erreur est survenue. Veuillez réessayer.",
-      });
+      if (error.response && error.response.data && error.response.data.errors) {
+        const errorMessages = Object.values(error.response.data.errors).flat();
+        toast.error("Échec de l'inscription", {
+          description: errorMessages.join(", "),
+        });
+      } else {
+        toast.error("Échec de l'inscription", {
+          description: "Une erreur est survenue. Veuillez réessayer.",
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -101,26 +110,39 @@ const Register = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <motion.form 
-              onSubmit={handleSubmit} 
+            <motion.form
+              onSubmit={handleSubmit}
               className="space-y-4"
               variants={containerVariants}
               initial="hidden"
               animate="visible"
             >
               <motion.div className="space-y-2" variants={itemVariants}>
-                <Label htmlFor="name">Nom complet</Label>
+                <Label htmlFor="name">Prénoms</Label>
                 <Input
                   id="name"
                   type="text"
-                  placeholder="Jean Dupont"
+                  placeholder="Jean"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
                   className="input-field"
                 />
               </motion.div>
-              
+
+              <motion.div className="space-y-2" variants={itemVariants}>
+                <Label htmlFor="last_name">Nom</Label> {/* Changed to last_name */}
+                <Input
+                  id="last_name"
+                  type="text"
+                  placeholder="Dupont"
+                  value={last_name}
+                  onChange={(e) => setLastName(e.target.value)}
+                  required
+                  className="input-field"
+                />
+              </motion.div>
+
               <motion.div className="space-y-2" variants={itemVariants}>
                 <Label htmlFor="email">Adresse e-mail</Label>
                 <Input
@@ -133,7 +155,31 @@ const Register = () => {
                   className="input-field"
                 />
               </motion.div>
-              
+
+              <motion.div className="space-y-2" variants={itemVariants}>
+                <Label htmlFor="phone">Téléphone</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder="123-456-7890"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="input-field"
+                />
+              </motion.div>
+
+              <motion.div className="space-y-2" variants={itemVariants}>
+                <Label htmlFor="address">Adresse</Label>
+                <Input
+                  id="address"
+                  type="text"
+                  placeholder="123 Rue de la Paix"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  className="input-field"
+                />
+              </motion.div>
+
               <motion.div className="space-y-2" variants={itemVariants}>
                 <Label htmlFor="role">Type de compte</Label>
                 <Select value={role} onValueChange={setRole}>
@@ -151,7 +197,7 @@ const Register = () => {
                   </p>
                 )}
               </motion.div>
-              
+
               <motion.div className="space-y-2" variants={itemVariants}>
                 <Label htmlFor="password">Mot de passe</Label>
                 <div className="relative">
@@ -181,7 +227,7 @@ const Register = () => {
                   Le mot de passe doit contenir au moins 8 caractères
                 </p>
               </motion.div>
-              
+
               <motion.div className="space-y-2" variants={itemVariants}>
                 <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
                 <Input
@@ -195,10 +241,10 @@ const Register = () => {
                   minLength={8}
                 />
               </motion.div>
-              
+
               <motion.div variants={itemVariants}>
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   className="w-full bg-fidelem hover:bg-fidelem/90"
                   disabled={isLoading}
                 >

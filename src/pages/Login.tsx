@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -17,10 +16,10 @@ const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     try {
       await login(email, password);
       toast.success("Connexion réussie", {
@@ -29,8 +28,9 @@ const Login = () => {
       });
       navigate("/");
     } catch (error) {
+      const errorMessage = error.response?.data?.message || "Vérifiez vos identifiants et réessayez";
       toast.error("Échec de la connexion", {
-        description: "Vérifiez vos identifiants et réessayez",
+        description: errorMessage,
       });
     } finally {
       setIsLoading(false);
@@ -92,8 +92,8 @@ const Login = () => {
                 </div>
               </div>
               <div>
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   className="w-full bg-fidelem hover:bg-fidelem/90"
                   disabled={isLoading}
                 >
@@ -104,11 +104,8 @@ const Login = () => {
                 <p className="text-sm text-gray-600">
                   Pour tester l'application, utilisez:
                 </p>
-                <div className="grid grid-cols-1 gap-1 mt-2 text-xs text-gray-500">
-                  <div>manager@fidelem.com / password</div>
-                  
-                  <div>user@fidelem.com / password</div>
-                </div>
+                
+               
               </div>
             </form>
           </CardContent>
