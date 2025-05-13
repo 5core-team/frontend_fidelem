@@ -100,13 +100,7 @@ const Login = () => {
                   {isLoading ? "Connexion en cours..." : "Se connecter"}
                 </Button>
               </div>
-              <div className="text-center">
-                <p className="text-sm text-gray-600">
-                  Pour tester l'application, utilisez:
-                </p>
-                
-               
-              </div>
+              
             </form>
           </CardContent>
           <CardFooter>

@@ -345,7 +345,7 @@ const UserDashboard = () => {
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Téléphone</p>
-                        <p className="font-medium">+33 6 12 34 56 78</p>
+                        <p className="font-medium">{user?.phone}</p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Adresse</p>

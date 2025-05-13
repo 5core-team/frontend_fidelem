@@ -1,9 +1,9 @@
-
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext"; // Import AuthContext
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,13 +17,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const formSchema = z.object({
-  firstName: z.string().min(2, {
+  name: z.string().min(2, {
     message: "Le prénom doit contenir au moins 2 caractères.",
   }),
-  lastName: z.string().min(2, {
+  last_name: z.string().min(2, {
     message: "Le nom doit contenir au moins 2 caractères.",
   }),
   email: z.string().email({
@@ -32,9 +31,18 @@ const formSchema = z.object({
   phone: z.string().min(10, {
     message: "Le numéro de téléphone doit contenir au moins 10 caractères.",
   }),
-  specialization: z.string().min(1, {
-    message: "Veuillez sélectionner une spécialisation.",
+  address: z.string().min(1, {
+    message: "Veuillez entrer une adresse.",
   }),
+  password: z.string().min(8, {
+    message: "Le mot de passe doit contenir au moins 8 caractères.",
+  }),
+  confirmPassword: z.string().min(8, {
+    message: "Le mot de passe doit contenir au moins 8 caractères.",
+  }),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Les mots de passe ne correspondent pas.",
+  path: ["confirmPassword"],
 });
 
 interface AddFinancialAdvisorFormProps {
@@ -43,23 +51,43 @@ interface AddFinancialAdvisorFormProps {
 }
 
 export function AddFinancialAdvisorForm({ open, onOpenChange }: AddFinancialAdvisorFormProps) {
+  const { register } = useAuth(); // Use AuthContext
+  const [isLoading, setIsLoading] = useState(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
+      name: "",
+      last_name: "",
       email: "",
       phone: "",
-      specialization: "",
+      address: "",
+      password: "",
+      confirmPassword: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Simulation d'une création de compte
-    console.log(values);
-    toast.success("Conseiller financier créé avec succès");
-    form.reset();
-    onOpenChange(false);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true);
+    try {
+      await register(values.name, values.last_name, values.email, values.phone, values.address, values.password, "advisor"); // Default role is "advisor"
+      toast.success("Conseiller financier créé avec succès");
+      form.reset();
+      onOpenChange(false);
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.errors) {
+        const errorMessages = Object.values(error.response.data.errors).flat();
+        toast.error("Échec de la création", {
+          description: errorMessages.join(", "),
+        });
+      } else {
+        toast.error("Échec de la création", {
+          description: "Une erreur est survenue. Veuillez réessayer.",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -73,7 +101,7 @@ export function AddFinancialAdvisorForm({ open, onOpenChange }: AddFinancialAdvi
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="firstName"
+                name="name"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Prénom</FormLabel>
@@ -86,7 +114,7 @@ export function AddFinancialAdvisorForm({ open, onOpenChange }: AddFinancialAdvi
               />
               <FormField
                 control={form.control}
-                name="lastName"
+                name="last_name"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Nom</FormLabel>
@@ -124,8 +152,48 @@ export function AddFinancialAdvisorForm({ open, onOpenChange }: AddFinancialAdvi
                 </FormItem>
               )}
             />
-           
-            <Button type="submit" className="w-full bg-fidelem hover:bg-fidelem/90">Créer le compte</Button>
+            <FormField
+              control={form.control}
+              name="address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Adresse</FormLabel>
+                  <FormControl>
+                    <Input placeholder="123 Rue de la Paix" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Mot de passe</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="••••••••" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirmer le mot de passe</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="••••••••" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button type="submit" className="w-full bg-fidelem hover:bg-fidelem/90" disabled={isLoading}>
+              {isLoading ? "Création en cours..." : "Créer le compte"}
+            </Button>
           </form>
         </Form>
       </DialogContent>

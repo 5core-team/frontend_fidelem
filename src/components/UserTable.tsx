@@ -1,16 +1,15 @@
-
-import { useState } from "react";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import { useState, useEffect } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -18,11 +17,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { 
-  CheckCircle2, 
-  XCircle, 
-  MoreHorizontal, 
-  Edit2, 
+import {
+  CheckCircle2,
+  XCircle,
+  MoreHorizontal,
+  Edit2,
   Trash2,
   Eye,
   Search,
@@ -31,108 +30,101 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { getUsers, approveUser, rejectUser, deleteUser } from '../config/api'; // Import API functions
 
 interface User {
   id: string;
   name: string;
+  last_name: string;
   email: string;
-  role: string;
-  status: "active" | "pending" | "rejected";
-  dateCreated: string;
+  phone: string;
+  address: string;
+  type_compte: string;
+  statut: "Actif" | "En attente" | "Rejeté";
+  created_at: string;
 }
 
 interface UserTableProps {
   title: string;
   description?: string;
+  filterType?: string; // Add filterType prop
 }
 
-const UserTable = ({ title, description }: UserTableProps) => {
-  // Mock data for demonstration
-  const initialUsers: User[] = [
-    {
-      id: "1",
-      name: "Jean Dupont",
-      email: "jean.dupont@example.com",
-      role: "advisor",
-      status: "pending",
-      dateCreated: "2023-04-02"
-    },
-    {
-      id: "2",
-      name: "Marie Laurent",
-      email: "marie.laurent@example.com",
-      role: "advisor",
-      status: "active",
-      dateCreated: "2023-03-28"
-    },
-    {
-      id: "3",
-      name: "Thomas Bernard",
-      email: "thomas.bernard@example.com",
-      role: "user",
-      status: "active",
-      dateCreated: "2023-04-01"
-    },
-    {
-      id: "4",
-      name: "Sophie Martin",
-      email: "sophie.martin@example.com",
-      role: "user",
-      status: "pending",
-      dateCreated: "2023-04-03"
-    },
-    {
-      id: "5",
-      name: "Lucie Petit",
-      email: "lucie.petit@example.com",
-      role: "user",
-      status: "rejected",
-      dateCreated: "2023-03-25"
-    },
-  ];
-
-  const [users, setUsers] = useState<User[]>(initialUsers);
+const UserTable = ({ title, description, filterType }: UserTableProps) => {
+  const [users, setUsers] = useState<User[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  const handleApprove = (userId: string) => {
-    setUsers(users.map(user => 
-      user.id === userId ? { ...user, status: "active" as const } : user
-    ));
-    toast.success("Utilisateur approuvé avec succès");
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await getUsers();
+        setUsers(response.data);
+      } catch (error) {
+        toast.error("Erreur lors de la récupération des utilisateurs");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  const handleApprove = async (userId: string) => {
+    try {
+      await approveUser(userId);
+      setUsers(users.map(user =>
+        user.id === userId ? { ...user, statut: "Actif" as const } : user
+      ));
+      toast.success("Utilisateur approuvé avec succès");
+    } catch (error) {
+      toast.error("Erreur lors de l'approbation de l'utilisateur");
+    }
   };
 
-  const handleReject = (userId: string) => {
-    setUsers(users.map(user => 
-      user.id === userId ? { ...user, status: "rejected" as const } : user
-    ));
-    toast.success("Utilisateur rejeté");
+  const handleReject = async (userId: string) => {
+    try {
+      await rejectUser(userId);
+      setUsers(users.map(user =>
+        user.id === userId ? { ...user, statut: "Rejeté" as const } : user
+      ));
+      toast.success("Utilisateur rejeté");
+    } catch (error) {
+      toast.error("Erreur lors du rejet de l'utilisateur");
+    }
   };
 
-  const handleDelete = (userId: string) => {
-    setUsers(users.filter(user => user.id !== userId));
-    toast.success("Utilisateur supprimé avec succès");
+  const handleDelete = async (userId: string) => {
+    try {
+      await deleteUser(userId);
+      setUsers(users.filter(user => user.id !== userId));
+      toast.success("Utilisateur supprimé avec succès");
+    } catch (error) {
+      toast.error("Erreur lors de la suppression de l'utilisateur");
+    }
   };
 
-  const filteredUsers = users.filter(user => 
-    user.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    user.email.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredUsers = users.filter(user =>
+    (!filterType || user.type_compte === filterType) &&
+    (user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
-  const getStatusBadge = (status: User["status"]) => {
-    switch (status) {
-      case "active":
+  const getStatusBadge = (statut: User["statut"]) => {
+    switch (statut) {
+      case "Actif":
         return <Badge className="bg-green-500">Actif</Badge>;
-      case "pending":
+      case "En attente":
         return <Badge className="bg-amber-500">En attente</Badge>;
-      case "rejected":
+      case "Rejeté":
         return <Badge className="bg-red-500">Rejeté</Badge>;
       default:
         return null;
     }
   };
 
-  const getRoleBadge = (role: string) => {
-    switch (role) {
+  const getRoleBadge = (type_compte: string) => {
+    switch (type_compte) {
       case "advisor":
         return <Badge variant="outline" className="border-fidelem text-fidelem">Conseiller</Badge>;
       case "user":
@@ -142,25 +134,27 @@ const UserTable = ({ title, description }: UserTableProps) => {
     }
   };
 
+  if (loading) return <div>Chargement...</div>;
+
   return (
     <div className="space-y-4">
       <div>
         <h2 className="text-2xl font-bold text-fidelem">{title}</h2>
         {description && <p className="text-gray-600 mt-1">{description}</p>}
       </div>
-      
+
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4">
         <div className="relative w-full sm:w-auto">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-          <Input 
-            placeholder="Rechercher un utilisateur..." 
+          <Input
+            placeholder="Rechercher un utilisateur..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10 w-full sm:w-80"
           />
         </div>
       </div>
-      
+
       <div className="border rounded-lg overflow-hidden">
         <Table>
           <TableHeader>
@@ -177,11 +171,11 @@ const UserTable = ({ title, description }: UserTableProps) => {
             {filteredUsers.length > 0 ? (
               filteredUsers.map((user) => (
                 <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.name}</TableCell>
+                  <TableCell className="font-medium">{user.name} {user.last_name}</TableCell>
                   <TableCell>{user.email}</TableCell>
-                  <TableCell>{getRoleBadge(user.role)}</TableCell>
-                  <TableCell>{getStatusBadge(user.status)}</TableCell>
-                  <TableCell>{new Date(user.dateCreated).toLocaleDateString("fr-FR")}</TableCell>
+                  <TableCell>{getRoleBadge(user.type_compte)}</TableCell>
+                  <TableCell>{getStatusBadge(user.statut)}</TableCell>
+                  <TableCell>{new Date(user.created_at).toLocaleDateString("fr-FR")}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -192,8 +186,8 @@ const UserTable = ({ title, description }: UserTableProps) => {
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                      
-                        {user.status === "pending" && (
+
+                        {user.statut === "En attente" && (
                           <>
                             <DropdownMenuItem onClick={() => handleApprove(user.id)}>
                               <UserCheck className="mr-2 h-4 w-4 text-green-500" /> Approuver
@@ -203,8 +197,8 @@ const UserTable = ({ title, description }: UserTableProps) => {
                             </DropdownMenuItem>
                           </>
                         )}
-                        
-                        <DropdownMenuItem 
+
+                        <DropdownMenuItem
                           onClick={() => handleDelete(user.id)}
                           className="text-red-600 focus:text-red-600"
                         >

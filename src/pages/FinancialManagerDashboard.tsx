@@ -3,33 +3,33 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import UserTable from "@/components/UserTable";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { 
+import {
   BarChart,
   LineChart,
-  Bar, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer 
+  Bar,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
 } from "recharts";
-import { 
-  Users, 
-  CheckCircle2, 
-  XCircle, 
-  Clock, 
-  CreditCard, 
+import {
+  Users,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  CreditCard,
   TrendingUp,
   AlertCircle,
   Download,
@@ -39,47 +39,42 @@ import {
 import { toast } from "sonner";
 import { AddFinancialAdvisorForm } from "@/components/AddFinancialAdvisorForm";
 import { EditProfileForm } from "@/components/EditProfileForm";
-
-const userStatsData = [
-  { name: 'Jan', "Nouveaux utilisateurs": 30, "Conseillers": 5 },
-  { name: 'Fév', "Nouveaux utilisateurs": 40, "Conseillers": 8 },
-  { name: 'Mar', "Nouveaux utilisateurs": 45, "Conseillers": 10 },
-  { name: 'Avr', "Nouveaux utilisateurs": 75, "Conseillers": 12 },
-  { name: 'Mai', "Nouveaux utilisateurs": 60, "Conseillers": 15 },
-  { name: 'Juin', "Nouveaux utilisateurs": 80, "Conseillers": 18 },
-];
-
-const creditStatsData = [
-  { name: 'Jan', "Montant": 150000, "Demandes": 10 },
-  { name: 'Fév', "Montant": 200000, "Demandes": 15 },
-  { name: 'Mar', "Montant": 180000, "Demandes": 12 },
-  { name: 'Avr', "Montant": 300000, "Demandes": 25 },
-  { name: 'Mai', "Montant": 250000, "Demandes": 20 },
-  { name: 'Juin', "Montant": 420000, "Demandes": 35 },
-];
+import { getUsers, getUserStats, getCreditStats } from '../config/api'; // Import API functions
 
 const FinancialManagerDashboard = () => {
   const { user, isAuthenticated } = useAuth();
   const [isLoadingStats, setIsLoadingStats] = useState(true);
   const [addAdvisorOpen, setAddAdvisorOpen] = useState(false);
   const [editProfileOpen, setEditProfileOpen] = useState(false);
-  
+  const [userStats, setUserStats] = useState({ totalUsers: 0, totalAdvisors: 0, pendingAccounts: 0 });
+  const [creditStatsData, setCreditStatsData] = useState([]);
+
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoadingStats(false);
-    }, 1200);
-    
-    return () => clearTimeout(timer);
+    const fetchData = async () => {
+      try {
+        const userStatsResponse = await getUserStats();
+        const creditStatsResponse = await getCreditStats();
+
+        setUserStats(userStatsResponse.data);
+        setCreditStatsData(creditStatsResponse.data);
+      } catch (error) {
+        toast.error("Erreur lors de la récupération des statistiques");
+      } finally {
+        setIsLoadingStats(false);
+      }
+    };
+
+    fetchData();
   }, []);
-  
+
   if (!isAuthenticated || user?.role !== "manager") {
     return <Navigate to="/login" replace />;
   }
-  
+
   return (
     <div className="min-h-screen bg-fidelem-light">
       <Navbar />
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
           <div>
@@ -87,29 +82,27 @@ const FinancialManagerDashboard = () => {
             <p className="text-gray-600 mt-1">Gérez les utilisateurs et suivez l'activité de Fidelem</p>
           </div>
           <div className="mt-4 md:mt-0 space-x-2 flex">
-            <Button 
+            <Button
               className="bg-fidelem hover:bg-fidelem/90 flex items-center gap-2"
               onClick={() => setEditProfileOpen(true)}
             >
               <User size={16} /> Mon profil
             </Button>
-            <Button 
+            <Button
               className="bg-fidelem hover:bg-fidelem/90 flex items-center gap-2"
               onClick={() => setAddAdvisorOpen(true)}
             >
               <UserPlus size={16} /> Nouveau conseiller
             </Button>
-            
           </div>
         </div>
-        
-        <DashboardSummary isLoading={isLoadingStats} />
-        
+
+        <DashboardSummary isLoading={isLoadingStats} userStats={userStats} creditStatsData={creditStatsData} />
+
         <Tabs defaultValue="users" className="mt-8">
           <TabsList className="grid w-full md:w-auto grid-cols-2 md:grid-cols-2">
             <TabsTrigger value="users">Utilisateurs</TabsTrigger>
             <TabsTrigger value="advisors">Conseillers</TabsTrigger>
-       
           </TabsList>
           <TabsContent value="users" className="mt-6">
             <Card>
@@ -120,9 +113,9 @@ const FinancialManagerDashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <UserTable 
-                  title="Liste des utilisateurs" 
-                  description="Consultez et gérez les comptes utilisateurs de la plateforme." 
+                <UserTable
+                  title="Liste des utilisateurs"
+                  description="Consultez et gérez les comptes utilisateurs de la plateforme."
                 />
               </CardContent>
             </Card>
@@ -136,7 +129,7 @@ const FinancialManagerDashboard = () => {
                     Validez les nouveaux comptes conseillers et gérez leurs permissions.
                   </CardDescription>
                 </div>
-                <Button 
+                <Button
                   className="bg-fidelem hover:bg-fidelem/90 flex items-center gap-2"
                   onClick={() => setAddAdvisorOpen(true)}
                 >
@@ -144,50 +137,46 @@ const FinancialManagerDashboard = () => {
                 </Button>
               </CardHeader>
               <CardContent>
-                <UserTable 
-                  title="Liste des conseillers" 
-                  description="Consultez et gérez les comptes conseillers de la plateforme." 
+                <UserTable
+                  title="Liste des conseillers"
+                  description="Consultez et gérez les comptes conseillers de la plateforme."
+                  filterType="advisor"
                 />
               </CardContent>
             </Card>
           </TabsContent>
-     
         </Tabs>
       </div>
-      
+
       <AddFinancialAdvisorForm open={addAdvisorOpen} onOpenChange={setAddAdvisorOpen} />
       <EditProfileForm open={editProfileOpen} onOpenChange={setEditProfileOpen} />
     </div>
   );
 };
 
-const DashboardSummary = ({ isLoading }: { isLoading: boolean }) => {
+const DashboardSummary = ({ isLoading, userStats, creditStatsData }) => {
   const statsItems = [
     {
       title: "Utilisateurs",
-      value: "248",
-      
+      value: userStats.totalUsers,
       icon: <Users className="h-8 w-8 text-blue-600" />,
       color: "bg-blue-50 text-blue-600 border-blue-200"
     },
     {
       title: "Conseillers",
-      value: "36",
-      
+      value: userStats.totalAdvisors,
       icon: <Users className="h-8 w-8 text-purple-600" />,
       color: "bg-purple-50 text-purple-600 border-purple-200"
     },
     {
       title: "Comptes en attente",
-      value: "14",
-      
+      value: userStats.pendingAccounts,
       icon: <Clock className="h-8 w-8 text-amber-600" />,
       color: "bg-amber-50 text-amber-600 border-amber-200"
     },
     {
       title: "Demandes de crédit",
-      value: "187",
-      
+      value: creditStatsData.reduce((sum, month) => sum + month["Demandes"], 0),
       icon: <CreditCard className="h-8 w-8 text-green-600" />,
       color: "bg-green-50 text-green-600 border-green-200"
     }
@@ -213,7 +202,6 @@ const DashboardSummary = ({ isLoading }: { isLoading: boolean }) => {
                         item.value
                       )}
                     </h3>
-                  
                   </div>
                 </div>
                 {item.icon}
