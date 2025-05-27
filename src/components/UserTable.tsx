@@ -110,7 +110,7 @@ const UserTable = ({ title, description, filterType }: UserTableProps) => {
     user.email.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
-  const getStatusBadge = (statut: User["statut"]) => {
+  const gettype_compteBadge = (statut: User["statut"]) => {
     switch (statut) {
       case "Actif":
         return <Badge className="bg-green-500">Actif</Badge>;
@@ -174,7 +174,7 @@ const UserTable = ({ title, description, filterType }: UserTableProps) => {
                   <TableCell className="font-medium">{user.name} {user.last_name}</TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>{getRoleBadge(user.type_compte)}</TableCell>
-                  <TableCell>{getStatusBadge(user.statut)}</TableCell>
+                  <TableCell>{gettype_compteBadge(user.statut)}</TableCell>
                   <TableCell>{new Date(user.created_at).toLocaleDateString("fr-FR")}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>

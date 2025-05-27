@@ -49,7 +49,7 @@ const mockUserCreditRequests = [
     id: "CR001",
     amount: 25000,
     purpose: "Prêt auto",
-    status: "approved",
+    type_compte: "approved",
     date: "2024-04-15",
     advisor: "Jean Martin",
     duration: 48
@@ -58,7 +58,7 @@ const mockUserCreditRequests = [
     id: "CR002",
     amount: 15000,
     purpose: "Prêt personnel",
-    status: "pending",
+    type_compte: "pending",
     date: "2024-04-10",
     advisor: "Marie Dubois",
     duration: 36
@@ -228,13 +228,13 @@ const UserDashboard = () => {
                                 <TableCell>{request.amount.toLocaleString('fr-FR')} €</TableCell>
                                 <TableCell>{request.purpose}</TableCell>
                                 <TableCell>
-                                  {request.status === "approved" && (
+                                  {request.type_compte === "approved" && (
                                     <Badge className="bg-green-500">Approuvée</Badge>
                                   )}
-                                  {request.status === "pending" && (
+                                  {request.type_compte === "pending" && (
                                     <Badge className="bg-amber-500">En attente</Badge>
                                   )}
-                                  {request.status === "rejected" && (
+                                  {request.type_compte === "rejected" && (
                                     <Badge className="bg-red-500">Rejetée</Badge>
                                   )}
                                 </TableCell>
@@ -398,7 +398,7 @@ const UserDashboard = () => {
               </CardHeader>
               <CardContent>
                 <Tabs defaultValue="active">
-                  <TabsList className="w-full grid grid-cols-3">
+                  <TabsList className="w-full grid grid-cols-2">
                     <TabsTrigger value="active">Crédits actifs</TabsTrigger>
                     <TabsTrigger value="requests">Demandes</TabsTrigger>
                     
@@ -480,7 +480,7 @@ const UserDashboard = () => {
                             <TableHead>Durée</TableHead>
                             <TableHead>Objet</TableHead>
                             <TableHead>Statut</TableHead>
-                            <TableHead>Actions</TableHead>
+                           
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -492,25 +492,17 @@ const UserDashboard = () => {
                               <TableCell>{request.duration} mois</TableCell>
                               <TableCell>{request.purpose}</TableCell>
                               <TableCell>
-                                {request.status === "approved" && (
+                                {request.type_compte === "approved" && (
                                   <Badge className="bg-green-500">Approuvée</Badge>
                                 )}
-                                {request.status === "pending" && (
+                                {request.type_compte === "pending" && (
                                   <Badge className="bg-amber-500">En attente</Badge>
                                 )}
-                                {request.status === "rejected" && (
+                                {request.type_compte === "rejected" && (
                                   <Badge className="bg-red-500">Rejetée</Badge>
                                 )}
                               </TableCell>
-                              <TableCell>
-                                <Button 
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => toast.info(`Détails de la demande ${request.id}`)}
-                                >
-                                  Détails
-                                </Button>
-                              </TableCell>
+                              
                             </TableRow>
                           ))}
                         </TableBody>

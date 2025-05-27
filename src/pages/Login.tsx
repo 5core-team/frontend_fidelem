@@ -100,7 +100,6 @@ const Login = () => {
                   {isLoading ? "Connexion en cours..." : "Se connecter"}
                 </Button>
               </div>
-              
             </form>
           </CardContent>
           <CardFooter>

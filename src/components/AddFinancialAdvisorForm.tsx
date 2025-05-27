@@ -3,13 +3,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { toast } from "sonner";
-import { useAuth } from "@/context/AuthContext"; // Import AuthContext
-
+import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -17,6 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Eye, EyeOff } from "lucide-react"; // Assurez-vous d'avoir installé lucide-react ou une autre bibliothèque d'icônes
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -51,8 +50,10 @@ interface AddFinancialAdvisorFormProps {
 }
 
 export function AddFinancialAdvisorForm({ open, onOpenChange }: AddFinancialAdvisorFormProps) {
-  const { register } = useAuth(); // Use AuthContext
+  const { register } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -70,7 +71,15 @@ export function AddFinancialAdvisorForm({ open, onOpenChange }: AddFinancialAdvi
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
-      await register(values.name, values.last_name, values.email, values.phone, values.address, values.password, "advisor"); // Default role is "advisor"
+      await register({
+        name: values.name,
+        last_name: values.last_name,
+        email: values.email,
+        phone: values.phone,
+        address: values.address,
+        password: values.password,
+        type_compte: "advisor",
+      });
       toast.success("Conseiller financier créé avec succès");
       form.reset();
       onOpenChange(false);
@@ -172,7 +181,16 @@ export function AddFinancialAdvisorForm({ open, onOpenChange }: AddFinancialAdvi
                 <FormItem>
                   <FormLabel>Mot de passe</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="••••••••" {...field} />
+                    <div className="relative">
+                      <Input type={showPassword ? "text" : "password"} placeholder="••••••••" {...field} />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -185,7 +203,16 @@ export function AddFinancialAdvisorForm({ open, onOpenChange }: AddFinancialAdvi
                 <FormItem>
                   <FormLabel>Confirmer le mot de passe</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="••••••••" {...field} />
+                    <div className="relative">
+                      <Input type={showConfirmPassword ? "text" : "password"} placeholder="••••••••" {...field} />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      >
+                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

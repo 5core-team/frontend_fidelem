@@ -1,15 +1,13 @@
-
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { toast } from "sonner";
-
+import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -18,12 +16,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Eye, EyeOff } from "lucide-react"; // Assurez-vous d'avoir installé lucide-react ou une autre bibliothèque d'icônes
 
 const formSchema = z.object({
-  firstName: z.string().min(2, {
+  name: z.string().min(2, {
     message: "Le prénom doit contenir au moins 2 caractères.",
   }),
-  lastName: z.string().min(2, {
+  last_name: z.string().min(2, {
     message: "Le nom doit contenir au moins 2 caractères.",
   }),
   email: z.string().email({
@@ -35,6 +34,15 @@ const formSchema = z.object({
   address: z.string().min(10, {
     message: "L'adresse doit contenir au moins 10 caractères.",
   }),
+  password: z.string().min(8, {
+    message: "Le mot de passe doit contenir au moins 8 caractères.",
+  }),
+  confirmPassword: z.string().min(8, {
+    message: "Le mot de passe doit contenir au moins 8 caractères.",
+  }),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Les mots de passe ne correspondent pas.",
+  path: ["confirmPassword"],
 });
 
 interface AddClientFormProps {
@@ -43,23 +51,56 @@ interface AddClientFormProps {
 }
 
 export function AddClientForm({ open, onOpenChange }: AddClientFormProps) {
+  const { register, user } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
+      name: "",
+      last_name: "",
       email: "",
       phone: "",
       address: "",
+      password: "",
+      confirmPassword: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Simulation d'une création de client
-    console.log(values);
-    toast.success("Client ajouté avec succès");
-    form.reset();
-    onOpenChange(false);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true);
+    try {
+      const createdBy = user?.id;
+      const userData = {
+        name: values.name,
+        last_name: values.last_name,
+        email: values.email,
+        phone: values.phone,
+        address: values.address,
+        type_compte: "user",
+        password: values.password,
+        created_by: createdBy
+      };
+      await register(userData);
+      toast.success("Client ajouté avec succès");
+      form.reset();
+      onOpenChange(false);
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.errors) {
+        const errorMessages = Object.values(error.response.data.errors).flat();
+        toast.error("Échec de la création", {
+          description: errorMessages.join(", "),
+        });
+      } else {
+        toast.error("Échec de la création", {
+          description: "Une erreur est survenue. Veuillez réessayer.",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -73,7 +114,7 @@ export function AddClientForm({ open, onOpenChange }: AddClientFormProps) {
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="firstName"
+                name="name"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Prénom</FormLabel>
@@ -86,7 +127,7 @@ export function AddClientForm({ open, onOpenChange }: AddClientFormProps) {
               />
               <FormField
                 control={form.control}
-                name="lastName"
+                name="last_name"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Nom</FormLabel>
@@ -137,7 +178,53 @@ export function AddClientForm({ open, onOpenChange }: AddClientFormProps) {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full bg-fidelem hover:bg-fidelem/90">Ajouter le client</Button>
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Mot de passe</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input type={showPassword ? "text" : "password"} placeholder="••••••••" {...field} />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirmer le mot de passe</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input type={showConfirmPassword ? "text" : "password"} placeholder="••••••••" {...field} />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      >
+                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button type="submit" className="w-full bg-fidelem hover:bg-fidelem/90" disabled={isLoading}>
+              {isLoading ? "Création en cours..." : "Ajouter le client"}
+            </Button>
           </form>
         </Form>
       </DialogContent>

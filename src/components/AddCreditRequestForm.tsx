@@ -1,15 +1,15 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { toast } from "sonner";
+import { createCreditRequest } from "../config/api"; // Assurez-vous que le chemin est correct
+import { useAuth } from "@/context/AuthContext"; // Assurez-vous que le chemin est correct
 
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -22,9 +22,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider";
 
 const formSchema = z.object({
-  clientId: z.string().min(1, {
-    message: "Veuillez sélectionner un client.",
-  }),
   amount: z.number().min(1000, {
     message: "Le montant doit être d'au moins 1 000 €.",
   }).max(100000, {
@@ -38,17 +35,8 @@ const formSchema = z.object({
   purpose: z.string().min(1, {
     message: "Veuillez sélectionner un objet pour le crédit.",
   }),
-  additionalDetails: z.string().optional(),
+  additional_details: z.string().optional(),
 });
-
-// Liste fictive de clients
-const clients = [
-  { id: "CL001", name: "Sophie Martin" },
-  { id: "CL002", name: "Thomas Bernard" },
-  { id: "CL003", name: "Julie Petit" },
-  { id: "CL004", name: "Marc Dubois" },
-  { id: "CL005", name: "Caroline Leroy" },
-];
 
 interface AddCreditRequestFormProps {
   open: boolean;
@@ -59,24 +47,29 @@ interface AddCreditRequestFormProps {
 export function AddCreditRequestForm({ open, onOpenChange, isAdvisor = false }: AddCreditRequestFormProps) {
   const [amount, setAmount] = useState(25000);
   const [duration, setDuration] = useState(48);
+  const { user } = useAuth(); // Récupérez l'utilisateur connecté depuis le contexte d'authentification
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      clientId: isAdvisor ? "" : "CL001", // Pour l'utilisateur, on présélectionne son propre ID
       amount: 25000,
       duration: 48,
       purpose: "",
-      additionalDetails: "",
+      additional_details: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Simulation d'une création de demande de crédit
-    console.log(values);
-    toast.success("Demande de crédit créée avec succès");
-    form.reset();
-    onOpenChange(false);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      const userId = user?.id; // Récupérez l'ID de l'utilisateur connecté
+      await createCreditRequest({ ...values, clientId: userId });
+      toast.success("Demande de crédit créée avec succès");
+      form.reset();
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Error:', error.response);
+      toast.error("Échec de la création de la demande de crédit");
+    }
   }
 
   return (
@@ -87,30 +80,6 @@ export function AddCreditRequestForm({ open, onOpenChange, isAdvisor = false }: 
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {isAdvisor && (
-              <FormField
-                control={form.control}
-                name="clientId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Client</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Sélectionner un client" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {clients.map(client => (
-                          <SelectItem key={client.id} value={client.id}>{client.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
             <FormField
               control={form.control}
               name="amount"
@@ -183,7 +152,7 @@ export function AddCreditRequestForm({ open, onOpenChange, isAdvisor = false }: 
             />
             <FormField
               control={form.control}
-              name="additionalDetails"
+              name="additional_details"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Informations complémentaires</FormLabel>

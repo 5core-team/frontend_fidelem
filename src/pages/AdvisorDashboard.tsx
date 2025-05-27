@@ -1,25 +1,26 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
+import { getUsersByType, getUserStatsAdvisor } from '../config/api'; // Import the API functions
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -30,14 +31,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { 
-  Users, 
-  Clock, 
-  Plus, 
-  Search, 
-  FileText, 
-  CheckCircle, 
-  XCircle, 
+import {
+  Users,
+  Clock,
+  Plus,
+  Search,
+  FileText,
+  CheckCircle,
+  XCircle,
   MoreHorizontal,
   Eye,
   Edit,
@@ -58,7 +59,7 @@ const creditRequests = [
     amount: 15000,
     duration: 36,
     purpose: "Achat automobile",
-    status: "approved",
+    statut: "approved",
     date: "2023-04-01"
   },
   {
@@ -67,7 +68,7 @@ const creditRequests = [
     amount: 25000,
     duration: 48,
     purpose: "Rénovation",
-    status: "pending",
+    statut: "pending",
     date: "2023-04-02"
   },
   {
@@ -76,7 +77,7 @@ const creditRequests = [
     amount: 8000,
     duration: 24,
     purpose: "Personnel",
-    status: "pending",
+    statut: "pending",
     date: "2023-04-03"
   },
   {
@@ -85,7 +86,7 @@ const creditRequests = [
     amount: 12000,
     duration: 36,
     purpose: "Études",
-    status: "rejected",
+    statut: "rejected",
     date: "2023-03-28"
   },
   {
@@ -94,47 +95,8 @@ const creditRequests = [
     amount: 7500,
     duration: 18,
     purpose: "Personnel",
-    status: "approved",
+    statut: "approved",
     date: "2023-03-25"
-  }
-];
-
-// Mock data for clients
-const clients = [
-  {
-    id: "CL001",
-    name: "Sophie Martin",
-    email: "sophie.martin@example.com",
-    phone: "+33 6 12 34 56 78",
-    status: "active"
-  },
-  {
-    id: "CL002",
-    name: "Thomas Bernard",
-    email: "thomas.bernard@example.com",
-    phone: "+33 6 23 45 67 89",
-    status: "active"
-  },
-  {
-    id: "CL003",
-    name: "Julie Petit",
-    email: "julie.petit@example.com",
-    phone: "+33 6 34 56 78 90",
-    status: "pending"
-  },
-  {
-    id: "CL004",
-    name: "Marc Dubois",
-    email: "marc.dubois@example.com",
-    phone: "+33 6 45 67 89 01",
-    status: "active"
-  },
-  {
-    id: "CL005",
-    name: "Caroline Leroy",
-    email: "caroline.leroy@example.com",
-    phone: "+33 6 56 78 90 12",
-    status: "active"
   }
 ];
 
@@ -145,33 +107,43 @@ const AdvisorDashboard = () => {
   const [addClientOpen, setAddClientOpen] = useState(false);
   const [addCreditRequestOpen, setAddCreditRequestOpen] = useState(false);
   const [editProfileOpen, setEditProfileOpen] = useState(false);
-  
+  const [clients, setClients] = useState([]);
+  const [userStats, setUserStats] = useState({ totalUsers: 0, pendingUsers: 0 });
+
   useEffect(() => {
-    // Simulate loading data
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-    
-    return () => clearTimeout(timer);
+    const fetchData = async () => {
+      try {
+        const clientsResponse = await getUsersByType('user');
+        const statsResponse = await getUserStatsAdvisor();
+
+        setClients(clientsResponse.data);
+        setUserStats(statsResponse.data);
+      } catch (error) {
+        toast.error("Erreur lors de la récupération des données");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
-  // Redirect if not authenticated or not an advisor
   if (!isAuthenticated || user?.role !== "advisor") {
     return <Navigate to="/login" replace />;
   }
-  
+
   const handleCreateCreditRequest = () => {
     setAddCreditRequestOpen(true);
   };
-  
+
   const handleAddClient = () => {
     setAddClientOpen(true);
   };
-  
+
   return (
     <div className="min-h-screen bg-fidelem-light">
       <Navbar />
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
           <div>
@@ -179,35 +151,29 @@ const AdvisorDashboard = () => {
             <p className="text-gray-600 mt-1">Gérez vos clients et les demandes de crédit</p>
           </div>
           <div className="mt-4 md:mt-0 space-x-2 flex">
-            <Button 
+            <Button
               className="bg-fidelem hover:bg-fidelem/90 flex items-center gap-2"
               onClick={() => setEditProfileOpen(true)}
             >
               <User size={16} /> Mon profil
             </Button>
-            <Button 
+            <Button
               className="bg-fidelem hover:bg-fidelem/90 flex items-center gap-2"
               onClick={handleAddClient}
             >
               <UserPlus size={16} /> Ajouter un client
             </Button>
-            <Button 
-              className="bg-fidelem hover:bg-fidelem/90 flex items-center gap-2"
-              onClick={handleCreateCreditRequest}
-            >
-              <Plus size={16} /> Nouvelle demande
-            </Button>
           </div>
         </div>
-        
-        <Summary isLoading={isLoading} />
-        
+
+        <Summary isLoading={isLoading} userStats={userStats} />
+
         <Tabs defaultValue="credit-requests" className="mt-8">
           <TabsList className="grid w-full md:w-auto grid-cols-2">
             <TabsTrigger value="credit-requests">Demandes de crédit</TabsTrigger>
             <TabsTrigger value="clients">Clients</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="credit-requests" className="mt-6">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
@@ -217,28 +183,18 @@ const AdvisorDashboard = () => {
                     Consultez et gérez les demandes de crédit de vos clients.
                   </CardDescription>
                 </div>
-                <Button 
-                  className="bg-fidelem hover:bg-fidelem/90 flex items-center gap-2"
-                  onClick={handleCreateCreditRequest}
-                >
-                  <Plus size={16} /> Nouvelle demande
-                </Button>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4">
                   <div className="relative w-full sm:w-auto">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                    <Input 
-                      placeholder="Rechercher une demande..." 
+                    <Input
+                      placeholder="Rechercher une demande..."
                       className="pl-10 w-full sm:w-80"
                     />
                   </div>
-                  <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-                    <Button variant="outline" size="sm">Filtrer</Button>
-            
-                  </div>
                 </div>
-                
+
                 <div className="border rounded-lg overflow-hidden">
                   <Table>
                     <TableHeader>
@@ -250,7 +206,6 @@ const AdvisorDashboard = () => {
                         <TableHead>Objet</TableHead>
                         <TableHead>Statut</TableHead>
                         <TableHead>Date</TableHead>
-                        
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -262,18 +217,17 @@ const AdvisorDashboard = () => {
                           <TableCell>{request.duration} mois</TableCell>
                           <TableCell>{request.purpose}</TableCell>
                           <TableCell>
-                            {request.status === "approved" && (
+                            {request.statut === "approved" && (
                               <Badge className="bg-green-500">Approuvée</Badge>
                             )}
-                            {request.status === "pending" && (
+                            {request.statut === "pending" && (
                               <Badge className="bg-amber-500">En attente</Badge>
                             )}
-                            {request.status === "rejected" && (
+                            {request.statut === "rejected" && (
                               <Badge className="bg-red-500">Rejetée</Badge>
                             )}
                           </TableCell>
                           <TableCell>{new Date(request.date).toLocaleDateString("fr-FR")}</TableCell>
-                         
                         </TableRow>
                       ))}
                     </TableBody>
@@ -282,7 +236,7 @@ const AdvisorDashboard = () => {
               </CardContent>
             </Card>
           </TabsContent>
-          
+
           <TabsContent value="clients" className="mt-6">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
@@ -292,7 +246,7 @@ const AdvisorDashboard = () => {
                     Consultez et gérez vos clients.
                   </CardDescription>
                 </div>
-                <Button 
+                <Button
                   onClick={handleAddClient}
                   className="bg-fidelem hover:bg-fidelem/90 flex items-center gap-2"
                 >
@@ -303,17 +257,13 @@ const AdvisorDashboard = () => {
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4">
                   <div className="relative w-full sm:w-auto">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                    <Input 
-                      placeholder="Rechercher un client..." 
+                    <Input
+                      placeholder="Rechercher un client..."
                       className="pl-10 w-full sm:w-80"
                     />
                   </div>
-                  <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-                    <Button variant="outline" size="sm">Filtrer</Button>
-                    <Button variant="outline" size="sm">Exporter</Button>
-                  </div>
                 </div>
-                
+
                 <div className="border rounded-lg overflow-hidden">
                   <Table>
                     <TableHeader>
@@ -323,7 +273,6 @@ const AdvisorDashboard = () => {
                         <TableHead>Email</TableHead>
                         <TableHead>Téléphone</TableHead>
                         <TableHead>Statut</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -334,37 +283,12 @@ const AdvisorDashboard = () => {
                           <TableCell>{client.email}</TableCell>
                           <TableCell>{client.phone}</TableCell>
                           <TableCell>
-                            {client.status === "active" && (
+                            {client.statut === "Actif" && (
                               <Badge className="bg-green-500">Actif</Badge>
                             )}
-                            {client.status === "pending" && (
+                            {client.statut === "En attente" && (
                               <Badge className="bg-amber-500">En attente</Badge>
                             )}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="h-8 w-8 p-0">
-                                  <MoreHorizontal className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => toast.success(`Profil de ${client.name}`)}>
-                                  <Eye className="mr-2 h-4 w-4" /> Voir profil
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => toast.success(`Édition du profil de ${client.name}`)}>
-                                  <Edit className="mr-2 h-4 w-4" /> Éditer
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => toast.success(`Nouvelle demande pour ${client.name}`)}>
-                                  <Plus className="mr-2 h-4 w-4" /> Nouvelle demande
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => toast.success(`Message à ${client.name}`)}>
-                                  <MessageSquare className="mr-2 h-4 w-4" /> Contacter
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -376,7 +300,7 @@ const AdvisorDashboard = () => {
           </TabsContent>
         </Tabs>
       </div>
-      
+
       <AddClientForm open={addClientOpen} onOpenChange={setAddClientOpen} />
       <AddCreditRequestForm open={addCreditRequestOpen} onOpenChange={setAddCreditRequestOpen} isAdvisor={true} />
       <EditProfileForm open={editProfileOpen} onOpenChange={setEditProfileOpen} />
@@ -385,17 +309,17 @@ const AdvisorDashboard = () => {
 };
 
 // Summary cards for advisor dashboard
-const Summary = ({ isLoading }: { isLoading: boolean }) => {
+const Summary = ({ isLoading, userStats }: { isLoading: boolean, userStats: { totalUsers: number, pendingUsers: number } }) => {
   const statsItems = [
     {
       title: "Clients",
-      value: "24",
+      value: userStats.totalUsers,
       icon: <Users className="h-8 w-8 text-blue-600" />,
       color: "bg-blue-50 text-blue-600 border-blue-200"
     },
     {
       title: "Clients en attente",
-      value: "3",
+      value: userStats.pendingUsers,
       icon: <Clock className="h-8 w-8 text-amber-600" />,
       color: "bg-amber-50 text-amber-600 border-amber-200"
     },

@@ -1,10 +1,10 @@
-
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
+import { updateProfile, updatePassword } from '../config/api'; // Import the API functions
 
 import { Button } from "@/components/ui/button";
 import {
@@ -67,10 +67,10 @@ export function EditProfileForm({ open, onOpenChange }: EditProfileFormProps) {
     resolver: zodResolver(profileSchema),
     defaultValues: {
       firstName: user?.name?.split(" ")[0] || "",
-      lastName: user?.name?.split(" ")[1] || "",
+      lastName: user?.last_name || "",
       email: user?.email || "",
-      phone: "+33 6 12 34 56 78", // Exemple
-      address: "123 Rue de Paris, 75001 Paris", // Exemple
+      phone: user?.phone || "",
+      address: user?.address || "",
     },
   });
 
@@ -83,19 +83,25 @@ export function EditProfileForm({ open, onOpenChange }: EditProfileFormProps) {
     },
   });
 
-  function onProfileSubmit(values: z.infer<typeof profileSchema>) {
-    // Simulation d'une mise à jour de profil
-    console.log(values);
-    toast.success("Profil mis à jour avec succès");
-    onOpenChange(false);
+  async function onProfileSubmit(values: z.infer<typeof profileSchema>) {
+    try {
+      const response = await updateProfile(values);
+      toast.success(response.data.message || "Profil mis à jour avec succès");
+      onOpenChange(false);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Échec de la mise à jour du profil");
+    }
   }
 
-  function onPasswordSubmit(values: z.infer<typeof passwordSchema>) {
-    // Simulation d'un changement de mot de passe
-    console.log(values);
-    toast.success("Mot de passe modifié avec succès");
-    passwordForm.reset();
-    onOpenChange(false);
+  async function onPasswordSubmit(values: z.infer<typeof passwordSchema>) {
+    try {
+      const response = await updatePassword(values);
+      toast.success(response.data.message || "Mot de passe modifié avec succès");
+      passwordForm.reset();
+      onOpenChange(false);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Échec de la modification du mot de passe");
+    }
   }
 
   return (
