@@ -1,51 +1,143 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000/api'; // Replace with your Laravel backend URL
+const API_URL = 'http://localhost:8000/api';
 
-export const register = (userData) => {
-  return axios.post(`${API_URL}/register`, userData);
+// Créer une instance axios
+const axiosInstance = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  }
+});
+
+// Ajoutez un intercepteur de requête pour inclure dynamiquement le token
+axiosInstance.interceptors.request.use(
+  config => {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    return config;
+  },
+  error => {
+    return Promise.reject(error);
+  }
+);
+
+// Fonction pour mettre à jour le token
+export const setAuthToken = (token) => {
+  if (token) {
+    axiosInstance.defaults.headers['Authorization'] = `Bearer ${token}`;
+  } else {
+    delete axiosInstance.defaults.headers['Authorization'];
+  }
 };
 
-export const login = (email, password) => {
-  return axios.post(`${API_URL}/login`, { email, password });
+// Connexion
+export const login = async (email, password) => {
+  const response = await axiosInstance.post('/login', { email, password });
+  return response;
+};
+
+// Inscription
+export const register = async (name, last_name, email, phone, address, password, role) => {
+  const response = await axiosInstance.post('/register', { name, last_name, email, phone, address, password, role });
+  return response;
 };
 
 
+// ✅ Mise à jour du profil utilisateur
 export const updateProfile = (profileData) => {
-  return axios.post(`${API_URL}/update-profile`, profileData);
+  // profileData doit contenir: firstName, lastName, email, phone (optionnel), address (optionnel)
+  return axiosInstance.post('/update-profile', profileData);
 };
 
+// ✅ Mise à jour du mot de passe
 export const updatePassword = (passwordData) => {
-  return axios.post(`${API_URL}/update-password`, passwordData);
+  // passwordData doit contenir: currentPassword, newPassword, newPassword_confirmation
+  return axiosInstance.post('/update-password', passwordData);
 };
 
+// Récupérer stats (conseiller)
 export const getUserStatsAdvisor = () => {
-  return axios.get(`${API_URL}/user-stats-advisor`);
+  return axiosInstance.get('/user-stats-advisor');
 };
+
+// Filtrer par type
 export const getUsersByType = (type) => {
-  return axios.get(`${API_URL}/users?type_compte=${type}`);
+  return axiosInstance.get(`/users?type_compte=${type}`);
 };
 
+// Liste utilisateurs
 export const getUsers = () => {
-  return axios.get(`${API_URL}/users`);
+  return axiosInstance.get('/users');
 };
 
+// Statistiques utilisateurs
 export const getUserStats = () => {
-  return axios.get(`${API_URL}/user-stats`);
+  return axiosInstance.get('/user-stats');
 };
 
+// Statistiques crédits
 export const getCreditStats = () => {
-  return axios.get(`${API_URL}/credit-stats`);
+  return axiosInstance.get('/credit-stats');
 };
 
+// Approbation utilisateur
 export const approveUser = (id) => {
-  return axios.post(`${API_URL}/users/${id}/approve`);
+  return axiosInstance.post(`/users/${id}/approve`);
 };
 
+// Rejet utilisateur
 export const rejectUser = (id) => {
-  return axios.post(`${API_URL}/users/${id}/reject`);
+  return axiosInstance.post(`/users/${id}/reject`);
 };
 
+// Suppression utilisateur
 export const deleteUser = (id) => {
-  return axios.delete(`${API_URL}/users/${id}`);
+  return axiosInstance.delete(`/users/${id}`);
+};
+
+
+
+// Créer une demande de crédit
+export const createCreditRequest = (creditRequestData) => {
+  return axiosInstance.post('/credit-requests', creditRequestData);
+};
+
+// Récupérer les demandes de crédit
+
+
+// Mettre à jour le statut d'une demande de crédit
+export const updateCreditRequestStatus = (id, status) => {
+  return axiosInstance.put(`/credit-requests/${id}/status`, { status });
+};
+
+
+
+export const getActiveCredits = async (userId) => {
+  const response = await axiosInstance.get(`/active-credits?userId=${userId}`);
+  return response.data;
+};
+
+
+
+// Récupérer les clients d'un conseiller
+export const getClientsByAdvisor = (advisorId) => {
+  return axiosInstance.get(`/advisor/${advisorId}/clients`);
+};
+
+// Récupérer les demandes de crédit d'un conseiller
+export const getCreditRequestsByAdvisor = (advisorId) => {
+  return axiosInstance.get(`/advisor/${advisorId}/credit-requests`);
+};
+
+// Récupérer les stats d'un conseiller
+export const getAdvisorStats = (advisorId) => {
+  return axiosInstance.get(`/advisor/${advisorId}/stats`);
+};
+
+export const getCreditRequests = async (userId) => {
+  const response = await axiosInstance.get(`/credit-requests?userId=${userId}`);
+  return response.data;
 };

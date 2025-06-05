@@ -1,44 +1,22 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000/api'; // Remplace avec ton URL si besoin
-
-// Récupérer le token d'authentification
-const getAuthToken = () => {
-  return localStorage.getItem('authToken');
-};
-
-
+const API_URL = 'http://localhost:8000/api';
 
 // Créer une instance axios
 const axiosInstance = axios.create({
   baseURL: API_URL,
   headers: {
-    'Authorization': `Bearer ${getAuthToken()}`,
     'Content-Type': 'application/json',
   }
 });
 
-axiosInstance.interceptors.response.use(
-  response => response,
-  error => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('authToken');
-      window.location.href = '/login';
-    }
-    return Promise.reject(error);
-  }
-);
-
-
-// Met à jour le token dynamiquement si besoin
-export const setAuthToken = (token) => {
-  axiosInstance.defaults.headers['Authorization'] = `Bearer ${token}`;
-};
-
-
+// Ajoutez un intercepteur de requête pour inclure dynamiquement le token
 axiosInstance.interceptors.request.use(
   config => {
-    console.log('Token:', getAuthToken());
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
     return config;
   },
   error => {
@@ -46,26 +24,26 @@ axiosInstance.interceptors.request.use(
   }
 );
 
-
-
-// Enregistrement
-export const register = (userData) => {
-  return axiosInstance.post('/register', userData);
+// Fonction pour mettre à jour le token
+export const setAuthToken = (token) => {
+  if (token) {
+    axiosInstance.defaults.headers['Authorization'] = `Bearer ${token}`;
+  } else {
+    delete axiosInstance.defaults.headers['Authorization'];
+  }
 };
 
 // Connexion
-/*export const login = (email, password) => {
-  return axiosInstance.post('/login', { email, password });
-};*/
-
 export const login = async (email, password) => {
   const response = await axiosInstance.post('/login', { email, password });
-  const token = response.data.token;
-  localStorage.setItem('authToken', token);
-  setAuthToken(token); // Mettre à jour le token dans Axios
   return response;
 };
 
+// Inscription
+export const register = async (name, last_name, email, phone, address, password, role) => {
+  const response = await axiosInstance.post('/register', { name, last_name, email, phone, address, password, role });
+  return response;
+};
 
 
 // ✅ Mise à jour du profil utilisateur
@@ -128,11 +106,38 @@ export const createCreditRequest = (creditRequestData) => {
 };
 
 // Récupérer les demandes de crédit
-export const getCreditRequests = () => {
-  return axiosInstance.get('/credit-requests');
-};
+
 
 // Mettre à jour le statut d'une demande de crédit
 export const updateCreditRequestStatus = (id, status) => {
   return axiosInstance.put(`/credit-requests/${id}/status`, { status });
+};
+
+
+
+export const getActiveCredits = async (userId) => {
+  const response = await axiosInstance.get(`/active-credits?userId=${userId}`);
+  return response.data;
+};
+
+
+
+// Récupérer les clients d'un conseiller
+export const getClientsByAdvisor = (advisorId) => {
+  return axiosInstance.get(`/advisor/${advisorId}/clients`);
+};
+
+// Récupérer les demandes de crédit d'un conseiller
+export const getCreditRequestsByAdvisor = (advisorId) => {
+  return axiosInstance.get(`/advisor/${advisorId}/credit-requests`);
+};
+
+// Récupérer les stats d'un conseiller
+export const getAdvisorStats = (advisorId) => {
+  return axiosInstance.get(`/advisor/${advisorId}/stats`);
+};
+
+export const getCreditRequests = async (userId) => {
+  const response = await axiosInstance.get(`/credit-requests?userId=${userId}`);
+  return response.data;
 };

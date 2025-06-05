@@ -3,39 +3,35 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import CreditSimulator from "@/components/CreditSimulator";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { 
-  FileText, 
-  Clock, 
-  CheckCircle, 
-  XCircle, 
+import {
+  FileText,
   ChevronRight,
   User,
   CreditCard,
   PiggyBank,
-  Bell,
   Plus
 } from "lucide-react";
 import { toast } from "sonner";
-import { 
+import {
   CircularProgressbarWithChildren,
   buildStyles
 } from "react-circular-progressbar";
@@ -43,83 +39,48 @@ import "react-circular-progressbar/dist/styles.css";
 import { AddCreditRequestForm } from "@/components/AddCreditRequestForm";
 import { CreditSimulatorModal } from "@/components/CreditSimulatorModal";
 import { EditProfileForm } from "@/components/EditProfileForm";
-
-const mockUserCreditRequests = [
-  {
-    id: "CR001",
-    amount: 25000,
-    purpose: "Prêt auto",
-    type_compte: "approved",
-    date: "2024-04-15",
-    advisor: "Jean Martin",
-    duration: 48
-  },
-  {
-    id: "CR002",
-    amount: 15000,
-    purpose: "Prêt personnel",
-    type_compte: "pending",
-    date: "2024-04-10",
-    advisor: "Marie Dubois",
-    duration: 36
-  }
-];
-
-const mockActiveCredits = [
-  {
-    id: "AC001",
-    amount: 25000,
-    monthlyPayment: 559.17,
-    remainingMonths: 42,
-    duration: 48,
-    purpose: "Prêt auto",
-    nextPaymentDate: "2024-05-15"
-  }
-];
-
-const mockNotifications = [
-  {
-    id: 1,
-    message: "Votre demande de crédit a été approuvée",
-    date: "2024-04-15",
-    read: false
-  },
-  {
-    id: 2,
-    message: "Nouveau message de votre conseiller",
-    date: "2024-04-14",
-    read: true
-  }
-];
+import { getCreditRequests, getActiveCredits } from "../config/api";
 
 const UserDashboard = () => {
   const { user, isAuthenticated } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
-  const [showNotifications, setShowNotifications] = useState(false);
   const [addCreditRequestOpen, setAddCreditRequestOpen] = useState(false);
   const [simulatorModalOpen, setSimulatorModalOpen] = useState(false);
   const [editProfileOpen, setEditProfileOpen] = useState(false);
-  
+  const [creditRequests, setCreditRequests] = useState([]);
+  const [activeCredits, setActiveCredits] = useState([]);
+
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-    
-    return () => clearTimeout(timer);
-  }, []);
+    const fetchData = async () => {
+      try {
+        const userId = user?.id;
+        const [requests, credits] = await Promise.all([
+          getCreditRequests(userId),
+          getActiveCredits(userId)
+        ]);
+        setCreditRequests(requests);
+        setActiveCredits(credits);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        toast.error("Erreur lors de la récupération des données");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (user?.id) {
+      fetchData();
+    }
+  }, [user?.id]);
 
   if (!isAuthenticated || user?.role !== "user") {
     return <Navigate to="/login" replace />;
   }
-  
-  const toggleNotifications = () => {
-    setShowNotifications(!showNotifications);
-  };
-  
+
   return (
     <div className="min-h-screen bg-fidelem-light">
       <Navbar />
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
           <div>
@@ -127,51 +88,7 @@ const UserDashboard = () => {
             <p className="text-gray-600 mt-1">Bienvenue, {user.name}</p>
           </div>
           <div className="mt-4 md:mt-0 flex items-center gap-3">
-            <div className="relative">
-              <Button 
-                variant="ghost"
-                onClick={toggleNotifications}
-                className="relative"
-              >
-                <Bell size={20} />
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {mockNotifications.filter(n => !n.read).length}
-                </span>
-              </Button>
-              {showNotifications && (
-                <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg z-50 transition-all duration-200">
-                  <div className="p-3 border-b">
-                    <h3 className="font-semibold">Notifications</h3>
-                  </div>
-                  <div className="max-h-80 overflow-y-auto">
-                    {mockNotifications.map(notification => (
-                      <div 
-                        key={notification.id}
-                        className={`p-3 border-b hover:bg-gray-50 cursor-pointer ${notification.read ? 'opacity-70' : ''}`}
-                      >
-                        <div className="flex items-start gap-2">
-                          {!notification.read && (
-                            <div className="h-2 w-2 mt-1.5 rounded-full bg-red-500"></div>
-                          )}
-                          <div>
-                            <p className="text-sm">{notification.message}</p>
-                            <p className="text-xs text-gray-500 mt-1">
-                              {new Date(notification.date).toLocaleDateString("fr-FR")}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="p-2 text-center border-t">
-                    <button className="text-sm text-fidelem hover:underline">
-                      Voir toutes les notifications
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-            <Button 
+            <Button
               className="bg-fidelem hover:bg-fidelem/90"
               onClick={() => setEditProfileOpen(true)}
             >
@@ -179,16 +96,15 @@ const UserDashboard = () => {
             </Button>
           </div>
         </div>
-        
+
         <UserSummary isLoading={isLoading} />
-        
+
         <Tabs defaultValue="dashboard" className="mt-8">
-          <TabsList className="grid w-full md:w-auto grid-cols-3">
+          <TabsList className="grid w-full md:w-auto grid-cols-2">
             <TabsTrigger value="dashboard">Tableau de bord</TabsTrigger>
-            <TabsTrigger value="credits">Mes crédits</TabsTrigger>
             <TabsTrigger value="simulator">Simulateur</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="dashboard" className="mt-6">
             <div className="grid md:grid-cols-3 gap-6">
               <div className="md:col-span-2 space-y-6">
@@ -200,7 +116,7 @@ const UserDashboard = () => {
                         Suivez l'état de vos demandes de crédit en cours.
                       </CardDescription>
                     </div>
-                    <Button 
+                    <Button
                       className="bg-fidelem hover:bg-fidelem/90 flex items-center gap-2"
                       onClick={() => setAddCreditRequestOpen(true)}
                     >
@@ -208,7 +124,7 @@ const UserDashboard = () => {
                     </Button>
                   </CardHeader>
                   <CardContent>
-                    {mockUserCreditRequests.length > 0 ? (
+                    {creditRequests.length > 0 ? (
                       <div className="border rounded-lg overflow-hidden">
                         <Table>
                           <TableHeader>
@@ -222,24 +138,24 @@ const UserDashboard = () => {
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {mockUserCreditRequests.map((request) => (
+                            {creditRequests.map((request) => (
                               <TableRow key={request.id}>
                                 <TableCell className="font-medium">{request.id}</TableCell>
                                 <TableCell>{request.amount.toLocaleString('fr-FR')} €</TableCell>
                                 <TableCell>{request.purpose}</TableCell>
                                 <TableCell>
-                                  {request.type_compte === "approved" && (
+                                  {request.status === "Approuvée" && (
                                     <Badge className="bg-green-500">Approuvée</Badge>
                                   )}
-                                  {request.type_compte === "pending" && (
+                                  {request.status === "En attente" && (
                                     <Badge className="bg-amber-500">En attente</Badge>
                                   )}
-                                  {request.type_compte === "rejected" && (
+                                  {request.status === "Rejetée" && (
                                     <Badge className="bg-red-500">Rejetée</Badge>
                                   )}
                                 </TableCell>
-                                <TableCell>{new Date(request.date).toLocaleDateString("fr-FR")}</TableCell>
-                                <TableCell>{request.advisor}</TableCell>
+                                <TableCell>{new Date(request.created_at).toLocaleDateString("fr-FR")}</TableCell>
+                                <TableCell>{request.user?.advisor?.name || 'Non assigné'}</TableCell>
                               </TableRow>
                             ))}
                           </TableBody>
@@ -256,8 +172,8 @@ const UserDashboard = () => {
                     )}
                   </CardContent>
                   <CardFooter className="flex justify-end">
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       onClick={() => setAddCreditRequestOpen(true)}
                       className="text-fidelem border-fidelem hover:bg-fidelem/10"
                     >
@@ -265,7 +181,7 @@ const UserDashboard = () => {
                     </Button>
                   </CardFooter>
                 </Card>
-                
+
                 <Card>
                   <CardHeader>
                     <CardTitle>Mes crédits actifs</CardTitle>
@@ -274,28 +190,24 @@ const UserDashboard = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    {mockActiveCredits.length > 0 ? (
+                    {activeCredits.length > 0 ? (
                       <div className="border rounded-lg overflow-hidden">
                         <Table>
                           <TableHeader>
                             <TableRow className="bg-gray-50">
-                              <TableHead>ID</TableHead>
+                              
                               <TableHead>Montant</TableHead>
                               <TableHead>Mensualité</TableHead>
-                              <TableHead>Durée restante</TableHead>
                               <TableHead>Objet</TableHead>
-                              <TableHead>Prochaine échéance</TableHead>
+                            
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {mockActiveCredits.map((credit) => (
+                            {activeCredits.map((credit) => (
                               <TableRow key={credit.id}>
-                                <TableCell className="font-medium">{credit.id}</TableCell>
                                 <TableCell>{credit.amount.toLocaleString('fr-FR')} €</TableCell>
-                                <TableCell>{credit.monthlyPayment.toLocaleString('fr-FR')} €</TableCell>
-                                <TableCell>{credit.remainingMonths} mois</TableCell>
+                                <TableCell>{credit.duration} mois</TableCell>
                                 <TableCell>{credit.purpose}</TableCell>
-                                <TableCell>{new Date(credit.nextPaymentDate).toLocaleDateString("fr-FR")}</TableCell>
                               </TableRow>
                             ))}
                           </TableBody>
@@ -311,17 +223,10 @@ const UserDashboard = () => {
                       </div>
                     )}
                   </CardContent>
-                  <CardFooter className="flex justify-end">
-                    <Button 
-                      variant="outline"
-                      onClick={() => toast.info("Voir tous mes crédits")}
-                    >
-                      Voir tous mes crédits <ChevronRight size={16} className="ml-1" />
-                    </Button>
-                  </CardFooter>
+                 
                 </Card>
               </div>
-              
+
               <div>
                 <Card>
                   <CardHeader>
@@ -339,23 +244,20 @@ const UserDashboard = () => {
                       <p className="text-gray-500">{user?.email}</p>
                     </div>
                     <div className="space-y-4">
-                      <div>
-                        <p className="text-sm text-gray-500">Mon conseiller</p>
-                        <p className="font-medium">Jean Dupont</p>
-                      </div>
+                      
                       <div>
                         <p className="text-sm text-gray-500">Téléphone</p>
                         <p className="font-medium">{user?.phone}</p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">Adresse</p>
-                        <p className="font-medium">123 Rue de Paris, 75001 Paris</p>
+                        <p className="font-medium">{user?.address}</p>
                       </div>
                     </div>
                   </CardContent>
                   <CardFooter>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       className="w-full"
                       onClick={() => setEditProfileOpen(true)}
                     >
@@ -363,7 +265,7 @@ const UserDashboard = () => {
                     </Button>
                   </CardFooter>
                 </Card>
-                
+
                 <Card className="mt-6">
                   <CardHeader>
                     <CardTitle>Simuler un crédit</CardTitle>
@@ -376,7 +278,7 @@ const UserDashboard = () => {
                     <p className="mb-4">
                       Utilisez notre simulateur pour estimer vos mensualités et le coût total de votre crédit.
                     </p>
-                    <Button 
+                    <Button
                       className="bg-fidelem hover:bg-fidelem/90 w-full"
                       onClick={() => setSimulatorModalOpen(true)}
                     >
@@ -387,149 +289,14 @@ const UserDashboard = () => {
               </div>
             </div>
           </TabsContent>
-          
-          <TabsContent value="credits" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Mes crédits</CardTitle>
-                <CardDescription>
-                  Consultez l'ensemble de vos crédits et demandes.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Tabs defaultValue="active">
-                  <TabsList className="w-full grid grid-cols-2">
-                    <TabsTrigger value="active">Crédits actifs</TabsTrigger>
-                    <TabsTrigger value="requests">Demandes</TabsTrigger>
-                    
-                  </TabsList>
-                  
-                  <TabsContent value="active" className="mt-4 space-y-6">
-                    {mockActiveCredits.length > 0 ? (
-                      mockActiveCredits.map((credit) => (
-                        <Card key={credit.id} className="overflow-hidden">
-                          <div className="bg-fidelem text-white p-4">
-                            <div className="flex justify-between items-center">
-                              <h3 className="font-semibold">Crédit {credit.id}</h3>
-                              <Badge className="bg-white text-fidelem">{credit.purpose}</Badge>
-                            </div>
-                          </div>
-                          <CardContent className="p-6">
-                            <div className="grid md:grid-cols-3 gap-6">
-                              <div className="text-center">
-                                <p className="text-sm text-gray-500">Montant emprunté</p>
-                                <p className="text-2xl font-bold text-fidelem">
-                                  {credit.amount.toLocaleString('fr-FR')} €
-                                </p>
-                              </div>
-                              <div className="text-center">
-                                <p className="text-sm text-gray-500">Mensualité</p>
-                                <p className="text-2xl font-bold text-fidelem">
-                                  {credit.monthlyPayment.toLocaleString('fr-FR')} €
-                                </p>
-                              </div>
-                              <div className="text-center flex flex-col items-center">
-                                <p className="text-sm text-gray-500">Progression</p>
-                                <div className="w-20 h-20 mt-2">
-                                  <CircularProgressbarWithChildren
-                                    value={Math.round(((credit.duration - credit.remainingMonths) / credit.duration) * 100)}
-                                    strokeWidth={8}
-                                    styles={buildStyles({
-                                      pathColor: "#0F3460",
-                                      trailColor: "#F7F7F7"
-                                    })}
-                                  >
-                                    <div className="text-sm font-semibold">
-                                      {Math.round(((credit.duration - credit.remainingMonths) / credit.duration) * 100)}%
-                                    </div>
-                                  </CircularProgressbarWithChildren>
-                                </div>
-                              </div>
-                            </div>
-                            
-                         
-                          </CardContent>
-                         
-                        </Card>
-                      ))
-                    ) : (
-                      <div className="text-center py-12">
-                        <CreditCard className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 mb-1">Aucun crédit actif</h3>
-                        <p className="text-gray-500 mb-6">
-                          Vous n'avez pas encore de crédit actif.
-                        </p>
-                        <Button 
-                          className="bg-fidelem hover:bg-fidelem/90"
-                          onClick={() => toast.info("Nouvelle demande de crédit")}
-                        >
-                          Faire une demande de crédit
-                        </Button>
-                      </div>
-                    )}
-                  </TabsContent>
-                  
-                  <TabsContent value="requests" className="mt-4">
-                    <div className="border rounded-lg overflow-hidden">
-                      <Table>
-                        <TableHeader>
-                          <TableRow className="bg-gray-50">
-                            <TableHead>ID</TableHead>
-                            <TableHead>Date</TableHead>
-                            <TableHead>Montant</TableHead>
-                            <TableHead>Durée</TableHead>
-                            <TableHead>Objet</TableHead>
-                            <TableHead>Statut</TableHead>
-                           
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {mockUserCreditRequests.map((request) => (
-                            <TableRow key={request.id}>
-                              <TableCell className="font-medium">{request.id}</TableCell>
-                              <TableCell>{new Date(request.date).toLocaleDateString("fr-FR")}</TableCell>
-                              <TableCell>{request.amount.toLocaleString('fr-FR')} €</TableCell>
-                              <TableCell>{request.duration} mois</TableCell>
-                              <TableCell>{request.purpose}</TableCell>
-                              <TableCell>
-                                {request.type_compte === "approved" && (
-                                  <Badge className="bg-green-500">Approuvée</Badge>
-                                )}
-                                {request.type_compte === "pending" && (
-                                  <Badge className="bg-amber-500">En attente</Badge>
-                                )}
-                                {request.type_compte === "rejected" && (
-                                  <Badge className="bg-red-500">Rejetée</Badge>
-                                )}
-                              </TableCell>
-                              
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  </TabsContent>
-                  
-                  <TabsContent value="history" className="mt-4">
-                    <div className="text-center py-12">
-                      <Clock className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-1">Aucun historique disponible</h3>
-                      <p className="text-gray-500">
-                        Vous n'avez pas encore de crédit terminé ou remboursé.
-                      </p>
-                    </div>
-                  </TabsContent>
-                </Tabs>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
+
+
           <TabsContent value="simulator" className="mt-6">
             <CreditSimulator className="max-w-3xl mx-auto" />
           </TabsContent>
         </Tabs>
       </div>
-      
+
       <AddCreditRequestForm open={addCreditRequestOpen} onOpenChange={setAddCreditRequestOpen} />
       <CreditSimulatorModal open={simulatorModalOpen} onOpenChange={setSimulatorModalOpen} />
       <EditProfileForm open={editProfileOpen} onOpenChange={setEditProfileOpen} />
@@ -538,56 +305,11 @@ const UserDashboard = () => {
 };
 
 const UserSummary = ({ isLoading }: { isLoading: boolean }) => {
-  const statsItems = [
-    {
-      title: "Crédits actifs",
-      value: "1",
-      icon: <CreditCard className="h-8 w-8 text-blue-600" />,
-      color: "bg-blue-50 text-blue-600 border-blue-200"
-    },
-    {
-      title: "Demandes en cours",
-      value: "1",
-      icon: <Clock className="h-8 w-8 text-amber-600" />,
-      color: "bg-amber-50 text-amber-600 border-amber-200"
-    },
-    {
-      title: "Demandes approuvées",
-      value: "1",
-      icon: <CheckCircle className="h-8 w-8 text-green-600" />,
-      color: "bg-green-50 text-green-600 border-green-200"
-    }
-  ];
+  
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-      {statsItems.map((item, index) => (
-        <div
-          key={index}
-          className={`transition-all duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
-          style={{ transitionDelay: `${index * 100}ms` }}
-        >
-          <Card className={`border ${item.color}`}>
-            <CardContent className="p-6">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-sm font-medium">{item.title}</p>
-                  <div className="flex items-baseline mt-1">
-                    <h3 className="text-2xl font-bold">
-                      {isLoading ? (
-                        <div className="h-8 w-16 bg-gray-200 animate-pulse rounded"></div>
-                      ) : (
-                        item.value
-                      )}
-                    </h3>
-                  </div>
-                </div>
-                {item.icon}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      ))}
+   
     </div>
   );
 };
