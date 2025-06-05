@@ -40,8 +40,31 @@ export const login = async (email, password) => {
 };
 
 // Inscription
-export const register = async (name, last_name, email, phone, address, password, role) => {
+/*export const register = async (name, last_name, email, phone, address, password, role) => {
   const response = await axiosInstance.post('/register', { name, last_name, email, phone, address, password, role });
+  return response;
+};*/
+
+export const register = async (data: {
+  name: string;
+  last_name: string;
+  email: string;
+  phone?: string;
+  address?: string;
+  password: string;
+  type_compte: string;
+  created_by?: number;
+}) => {
+  const response = await axiosInstance.post('/register', {
+    name: data.name,
+    last_name: data.last_name,
+    email: data.email,
+    phone: data.phone || '',
+    address: data.address || '',
+    type_compte: data.type_compte,
+    password: data.password,
+    created_by: data.created_by
+  });
   return response;
 };
 

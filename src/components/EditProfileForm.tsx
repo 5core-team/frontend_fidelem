@@ -5,7 +5,7 @@ import * as z from "zod";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { Eye, EyeOff } from "lucide-react"; 
-import { updateProfile, updatePassword } from '../config/api'; // Import the API functions
+import { updateProfile, updatePassword } from '../config/api';// Import the API functions
 
 import { Button } from "@/components/ui/button";
 import {
@@ -63,11 +63,12 @@ interface EditProfileFormProps {
 export function EditProfileForm({ open, onOpenChange }: EditProfileFormProps) {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("profile");
-
-   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showContactAdvisorMessage, setShowContactAdvisorMessage] = useState(false);
 
+  const isRegularUser = user?.role === "user";
 
   const profileForm = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
@@ -116,7 +117,10 @@ async function onPasswordSubmit(values: z.infer<typeof passwordSchema>) {
 
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(open) => {
+      onOpenChange(open);
+      setShowContactAdvisorMessage(false);
+    }}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Modifier mes informations</DialogTitle>
@@ -126,9 +130,24 @@ async function onPasswordSubmit(values: z.infer<typeof passwordSchema>) {
             <TabsTrigger value="profile">Profil</TabsTrigger>
             <TabsTrigger value="password">Mot de passe</TabsTrigger>
           </TabsList>
+          
           <TabsContent value="profile" className="mt-4">
             <Form {...profileForm}>
-              <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} className="space-y-4">
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                if (isRegularUser) {
+                  setShowContactAdvisorMessage(true);
+                } else {
+                  profileForm.handleSubmit(onProfileSubmit)(e);
+                }
+              }} className="space-y-4">
+                
+                {showContactAdvisorMessage && (
+                  <div className="p-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-700">
+                    <p>Pour modifier vos informations, veuillez contacter votre conseiller Fidelem.</p>
+                  </div>
+                )}
+                
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={profileForm.control}
@@ -137,7 +156,7 @@ async function onPasswordSubmit(values: z.infer<typeof passwordSchema>) {
                       <FormItem>
                         <FormLabel>Prénom</FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <Input {...field} disabled={isRegularUser} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -150,13 +169,14 @@ async function onPasswordSubmit(values: z.infer<typeof passwordSchema>) {
                       <FormItem>
                         <FormLabel>Nom</FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <Input {...field} disabled={isRegularUser} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
+                
                 <FormField
                   control={profileForm.control}
                   name="email"
@@ -164,12 +184,13 @@ async function onPasswordSubmit(values: z.infer<typeof passwordSchema>) {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input type="email" {...field} />
+                        <Input type="email" {...field} disabled={isRegularUser} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+                
                 <FormField
                   control={profileForm.control}
                   name="phone"
@@ -177,12 +198,13 @@ async function onPasswordSubmit(values: z.infer<typeof passwordSchema>) {
                     <FormItem>
                       <FormLabel>Téléphone</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input {...field} disabled={isRegularUser} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+                
                 <FormField
                   control={profileForm.control}
                   name="address"
@@ -190,13 +212,20 @@ async function onPasswordSubmit(values: z.infer<typeof passwordSchema>) {
                     <FormItem>
                       <FormLabel>Adresse</FormLabel>
                       <FormControl>
-                        <Textarea {...field} />
+                        <Textarea {...field} disabled={isRegularUser} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full bg-fidelem hover:bg-fidelem/90">Sauvegarder</Button>
+                
+                <Button 
+                  type="submit" 
+                  className="w-full bg-fidelem hover:bg-fidelem/90"
+                  disabled={isRegularUser && !showContactAdvisorMessage}
+                >
+                  {isRegularUser ? "Modification non autorisée" : "Sauvegarder"}
+                </Button>
               </form>
             </Form>
           </TabsContent>
