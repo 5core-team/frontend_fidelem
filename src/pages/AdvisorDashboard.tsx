@@ -201,7 +201,7 @@ const AdvisorDashboard = () => {
                             {request.status === "En attente" && (
                               <Badge className="bg-amber-500">En attente</Badge>
                             )}
-                            {request.status === "rejected" && (
+                            {request.status === "Réjetée" && (
                               <Badge className="bg-red-500">Rejetée</Badge>
                             )}
                           </TableCell>
@@ -253,7 +253,7 @@ const AdvisorDashboard = () => {
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-gray-50">
-                        <TableHead>ID</TableHead>
+                        
                         <TableHead>Nom</TableHead>
                         <TableHead>Email</TableHead>
                         <TableHead>Téléphone</TableHead>
@@ -263,9 +263,7 @@ const AdvisorDashboard = () => {
                     <TableBody>
                       {clients.map((client) => (
                         <TableRow key={client.id}>
-                          <TableCell className="font-medium">
-                            {client.id}
-                          </TableCell>
+                          
                           <TableCell>{client.name}</TableCell>
                           <TableCell>{client.email}</TableCell>
                           <TableCell>{client.phone}</TableCell>

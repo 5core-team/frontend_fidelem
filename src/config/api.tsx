@@ -40,11 +40,6 @@ export const login = async (email, password) => {
 };
 
 // Inscription
-/*export const register = async (name, last_name, email, phone, address, password, role) => {
-  const response = await axiosInstance.post('/register', { name, last_name, email, phone, address, password, role });
-  return response;
-};*/
-
 export const register = async (data: {
   name: string;
   last_name: string;
@@ -71,13 +66,11 @@ export const register = async (data: {
 
 // ✅ Mise à jour du profil utilisateur
 export const updateProfile = (profileData) => {
-  // profileData doit contenir: firstName, lastName, email, phone (optionnel), address (optionnel)
   return axiosInstance.post('/update-profile', profileData);
 };
 
 // ✅ Mise à jour du mot de passe
 export const updatePassword = (passwordData) => {
-  // passwordData doit contenir: currentPassword, newPassword, newPassword_confirmation
   return axiosInstance.post('/update-password', passwordData);
 };
 
@@ -131,13 +124,6 @@ export const createCreditRequest = (creditRequestData) => {
 // Récupérer les demandes de crédit
 
 
-// Mettre à jour le statut d'une demande de crédit
-export const updateCreditRequestStatus = (id, status) => {
-  return axiosInstance.put(`/credit-requests/${id}/status`, { status });
-};
-
-
-
 export const getActiveCredits = async (userId) => {
   const response = await axiosInstance.get(`/active-credits?userId=${userId}`);
   return response.data;
@@ -168,25 +154,52 @@ export const getCreditRequests = async (userId) => {
 
 export const getCreditRequestsAdmin = async () => {
   try {
-    const response = await axios.get('/api/credit-requests-admin');
-    console.log(response.data); // Affichez les données dans la console
+    const response = await axiosInstance.get('/credit-requests-admin');
     return response.data;
   } catch (error) {
     console.error("Erreur lors de la récupération des demandes de crédit:", error);
     throw error;
   }
 };
-export const approveCreditRequest = async (id) => {
-  const response = await axios.post(`/api/credit-requests/${id}/approve`);
-  return response.data;
+
+
+export const approveCreditRequest = async (id: string) => {
+  try {
+    const response = await axiosInstance.post(`/credit-requests/${id}/approve`);
+    return response.data;
+  } catch (error) {
+    console.error("Erreur lors de l'approbation de la demande de crédit:", error);
+    throw error;
+  }
 };
 
-export const rejectCreditRequest = async (id) => {
-  const response = await axios.post(`/api/credit-requests/${id}/reject`);
-  return response.data;
+export const rejectCreditRequest = async (id: string) => {
+  try {
+    const response = await axiosInstance.post(`/credit-requests/${id}/reject`);
+    return response.data;
+  } catch (error) {
+    console.error("Erreur lors du rejet de la demande de crédit:", error);
+    throw error;
+  }
 };
 
-export const deleteCreditRequest = async (id) => {
-  const response = await axios.delete(`/api/credit-requests/${id}`);
-  return response.data;
+export const deleteCreditRequest = async (id: string) => {
+  try {
+    const response = await axiosInstance.delete(`/credit-requests/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Erreur lors de la suppression de la demande de crédit:", error);
+    throw error;
+  }
+};
+
+
+export const updateCreditRequestStatus = async (id: string, status: "En attente" | "Approuvé" | "Rejeté") => {
+  try {
+    const response = await axiosInstance.put(`/credit-requests/${id}/status`, { status });
+    return response.data;
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour du statut de la demande de crédit:", error);
+    throw error;
+  }
 };

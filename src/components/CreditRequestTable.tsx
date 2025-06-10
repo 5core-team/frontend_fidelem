@@ -21,12 +21,12 @@ import {
   CheckCircle2,
   XCircle,
   MoreHorizontal,
-  Trash2,
+  RotateCw, // Changed from Trash2 to RotateCw
   Search,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { getCreditRequestsAdmin, approveCreditRequest, rejectCreditRequest, deleteCreditRequest } from '../config/api';
+import { getCreditRequestsAdmin, approveCreditRequest, rejectCreditRequest, updateCreditRequestStatus } from '../config/api'; // deleteCreditRequest replaced with updateCreditRequestStatus
 
 interface CreditRequest {
   id: string;
@@ -52,23 +52,27 @@ const CreditRequestTable = ({ title, description }: CreditRequestTableProps) => 
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
 
-useEffect(() => {
-  const fetchCreditRequests = async () => {
-    try {
-      const response = await getCreditRequestsAdmin();
-      console.log(response); // Affichez la réponse complète pour vérifier sa structure
-      setCreditRequests(Array.isArray(response) ? response : []);
-    } catch (error) {
-      console.error("Erreur lors de la récupération des demandes de crédit:", error);
-      toast.error("Erreur lors de la récupération des demandes de crédit");
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    const fetchCreditRequests = async () => {
+      try {
+        const response = await getCreditRequestsAdmin();
+        console.log("Réponse de l'API :", response);
+        if (Array.isArray(response)) {
+          setCreditRequests(response);
+        } else {
+          console.error("La réponse de l'API n'est pas un tableau :", response);
+          setCreditRequests([]);
+        }
+      } catch (error) {
+        console.error("Erreur lors de la récupération des demandes de crédit:", error);
+        toast.error("Erreur lors de la récupération des demandes de crédit");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  fetchCreditRequests();
-}, []);
-
+    fetchCreditRequests();
+  }, []);
 
   const handleApprove = async (requestId: string) => {
     try {
@@ -94,21 +98,23 @@ useEffect(() => {
     }
   };
 
-  const handleDelete = async (requestId: string) => {
+  const handleRestore = async (requestId: string) => {
     try {
-      await deleteCreditRequest(requestId);
-      setCreditRequests(creditRequests.filter(request => request.id !== requestId));
-      toast.success("Demande de crédit supprimée avec succès");
+      await updateCreditRequestStatus(requestId, "En attente"); // Use the updateCreditRequestStatus function
+      setCreditRequests(creditRequests.map(request =>
+        request.id === requestId ? { ...request, status: "En attente" as const } : request
+      ));
+      toast.success("Demande de crédit restaurée et mise en attente");
     } catch (error) {
-      toast.error("Erreur lors de la suppression de la demande de crédit");
+      toast.error("Erreur lors de la restauration de la demande de crédit");
     }
   };
 
   const filteredCreditRequests = Array.isArray(creditRequests)
     ? creditRequests.filter(request =>
-        request.user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        request.purpose.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      request.user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      request.purpose.toLowerCase().includes(searchQuery.toLowerCase())
+    )
     : [];
 
   const getStatusBadge = (status: CreditRequest["status"]) => {
@@ -190,12 +196,13 @@ useEffect(() => {
                             </DropdownMenuItem>
                           </>
                         )}
-                        <DropdownMenuItem
-                          onClick={() => handleDelete(request.id)}
-                          className="text-red-600 focus:text-red-600"
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" /> Supprimer
-                        </DropdownMenuItem>
+                        {request.status === "Approuvé" || request.status === "Rejeté" ? (
+                          <DropdownMenuItem
+                            onClick={() => handleRestore(request.id)}
+                          >
+                            <RotateCw className="mr-2 h-4 w-4" /> Restaurer
+                          </DropdownMenuItem>
+                        ) : null}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

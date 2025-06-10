@@ -10,6 +10,18 @@ const axiosInstance = axios.create({
   }
 });
 
+  const api = axios.create({
+                baseURL: 'http://localhost:8000/api', // Replace with your API's base URL
+            });  export const getCreditRequestsAdmin = async () => {
+                try {
+                    const response = await api.get('/credit-requests-admin');
+                    return response.data;
+                } catch (error) {
+                    console.error("Erreur lors de la récupération des demandes de crédit:", error);
+                    throw error;
+                }
+            };
+
 // Ajoutez un intercepteur de requête pour inclure dynamiquement le token
 axiosInstance.interceptors.request.use(
   config => {
@@ -40,8 +52,31 @@ export const login = async (email, password) => {
 };
 
 // Inscription
-export const register = async (name, last_name, email, phone, address, password, role) => {
+/*export const register = async (name, last_name, email, phone, address, password, role) => {
   const response = await axiosInstance.post('/register', { name, last_name, email, phone, address, password, role });
+  return response;
+};*/
+
+export const register = async (data: {
+  name: string;
+  last_name: string;
+  email: string;
+  phone?: string;
+  address?: string;
+  password: string;
+  type_compte: string;
+  created_by?: number;
+}) => {
+  const response = await axiosInstance.post('/register', {
+    name: data.name,
+    last_name: data.last_name,
+    email: data.email,
+    phone: data.phone || '',
+    address: data.address || '',
+    type_compte: data.type_compte,
+    password: data.password,
+    created_by: data.created_by
+  });
   return response;
 };
 
@@ -139,5 +174,24 @@ export const getAdvisorStats = (advisorId) => {
 
 export const getCreditRequests = async (userId) => {
   const response = await axiosInstance.get(`/credit-requests?userId=${userId}`);
+  return response.data;
+};
+
+
+
+
+
+export const approveCreditRequest = async (id) => {
+  const response = await axios.post(`/api/credit-requests/${id}/approve`);
+  return response.data;
+};
+
+export const rejectCreditRequest = async (id) => {
+  const response = await axios.post(`/api/credit-requests/${id}/reject`);
+  return response.data;
+};
+
+export const deleteCreditRequest = async (id) => {
+  const response = await axios.delete(`/api/credit-requests/${id}`);
   return response.data;
 };

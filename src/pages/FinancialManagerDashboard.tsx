@@ -54,6 +54,8 @@ const FinancialManagerDashboard = () => {
   });
   const [creditStatsData, setCreditStatsData] = useState([]);
 
+  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
