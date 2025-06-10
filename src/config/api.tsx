@@ -164,3 +164,29 @@ export const getCreditRequests = async (userId) => {
   const response = await axiosInstance.get(`/credit-requests?userId=${userId}`);
   return response.data;
 };
+
+
+export const getCreditRequestsAdmin = async () => {
+  try {
+    const response = await axios.get('/api/credit-requests-admin');
+    console.log(response.data); // Affichez les données dans la console
+    return response.data;
+  } catch (error) {
+    console.error("Erreur lors de la récupération des demandes de crédit:", error);
+    throw error;
+  }
+};
+export const approveCreditRequest = async (id) => {
+  const response = await axios.post(`/api/credit-requests/${id}/approve`);
+  return response.data;
+};
+
+export const rejectCreditRequest = async (id) => {
+  const response = await axios.post(`/api/credit-requests/${id}/reject`);
+  return response.data;
+};
+
+export const deleteCreditRequest = async (id) => {
+  const response = await axios.delete(`/api/credit-requests/${id}`);
+  return response.data;
+};
