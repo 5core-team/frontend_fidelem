@@ -106,8 +106,8 @@ const CreditSimulator = ({ className }: CreditSimulatorProps) => {
               className="my-4"
             />
             <div className="flex justify-between text-xs text-gray-500">
-              <span>1,000 €</span>
-              <span>100,000 €</span>
+              <span>1,000 F</span>
+              <span>100,000 F</span>
             </div>
           </div>
 
@@ -192,7 +192,7 @@ const CreditSimulator = ({ className }: CreditSimulatorProps) => {
                     label={{ value: 'Mois', position: 'insideBottom', offset: -5 }} 
                   />
                   <YAxis 
-                    tickFormatter={(value) => `${Math.round(value / 1000)}k€`} 
+                    tickFormatter={(value) => `${Math.round(value / 1000)} F`} 
                   />
                   <Tooltip 
                     formatter={(value: number) => [formatCurrency(value), '']} 

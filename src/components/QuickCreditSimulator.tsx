@@ -36,7 +36,7 @@ export const QuickCreditSimulator = ({ className }: QuickCreditSimulatorProps) =
           <div className="space-y-4">
             <div>
               <p className="text-sm text-gray-500">Montant du crédit</p>
-              <p className="text-lg font-semibold">€{amount.toLocaleString('fr-FR')}</p>
+              <p className="text-lg font-semibold">{amount.toLocaleString('fr-FR')} F</p>
               <Slider
                 defaultValue={[amount]}
                 max={100000}
@@ -87,7 +87,7 @@ export const QuickCreditSimulator = ({ className }: QuickCreditSimulatorProps) =
             <div className="border-t pt-4 mt-4">
               <p className="text-sm text-gray-500">Mensualité estimée</p>
               <p className="text-2xl font-bold text-fidelem">
-                €{monthlyPayment.toLocaleString('fr-FR', { maximumFractionDigits: 2 })}
+                {monthlyPayment.toLocaleString('fr-FR', { maximumFractionDigits: 2 })} F
               </p>
             </div>
           </div>

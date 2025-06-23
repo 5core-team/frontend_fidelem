@@ -23,9 +23,9 @@ import { Slider } from "@/components/ui/slider";
 
 const formSchema = z.object({
   amount: z.number().min(1000, {
-    message: "Le montant doit être d'au moins 1 000 €.",
+    message: "Le montant doit être d'au moins 1 000 F.",
   }).max(100000, {
-    message: "Le montant ne peut pas dépasser 100 000 €.",
+    message: "Le montant ne peut pas dépasser 100 000 F.",
   }),
   duration: z.number().min(12, {
     message: "La durée doit être d'au moins 12 mois.",
@@ -87,7 +87,7 @@ export function AddCreditRequestForm({ open, onOpenChange, isAdvisor = false }: 
                 <FormItem>
                   <FormLabel>Montant du crédit</FormLabel>
                   <div className="space-y-2">
-                    <p className="text-lg font-semibold">€{amount.toLocaleString('fr-FR')}</p>
+                    <p className="text-lg font-semibold">{amount.toLocaleString('fr-FR')} F</p>
                     <Slider
                       defaultValue={[amount]}
                       max={100000}

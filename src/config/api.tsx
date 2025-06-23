@@ -147,9 +147,19 @@ export const getAdvisorStats = (advisorId) => {
 };
 
 export const getCreditRequests = async (userId) => {
-  const response = await axiosInstance.get(`/credit-requests?userId=${userId}`);
+  const response = await axiosInstance.get(`/credit-requests-client?userId=${userId}`);
   return response.data;
 };
+
+
+export const getCreditRequestsConseiller = async (userId) => {
+  const response = await axiosInstance.get(`/credit-requests-conseiller?userId=${userId}`);
+  return response.data;
+};
+
+
+//credit-requests-conseiller
+
 
 
 export const getCreditRequestsAdmin = async () => {

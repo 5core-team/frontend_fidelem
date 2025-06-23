@@ -141,10 +141,10 @@ const UserDashboard = () => {
                             {creditRequests.map((request) => (
                               <TableRow key={request.id}>
                                 <TableCell className="font-medium">{request.id}</TableCell>
-                                <TableCell>{request.amount.toLocaleString('fr-FR')} €</TableCell>
+                                <TableCell>{request.amount.toLocaleString('fr-FR')} F</TableCell>
                                 <TableCell>{request.purpose}</TableCell>
                                 <TableCell>
-                                  {request.status === "Approuvée" && (
+                                  {request.status === "Approuvé" && (
                                     <Badge className="bg-green-500">Approuvée</Badge>
                                   )}
                                   {request.status === "En attente" && (
@@ -182,49 +182,7 @@ const UserDashboard = () => {
                   </CardFooter>
                 </Card>
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Mes crédits actifs</CardTitle>
-                    <CardDescription>
-                      Consultez les informations sur vos crédits en cours.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {activeCredits.length > 0 ? (
-                      <div className="border rounded-lg overflow-hidden">
-                        <Table>
-                          <TableHeader>
-                            <TableRow className="bg-gray-50">
-                              
-                              <TableHead>Montant</TableHead>
-                              <TableHead>Mensualité</TableHead>
-                              <TableHead>Objet</TableHead>
-                            
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {activeCredits.map((credit) => (
-                              <TableRow key={credit.id}>
-                                <TableCell>{credit.amount.toLocaleString('fr-FR')} €</TableCell>
-                                <TableCell>{credit.duration} mois</TableCell>
-                                <TableCell>{credit.purpose}</TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </div>
-                    ) : (
-                      <div className="text-center py-8">
-                        <CreditCard className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 mb-1">Aucun crédit actif</h3>
-                        <p className="text-gray-500">
-                          Vous n'avez pas encore de crédit actif.
-                        </p>
-                      </div>
-                    )}
-                  </CardContent>
-                 
-                </Card>
+                
               </div>
 
               <div>
@@ -266,26 +224,7 @@ const UserDashboard = () => {
                   </CardFooter>
                 </Card>
 
-                <Card className="mt-6">
-                  <CardHeader>
-                    <CardTitle>Simuler un crédit</CardTitle>
-                    <CardDescription>
-                      Estimez vos mensualités rapidement
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="text-center">
-                    <PiggyBank size={48} className="text-fidelem mx-auto mb-4" />
-                    <p className="mb-4">
-                      Utilisez notre simulateur pour estimer vos mensualités et le coût total de votre crédit.
-                    </p>
-                    <Button
-                      className="bg-fidelem hover:bg-fidelem/90 w-full"
-                      onClick={() => setSimulatorModalOpen(true)}
-                    >
-                      Accéder au simulateur
-                    </Button>
-                  </CardContent>
-                </Card>
+              
               </div>
             </div>
           </TabsContent>

@@ -6,7 +6,7 @@ import Navbar from "@/components/Navbar";
 import {
   getClientsByAdvisor,
   getAdvisorStats,
-  getCreditRequests,
+  getCreditRequestsConseiller,
 } from "../config/api"; // Import the API functions
 import {
   Card,
@@ -81,7 +81,8 @@ const AdvisorDashboard = () => {
           await Promise.all([
             getClientsByAdvisor(user.id),
             getAdvisorStats(user.id),
-            getCreditRequests(user.id), // Utilisez getCreditRequests au lieu de getCreditRequestsByAdvisor
+            getCreditRequestsConseiller
+            (user.id), // Utilisez getCreditRequests au lieu de getCreditRequestsByAdvisor
           ]);
 
         setClients(clientsResponse.data);
@@ -190,12 +191,12 @@ const AdvisorDashboard = () => {
                         <TableRow key={request.id}>
                           <TableCell>{request.user?.name || "N/A"}</TableCell>
                           <TableCell>
-                            {request.amount.toLocaleString("fr-FR")} €
+                            {request.amount.toLocaleString("fr-FR")} F
                           </TableCell>
                           <TableCell>{request.duration} mois</TableCell>
                           <TableCell>{request.purpose}</TableCell>
                           <TableCell>
-                            {request.status === "Approuvée" && (
+                            {request.status === "Approuvé" && (
                               <Badge className="bg-green-500">Approuvée</Badge>
                             )}
                             {request.status === "En attente" && (

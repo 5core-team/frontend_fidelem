@@ -23,7 +23,7 @@ const Services = () => {
       title: "Crédit Consommation",
       description: "Réalisez vos projets personnels avec nos solutions de financement",
       icon: <CreditCard className="h-8 w-8 text-fidelem" />,
-      features: ["Montant jusqu'à 75 000€", "Taux fixe", "Sans frais cachés"]
+      features: ["Montant jusqu'à 75 000 F", "Taux fixe", "Sans frais cachés"]
     },
     {
       title: "Crédit Professionnel",
