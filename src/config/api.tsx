@@ -214,3 +214,22 @@ export const updateCreditRequestStatus = async (id: string, status: "En attente"
     throw error;
   }
 };
+
+
+export const submitFundingRequest = (fundingData) => {
+  const data = new FormData();
+  Object.keys(fundingData.formData).forEach(key => {
+    data.append(key, fundingData.formData[key]);
+  });
+
+  // Ajouter les fichiers au FormData
+  if (fundingData.files.businessPlan) {
+    data.append('businessPlan', fundingData.files.businessPlan);
+  }
+
+  return axiosInstance.post('/funding-requests', data, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
+};

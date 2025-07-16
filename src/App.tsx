@@ -15,6 +15,7 @@ import UserDashboard from "./pages/UserDashboard";
 import NotFound from "./pages/NotFound";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import FundingRequestForm from "./pages/FundingRequestForm";
 import Blog from "./pages/Blog";
 import Careers from "./pages/Careers";
 import FAQ from "./pages/FAQ";
@@ -33,6 +34,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/levee" element={<FundingRequestForm />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/careers" element={<Careers />} />
             <Route path="/faq" element={<FAQ />} />
