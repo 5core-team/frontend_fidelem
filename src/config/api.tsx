@@ -233,3 +233,24 @@ export const submitFundingRequest = (fundingData) => {
     }
   });
 };
+
+
+export const getFundingRequests = async () => {
+  try {
+    const response = await axiosInstance.get('/funding-requests');
+    return response.data;
+  } catch (error) {
+    console.error("Erreur lors de la récupération des demandes de levée de fonds:", error);
+    throw error;
+  }
+};
+
+export const deleteFundingRequest = async (id) => {
+  try {
+    const response = await axiosInstance.delete(`/funding-requests/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Erreur lors de la suppression de la demande de levée de fonds:", error);
+    throw error;
+  }
+};

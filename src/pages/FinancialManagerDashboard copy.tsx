@@ -3,13 +3,14 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import UserTable from "@/components/UserTable";
+import CreditRequestTable from "@/components/CreditRequestTable";
 import {
   Card,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle
+  CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -22,7 +23,7 @@ import {
   YAxis,
   Tooltip,
   Legend,
-  ResponsiveContainer
+  ResponsiveContainer,
 } from "recharts";
 import {
   Users,
@@ -34,20 +35,26 @@ import {
   AlertCircle,
   Download,
   UserPlus,
-  User
+  User,
 } from "lucide-react";
 import { toast } from "sonner";
 import { AddFinancialAdvisorForm } from "@/components/AddFinancialAdvisorForm";
 import { EditProfileForm } from "@/components/EditProfileForm";
-import { getUsers, getUserStats, getCreditStats } from '../config/api'; // Import API functions
+import { getUsers, getUserStats, getCreditStats } from "../config/api"; // Import API functions
 
 const FinancialManagerDashboard = () => {
   const { user, isAuthenticated } = useAuth();
   const [isLoadingStats, setIsLoadingStats] = useState(true);
   const [addAdvisorOpen, setAddAdvisorOpen] = useState(false);
   const [editProfileOpen, setEditProfileOpen] = useState(false);
-  const [userStats, setUserStats] = useState({ totalUsers: 0, totalAdvisors: 0, pendingAccounts: 0 });
+  const [userStats, setUserStats] = useState({
+    totalUsers: 0,
+    totalAdvisors: 0,
+    pendingAccounts: 0,
+  });
   const [creditStatsData, setCreditStatsData] = useState([]);
+
+  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -79,7 +86,9 @@ const FinancialManagerDashboard = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-fidelem">Tableau de bord</h1>
-            <p className="text-gray-600 mt-1">Gérez les utilisateurs et suivez l'activité de Fidelem</p>
+            <p className="text-gray-600 mt-1">
+              Gérez les utilisateurs et suivez l'activité de Fidelem
+            </p>
           </div>
           <div className="mt-4 md:mt-0 space-x-2 flex">
             <Button
@@ -97,12 +106,17 @@ const FinancialManagerDashboard = () => {
           </div>
         </div>
 
-        <DashboardSummary isLoading={isLoadingStats} userStats={userStats} creditStatsData={creditStatsData} />
+        <DashboardSummary
+          isLoading={isLoadingStats}
+          userStats={userStats}
+          creditStatsData={creditStatsData}
+        />
 
         <Tabs defaultValue="users" className="mt-8">
-          <TabsList className="grid w-full md:w-auto grid-cols-2 md:grid-cols-2">
+          <TabsList className="grid w-full md:w-auto grid-cols-3 md:grid-cols-3">
             <TabsTrigger value="users">Utilisateurs</TabsTrigger>
             <TabsTrigger value="advisors">Conseillers</TabsTrigger>
+            <TabsTrigger value="demandes">Les demandes</TabsTrigger>
           </TabsList>
           <TabsContent value="users" className="mt-6">
             <Card>
@@ -126,7 +140,8 @@ const FinancialManagerDashboard = () => {
                 <div>
                   <CardTitle>Gestion des conseillers</CardTitle>
                   <CardDescription>
-                    Validez les nouveaux comptes conseillers et gérez leurs permissions.
+                    Validez les nouveaux comptes conseillers et gérez leurs
+                    permissions.
                   </CardDescription>
                 </div>
                 <Button
@@ -145,11 +160,33 @@ const FinancialManagerDashboard = () => {
               </CardContent>
             </Card>
           </TabsContent>
+          <TabsContent value="demandes" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Gestion des demandes de crédit</CardTitle>
+                <CardDescription>
+                  Consultez et gérez les demandes de crédit de la plateforme.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <CreditRequestTable
+                  title="Liste des demandes de crédit"
+                  description="Consultez et gérez les demandes de crédit de la plateforme."
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
 
-      <AddFinancialAdvisorForm open={addAdvisorOpen} onOpenChange={setAddAdvisorOpen} />
-      <EditProfileForm open={editProfileOpen} onOpenChange={setEditProfileOpen} />
+      <AddFinancialAdvisorForm
+        open={addAdvisorOpen}
+        onOpenChange={setAddAdvisorOpen}
+      />
+      <EditProfileForm
+        open={editProfileOpen}
+        onOpenChange={setEditProfileOpen}
+      />
     </div>
   );
 };
@@ -160,26 +197,26 @@ const DashboardSummary = ({ isLoading, userStats, creditStatsData }) => {
       title: "Utilisateurs",
       value: userStats.totalUsers,
       icon: <Users className="h-8 w-8 text-blue-600" />,
-      color: "bg-blue-50 text-blue-600 border-blue-200"
+      color: "bg-blue-50 text-blue-600 border-blue-200",
     },
     {
       title: "Conseillers",
       value: userStats.totalAdvisors,
       icon: <Users className="h-8 w-8 text-purple-600" />,
-      color: "bg-purple-50 text-purple-600 border-purple-200"
+      color: "bg-purple-50 text-purple-600 border-purple-200",
     },
     {
       title: "Comptes en attente",
       value: userStats.pendingAccounts,
       icon: <Clock className="h-8 w-8 text-amber-600" />,
-      color: "bg-amber-50 text-amber-600 border-amber-200"
+      color: "bg-amber-50 text-amber-600 border-amber-200",
     },
     {
       title: "Demandes de crédit",
       value: creditStatsData.reduce((sum, month) => sum + month["Demandes"], 0),
       icon: <CreditCard className="h-8 w-8 text-green-600" />,
-      color: "bg-green-50 text-green-600 border-green-200"
-    }
+      color: "bg-green-50 text-green-600 border-green-200",
+    },
   ];
 
   return (
@@ -187,7 +224,9 @@ const DashboardSummary = ({ isLoading, userStats, creditStatsData }) => {
       {statsItems.map((item, index) => (
         <div
           key={index}
-          className={`transition-opacity duration-500 opacity-${isLoading ? '0' : '100'}`}
+          className={`transition-opacity duration-500 opacity-${
+            isLoading ? "0" : "100"
+          }`}
         >
           <Card className={`border ${item.color}`}>
             <CardContent className="p-6">

@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import UserTable from "@/components/UserTable";
 import CreditRequestTable from "@/components/CreditRequestTable";
+import FundingRequestTable from "@/components/FundingRequestTable"; // Import the new component
 import {
   Card,
   CardContent,
@@ -40,7 +41,7 @@ import {
 import { toast } from "sonner";
 import { AddFinancialAdvisorForm } from "@/components/AddFinancialAdvisorForm";
 import { EditProfileForm } from "@/components/EditProfileForm";
-import { getUsers, getUserStats, getCreditStats } from "../config/api"; // Import API functions
+import { getUsers, getUserStats, getCreditStats } from "../config/api";
 
 const FinancialManagerDashboard = () => {
   const { user, isAuthenticated } = useAuth();
@@ -54,14 +55,11 @@ const FinancialManagerDashboard = () => {
   });
   const [creditStatsData, setCreditStatsData] = useState([]);
 
-  
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         const userStatsResponse = await getUserStats();
         const creditStatsResponse = await getCreditStats();
-
         setUserStats(userStatsResponse.data);
         setCreditStatsData(creditStatsResponse.data);
       } catch (error) {
@@ -70,7 +68,6 @@ const FinancialManagerDashboard = () => {
         setIsLoadingStats(false);
       }
     };
-
     fetchData();
   }, []);
 
@@ -81,7 +78,6 @@ const FinancialManagerDashboard = () => {
   return (
     <div className="min-h-screen bg-fidelem-light">
       <Navbar />
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
           <div>
@@ -105,18 +101,17 @@ const FinancialManagerDashboard = () => {
             </Button>
           </div>
         </div>
-
         <DashboardSummary
           isLoading={isLoadingStats}
           userStats={userStats}
           creditStatsData={creditStatsData}
         />
-
         <Tabs defaultValue="users" className="mt-8">
-          <TabsList className="grid w-full md:w-auto grid-cols-3 md:grid-cols-3">
+          <TabsList className="grid w-full md:w-auto grid-cols-3 md:grid-cols-4">
             <TabsTrigger value="users">Utilisateurs</TabsTrigger>
             <TabsTrigger value="advisors">Conseillers</TabsTrigger>
-            <TabsTrigger value="demandes">Les demandes</TabsTrigger>
+            <TabsTrigger value="credit-requests">Demandes de crédit</TabsTrigger>
+            <TabsTrigger value="funding-requests">Demandes de levée de fonds</TabsTrigger>
           </TabsList>
           <TabsContent value="users" className="mt-6">
             <Card>
@@ -160,7 +155,7 @@ const FinancialManagerDashboard = () => {
               </CardContent>
             </Card>
           </TabsContent>
-          <TabsContent value="demandes" className="mt-6">
+          <TabsContent value="credit-requests" className="mt-6">
             <Card>
               <CardHeader>
                 <CardTitle>Gestion des demandes de crédit</CardTitle>
@@ -176,9 +171,11 @@ const FinancialManagerDashboard = () => {
               </CardContent>
             </Card>
           </TabsContent>
+          <TabsContent value="funding-requests" className="mt-6">
+            <FundingRequestTable />
+          </TabsContent>
         </Tabs>
       </div>
-
       <AddFinancialAdvisorForm
         open={addAdvisorOpen}
         onOpenChange={setAddAdvisorOpen}
