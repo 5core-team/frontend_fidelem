@@ -7,7 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
-import Register from "./pages/Register";
+// import Register from "./pages/Register";
 import PendingApproval from "./pages/PendingApproval";
 import FinancialManagerDashboard from "./pages/FinancialManagerDashboard";
 import AdvisorDashboard from "./pages/AdvisorDashboard";
@@ -40,7 +40,7 @@ const App = () => (
             <Route path="/faq" element={<FAQ />} />
             <Route path="/services" element={<Services />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            
             <Route path="/pending-approval" element={<PendingApproval />} />
             <Route path="/financial-manager" element={<FinancialManagerDashboard />} />
             <Route path="/advisor" element={<AdvisorDashboard />} />
