@@ -697,7 +697,7 @@ html.lenis, html.lenis body { height: auto; }
 /* ---------- Hero (composition de bleibtgleich.dev) ---------- */
 .f-bgh { --g: clamp(120px, 12vw, 190px); position: relative; padding: calc(76px + clamp(16px, 3vw, 40px)) var(--f-marge) clamp(64px, 8vw, 120px); }
 .f-bgh__grille { display: grid; grid-template-columns: var(--g) 1px minmax(0, 1fr); column-gap: clamp(16px, 2vw, 28px); width: min(100%, 980px); margin-inline: auto; }
-.f-bgh__gauche { grid-column: 1; grid-row: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 24px; min-height: clamp(300px, 40svh, 420px); }
+.f-bgh__gauche { grid-column: 1; grid-row: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 24px; min-height: clamp(300px, 40svh, 420px); }
 .f-bgh__logo { width: 72%; max-width: 110px; height: auto; }
 .f-bgh__filet { grid-column: 2; grid-row: 1; width: 1px; background: var(--f-encre); }
 .f-bgh__droite { grid-column: 3; grid-row: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 32px; min-width: 0; }

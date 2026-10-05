@@ -16,7 +16,7 @@ export default function HeroFluide() {
     const ctx = gsap.context(() => {
       gsap.from(".f-bgh__filet", { scaleY: 0, transformOrigin: "top", duration: 1.2, ease: "power3.out", stagger: 0.15 });
       gsap.from(".f-bgh__ligne > span", { yPercent: 105, duration: 1.1, ease: "expo.out", stagger: 0.06, delay: 0.15 });
-      gsap.from(".f-bgh__petit, .f-bgh__logo, .f-bgh__texte ", { autoAlpha: 0, y: 12, duration: 0.8, ease: "power2.out", stagger: 0.06, delay: 0.4 });
+      gsap.from(".f-bgh__petit, .f-bgh__texte ", { autoAlpha: 0, y: 12, duration: 0.8, ease: "power2.out", stagger: 0.06, delay: 0.4 });
     }, el);
     return () => ctx.revert();
   }, []);
@@ -29,7 +29,6 @@ export default function HeroFluide() {
     <section ref={section} className="f-bgh" aria-labelledby="f-bgh-titre">
       <div className="f-bgh__grille">
         <div className="f-bgh__gauche">
-          <img className="f-bgh__logo" src="/brand/fidelem-mark.png" alt="" aria-hidden="true" />
           <p className="f-bgh__petit">Financement<br />& Conseil</p>
         </div>
         <span className="f-bgh__filet" aria-hidden="true" />
