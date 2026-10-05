@@ -7,7 +7,9 @@ import type { AxiosAdapter, AxiosInstance, InternalAxiosRequestConfig } from "ax
 // ============================================================================
 
 const CLE = "fidelem-demo";
-export const modeDemo = () => { try { return localStorage.getItem(CLE) === "1"; } catch { return false; } };
+/** La démo n'existe qu'en local (npm run dev), ou si VITE_DEMO=1 est défini au build. */
+export const DEMO_DISPONIBLE = import.meta.env.DEV || import.meta.env.VITE_DEMO === "1";
+export const modeDemo = () => { if (!DEMO_DISPONIBLE) return false; try { return localStorage.getItem(CLE) === "1"; } catch { return false; } };
 
 export const COMPTES_DEMO = {
   advisor: { id: "c1", name: "Aïcha", last_name: "Houénou", email: "aicha.houenou@demo.fidelem.pro", phone: "01 97 00 11 22", address: "Cotonou", role: "advisor", zone: "Cotonou", niveau: "Croissance" },
@@ -105,5 +107,6 @@ const adaptateur: AxiosAdapter = (config) => {
 
 /** Branche le mode démonstration sur une instance axios (sans effet si le mode n'est pas actif). */
 export function brancherDemo(instance: AxiosInstance) {
+  if (!DEMO_DISPONIBLE) return;
   if (modeDemo()) instance.defaults.adapter = adaptateur;
 }

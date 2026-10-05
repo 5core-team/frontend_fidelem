@@ -16,7 +16,10 @@ import { Connexion, ConnexionConseiller, MotDePasseOublie } from "./pages/site/C
 import EspaceConseiller from "./pages/espace/EspaceConseiller";
 import EspaceClient from "./pages/espace/EspaceClient";
 import EspaceResponsable from "./pages/espace/EspaceResponsable";
-import Demo from "./pages/site/Demo";
+import { DEMO_DISPONIBLE } from "./config/demo";
+import { lazy, Suspense } from "react";
+
+const Demo = lazy(() => import("./pages/site/Demo"));
 
 const queryClient = new QueryClient();
 
@@ -43,7 +46,7 @@ const App = () => (
             <Route path="/confidentialite" element={<Legal page="confidentialite" />} />
             <Route path="/conditions" element={<Legal page="conditions" />} />
 
-            <Route path="/demo" element={<Demo />} />
+            {DEMO_DISPONIBLE && <Route path="/demo" element={<Suspense fallback={null}><Demo /></Suspense>} />}
 
             {/* Connexion */}
             <Route path="/connexion" element={<Connexion />} />
