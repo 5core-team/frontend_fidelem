@@ -1,9 +1,13 @@
 import Gabarit from "@/components/site/Gabarit";
 import EnTetePage from "@/components/site/EnTetePage";
 import EtapesPile from "@/components/site/EtapesPile";
+import { useNavigate } from "react-router-dom";
+import Simulateur from "@/components/site/Simulateur";
+import { TitreLignes } from "@/components/site/Mouvement";
 import { FINANCEMENTS } from "@/donnees/fidelem";
 
 export default function Services() {
+  const nav = useNavigate();
   return (
     <Gabarit>
       <EnTetePage
@@ -22,6 +26,15 @@ export default function Services() {
           lien: `/services/${f.slug}`, demande: `/services/${f.slug}#demande`,
         }))}
       />
+      <section className="f-section f-section--serree" id="simulateur">
+        <div className="f-conteneur f-simu-section">
+          <div className="f-simu-section__tete">
+            <TitreLignes className="f-titre-l" lignes={["Simulez votre", "financement."]} />
+            <p className="f-texte" data-revele>Choisissez un financement, ajustez le montant et la durée : vous voyez tout de suite vos mensualités.</p>
+          </div>
+          <Simulateur onUtiliser={({ slug, montant, duree }) => nav(`/services/${slug}?montant=${montant}&duree=${duree}#demande`)} />
+        </div>
+      </section>
     </Gabarit>
   );
 }

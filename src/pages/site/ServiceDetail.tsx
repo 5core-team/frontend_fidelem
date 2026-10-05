@@ -1,8 +1,9 @@
-import { useState } from "react";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, Navigate, useParams, useSearchParams } from "react-router-dom";
 import { ArrowUpRight, Check } from "lucide-react";
 import Gabarit from "@/components/site/Gabarit";
 import EnTetePage from "@/components/site/EnTetePage";
+import Simulateur from "@/components/site/Simulateur";
 import { TitreLignes } from "@/components/site/Mouvement";
 import { FINANCEMENTS, formatFcfa } from "@/donnees/fidelem";
 import { envoyerDemandeFinancement } from "@/config/apiPublic";
@@ -11,12 +12,16 @@ import {
   coordonneesVides, rendezVousVide, useEnvoi, validerCoordonnees, validerRendezVous,
 } from "@/components/site/Formulaires";
 
-function FormulaireDemande({ slug }: { slug: string }) {
+type Choix = { montant: number; duree: number; n: number };
+
+function FormulaireDemande({ slug, choix }: { slug: string; choix: Choix | null }) {
   const f = FINANCEMENTS.find((x) => x.slug === slug)!;
   const [coord, setCoord] = useState(coordonneesVides());
   const [rdv, setRdv] = useState(rendezVousVide());
-  const [montant, setMontant] = useState("");
-  const [duree, setDuree] = useState(String(f.simulateur.dureeDefaut));
+  const [montant, setMontant] = useState(choix ? String(choix.montant) : "");
+  const [duree, setDuree] = useState(String(choix?.duree ?? f.simulateur.dureeDefaut));
+  // Le simulateur pré-remplit le montant et la durée.
+  useEffect(() => { if (choix) { setMontant(String(choix.montant)); setDuree(String(choix.duree)); } }, [choix]);
   const [objet, setObjet] = useState(f.projets[0]);
   const message = "";
   const { etat, erreurs, envoyer } = useEnvoi();
@@ -45,7 +50,7 @@ function FormulaireDemande({ slug }: { slug: string }) {
         </Champ>
         <Champ libelle="Durée">
           <select id="f-duree" value={duree} onChange={(e) => setDuree(e.target.value)}>
-            {[6, 12, 24, 36, 48, 60, 84, 120, 180, 240].filter((d) => d >= f.simulateur.dureeMin && d <= f.simulateur.dureeMax).map((d) => <option key={d} value={d}>{d < 24 ? `${d} mois` : `${d / 12} ans`}</option>)}
+            {[6, 12, 18, 24, 36, 48, 60, 72, 84, 120, 180, 240].filter((d) => d >= f.simulateur.dureeMin && d <= f.simulateur.dureeMax).map((d) => <option key={d} value={d}>{d < 24 ? `${d} mois` : `${d / 12} ans`}</option>)}
           </select>
         </Champ>
       </div>
@@ -61,6 +66,11 @@ function FormulaireDemande({ slug }: { slug: string }) {
 
 export default function ServiceDetail() {
   const { slug } = useParams();
+  const [params] = useSearchParams();
+  const [choix, setChoix] = useState<Choix | null>(() => {
+    const m = Number(params.get("montant")), d = Number(params.get("duree"));
+    return m && d ? { montant: m, duree: d, n: 0 } : null;
+  });
   const f = FINANCEMENTS.find((x) => x.slug === slug);
   if (!f) return <Navigate to="/services" replace />;
   const autres = FINANCEMENTS.filter((x) => x.slug !== f.slug);
@@ -73,6 +83,7 @@ export default function ServiceDetail() {
         chapo={f.accroche}
         enfants={<div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 32 }} data-revele="400">
           <a className="f-btn f-btn--or f-btn--grand" href="#demande">Faire ma demande</a>
+          <a className="f-btn f-btn--gris f-btn--grand" href="#simulateur">Simuler</a>
           <Link className="f-btn f-btn--gris f-btn--grand" to="/trouver-un-conseiller">Trouver un conseiller</Link>
         </div>}
       />
@@ -93,13 +104,26 @@ export default function ServiceDetail() {
         </div>
       </section>
 
+      <section className="f-section f-section--serree" id="simulateur">
+        <div className="f-conteneur f-simu-section">
+          <div className="f-simu-section__tete">
+            <TitreLignes className="f-titre-l" lignes={["Simulez votre", "financement."]} />
+            <p className="f-texte" data-revele>Ajustez le montant et la durée pour estimer vos mensualités.</p>
+          </div>
+          <Simulateur key={f.slug} slug={f.slug} onUtiliser={({ montant, duree }) => {
+            setChoix((c) => ({ montant, duree, n: (c?.n ?? 0) + 1 }));
+            document.getElementById("demande")?.scrollIntoView({ behavior: "smooth" });
+          }} />
+        </div>
+      </section>
+
       <section className="f-section" id="demande">
         <div className="f-conteneur f-demande">
           <div className="f-demande__cote">
             <TitreLignes className="f-titre-l" lignes={["Faites votre", "demande."]} />
             <p className="f-texte" data-revele>Gratuit et sans engagement. Un conseiller de votre zone vous rappelle au créneau choisi.</p>
           </div>
-          <div className="f-carte" data-revele><FormulaireDemande slug={f.slug} /></div>
+          <div className="f-carte" data-revele><FormulaireDemande key={f.slug} slug={f.slug} choix={choix} /></div>
         </div>
       </section>
 
