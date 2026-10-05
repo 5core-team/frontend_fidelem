@@ -52,19 +52,15 @@ export default function EasyLife() {
             <MotBarres mot="Pôles" variante="or" />
             <div className="f-guide" data-revele><p className="f-label">Quatre pôles pour compléter Living.</p></div>
           </div>
-          <div className="f-poles">
+          <ul className="f-poles">
             {EASYLIFE.poles.map((p, i) => (
-              <article key={p.nom} className="f-pole f-carte" data-revele={i * 90}>
-                <div className="f-pole__tete">
-                  <span className="f-numero">EasyLife</span>
-                  <h3 className="f-titre-l">{p.nom}</h3>
-                </div>
-                <p className="f-label">{p.titre}</p>
-                <p className="f-texte">{p.texte}</p>
-                <ul className="f-puces">{p.offres.map((o) => <li key={o} className="f-puce">{o}</li>)}</ul>
-              </article>
+              <li key={p.nom} className="f-pole" data-revele={i * 80}>
+                <div className="f-pole__nom"><span className="f-numero">0{i + 1}</span><h3 className="f-titre-l">{p.nom}</h3></div>
+                <div className="f-pole__desc"><p className="f-label">{p.titre}</p><p className="f-texte">{p.texte}</p></div>
+                <p className="f-pole__offres">{p.offres.join(" · ")}</p>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       </section>
 

@@ -4,6 +4,7 @@ import { Plus } from "lucide-react";
 import { CONTACT, NAVIGATION } from "@/donnees/fidelem";
 import { useAuth } from "@/context/AuthContext";
 import { DefilementFluide, useRevele } from "./Mouvement";
+import LienBrouille from "./LienBrouille";
 
 export const cheminEspace = (role?: string) =>
   role === "advisor" ? "/espace-conseiller" : role === "manager" ? "/responsable" : "/mon-espace";
@@ -18,7 +19,7 @@ function EnTete() {
         </Link>
         <nav className="f-nav-haut" aria-label="Navigation principale">
           {NAVIGATION.map((l) => (
-            <NavLink key={l.chemin} to={l.chemin} end={l.chemin === "/"}>{l.libelle}</NavLink>
+            <LienBrouille key={l.chemin} to={l.chemin} end={l.chemin === "/"}>{l.libelle}</LienBrouille>
           ))}
         </nav>
         <div className="f-entete-site__actions">
@@ -99,22 +100,22 @@ function PiedDePage() {
       <div className="f-conteneur">
         <div className="f-pied__haut">
           <nav aria-label="Plan du site" className="f-pied__nav">
-            {NAVIGATION.map((l) => <Link key={l.chemin} to={l.chemin}>{l.libelle}</Link>)}
+            {NAVIGATION.map((l) => <LienBrouille key={l.chemin} to={l.chemin}>{l.libelle}</LienBrouille>)}
           </nav>
           <div className="f-pied__contact">
             <a className="f-pied__mail" href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a>
             <a href={`tel:${CONTACT.telephoneLien}`}>{CONTACT.telephone}</a>
             <div className="f-pied__liens">
-              <Link to="/trouver-un-conseiller">Trouver un conseiller</Link>
-              <Link to="/espace-conseiller/connexion">Espace Conseiller</Link>
-              <Link to="/faq">FAQ</Link>
+              <LienBrouille to="/trouver-un-conseiller">Trouver un conseiller</LienBrouille>
+              <LienBrouille to="/espace-conseiller/connexion">Espace Conseiller</LienBrouille>
+              <LienBrouille to="/faq">FAQ</LienBrouille>
             </div>
           </div>
           <div className="f-pied__legal">
             <div className="f-pied__liens">
-              <Link to="/mentions-legales">Mentions légales</Link>
-              <Link to="/confidentialite">Confidentialité</Link>
-              <Link to="/conditions">Conditions</Link>
+              <LienBrouille to="/mentions-legales">Mentions légales</LienBrouille>
+              <LienBrouille to="/confidentialite">Confidentialité</LienBrouille>
+              <LienBrouille to="/conditions">Conditions</LienBrouille>
             </div>
           </div>
         </div>

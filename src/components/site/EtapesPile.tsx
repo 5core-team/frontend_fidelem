@@ -6,7 +6,7 @@ import { mouvementReduit } from "./Mouvement";
 
 gsap.registerPlugin(ScrollTrigger);
 
-type Etape = { titre: string; texte: string; puces: string[]; image?: string };
+type Etape = { titre: string; texte: string; puces: string[]; image?: string; lien?: string; demande?: string };
 
 /**
  * Section « Étapes », sur le modèle de la section Process de a-lign :
@@ -14,7 +14,7 @@ type Etape = { titre: string; texte: string; puces: string[]; image?: string };
  * de haut en bas, et les cartes forment une pile : la carte du dessus remonte et s'efface,
  * la suivante prend sa place. L'animation suit le défilement en continu (scrub).
  */
-export default function EtapesPile({ etapes, intro }: { etapes: Etape[]; intro: string }) {
+export default function EtapesPile({ etapes, intro, mot = "Étapes", titre = "Comment ça marche", bouton = { libelle: "Voir les financements", vers: "/services" } }: { etapes: Etape[]; intro: string; mot?: string; titre?: string; bouton?: { libelle: string; vers: string } }) {
   const section = useRef<HTMLElement>(null);
 
   useLayoutEffect(() => {
@@ -47,11 +47,11 @@ export default function EtapesPile({ etapes, intro }: { etapes: Etape[]; intro: 
     <section ref={section} className="f-pile" style={{ "--n": etapes.length } as React.CSSProperties} aria-labelledby="etapes-titre">
       <div className="f-pile__cadre f-conteneur">
         <div className="f-pile__mot" aria-hidden="true">
-          <span className="f-barres f-barres--pale f-barres--vertical">Étapes</span>
-          <span className="f-barres f-barres--or f-barres--vertical f-pile__fill">Étapes</span>
+          <span className="f-barres f-barres--pale f-barres--vertical">{mot}</span>
+          <span className="f-barres f-barres--or f-barres--vertical f-pile__fill">{mot}</span>
         </div>
         <div className="f-pile__droite">
-          <h2 id="etapes-titre" className="f-sr">Comment ça marche</h2>
+          <h2 id="etapes-titre" className="f-sr">{titre}</h2>
           <div className="f-guide f-pile__intro"><p className="f-label">{intro}</p></div>
           <ol className="f-pile__cartes">
             {etapes.map((e, i) => (
@@ -61,13 +61,19 @@ export default function EtapesPile({ etapes, intro }: { etapes: Etape[]; intro: 
                   <div className="f-pile__bas">
                     <ul className="f-puces">{e.puces.map((p) => <li key={p} className="f-puce">{p}</li>)}</ul>
                     <p className="f-texte">{e.texte}</p>
+                    {(e.lien || e.demande) && (
+                      <div className="f-pile__actions">
+                        {e.lien && <Link className="f-btn f-btn--encre" to={e.lien}>En savoir plus</Link>}
+                        {e.demande && <Link className="f-lien" to={e.demande}>Faire ma demande</Link>}
+                      </div>
+                    )}
                   </div>
                 </div>
                 {e.image && <div className="f-pile__image"><img className="f-photo" src={e.image} alt="" loading="lazy" /></div>}
               </li>
             ))}
           </ol>
-          <div className="f-guide f-guide--serre f-pile__bouton"><Link className="f-btn f-btn--gris" to="/services">Voir les financements</Link></div>
+          <div className="f-guide f-guide--serre f-pile__bouton"><Link className="f-btn f-btn--gris" to={bouton.vers}>{bouton.libelle}</Link></div>
         </div>
       </div>
     </section>

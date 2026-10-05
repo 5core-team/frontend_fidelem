@@ -302,13 +302,22 @@ html.lenis, html.lenis body { height: auto; }
 .f-coches svg { width: 18px; height: 18px; color: var(--f-succes); flex: none; margin-top: 2px; }
 
 /* ---------- Services ---------- */
-.f-services { display: grid; gap: clamp(48px, 7vw, 96px); }
-.f-service { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: clamp(24px, 4vw, 64px); align-items: center; }
-.f-service:nth-child(even) .f-service__image { order: 2; }
-.f-service__image { aspect-ratio: 5 / 4; }
-.f-service__corps { display: grid; gap: 28px; }
-.f-service__tete { display: grid; gap: 14px; }
-@media (max-width: 900px) { .f-service { grid-template-columns: 1fr; } .f-service:nth-child(even) .f-service__image { order: 0; } }
+.f-services { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(14px, 1.6vw, 24px); }
+.f-service { display: grid; grid-template-rows: auto auto 1fr auto; gap: 18px; align-content: start; transition: border-color .3s; }
+.f-service:hover { border-color: var(--f-encre); }
+.f-service__image { aspect-ratio: 16 / 10; overflow: hidden; border-radius: 4px; }
+.f-service__image img { transition: transform 1.2s var(--f-ease); }
+.f-service:hover .f-service__image img { transform: scale(1.04); }
+.f-service__tete { display: grid; gap: 8px; }
+.f-service__tete .f-texte { font-size: 15.5px; }
+.f-service__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding-top: 16px; border-top: 1px dashed var(--f-guide); }
+@media (max-width: 960px) { .f-services { grid-template-columns: 1fr; max-width: 560px; } }
+.f-reseau { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; border-top: 1px dashed var(--f-guide); }
+.f-reseau li { display: grid; gap: 12px; align-content: start; justify-items: start; padding: 28px clamp(0px, 3vw, 40px) 28px 0; }
+.f-reseau li + li { padding-left: clamp(20px, 3vw, 40px); border-left: 1px dashed var(--f-guide); }
+.f-reseau .f-texte { font-size: 15.5px; max-width: 44ch; }
+.f-reseau .f-lien { margin-top: 6px; }
+@media (max-width: 760px) { .f-reseau { grid-template-columns: 1fr; } .f-reseau li + li { padding-left: 0; border-left: 0; border-top: 1px dashed var(--f-guide); } }
 .f-role { display: grid; gap: 40px; }
 .f-role__texte { display: grid; gap: 24px; max-width: 760px; margin-left: auto; }
 
@@ -335,10 +344,6 @@ html.lenis, html.lenis body { height: auto; }
 @media (max-width: 700px) { .f-autres { grid-template-columns: 1fr; } }
 
 /* ---------- EasyLife ---------- */
-.f-poles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-.f-pole { display: grid; gap: 16px; align-content: start; }
-.f-pole__tete { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-direction: row-reverse; }
-@media (max-width: 860px) { .f-poles { grid-template-columns: 1fr; } }
 .f-vision { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
 .f-vision__bloc { display: grid; gap: 14px; align-content: start; }
 @media (max-width: 860px) { .f-vision { grid-template-columns: 1fr; } }
@@ -372,15 +377,6 @@ html.lenis, html.lenis body { height: auto; }
 .f-formation .f-btn { justify-content: center; }
 @media (max-width: 1000px) { .f-formations { grid-template-columns: 1fr; } }
 
-.f-frais { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: clamp(40px, 5vw, 64px); }
-.f-frais__bloc { display: grid; gap: 10px; align-content: start; padding: 24px; border-radius: 10px; background: var(--f-blanc); }
-.f-frais__bloc strong { font-size: clamp(1.5rem, 1.2rem + 1vw, 2.1rem); font-weight: 500; letter-spacing: -.045em; line-height: 1.05; }
-.f-frais__bloc p:last-child { margin: 0; font-size: 15px; line-height: 1.5; color: var(--f-encre-2); }
-.f-frais__bloc--or { background: var(--f-or); }
-.f-frais__bloc--or p:last-child { color: var(--f-encre); }
-.f-frais__bloc--encre { background: var(--f-encre); color: var(--f-papier); }
-.f-frais__bloc--encre .f-label, .f-frais__bloc--encre p:last-child { color: rgba(244, 244, 240, .75); }
-@media (max-width: 860px) { .f-frais { grid-template-columns: 1fr; } }
 
 .f-engagements { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(28px, 5vw, 80px); }
 .f-engagements__titre { display: grid; gap: 32px; align-content: start; }
@@ -624,3 +620,34 @@ html.lenis, html.lenis body { height: auto; }
   .f-pile__carte { position: relative; height: auto; grid-template-columns: 1fr; }
   .f-pile__image { aspect-ratio: 16 / 9; }
 }
+
+/* ---------- Frais de formation ---------- */
+.f-frais { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: clamp(36px, 5vw, 56px) 0 0; border-top: 1px dashed var(--f-guide); }
+.f-frais > div { display: grid; gap: 14px; align-content: start; padding: 22px clamp(14px, 2vw, 28px) 22px 0; }
+.f-frais > div + div { padding-left: clamp(14px, 2vw, 28px); border-left: 1px dashed var(--f-guide); }
+.f-frais dd { margin: 0; display: grid; gap: 6px; }
+.f-frais strong { font-size: clamp(1.5rem, 1.1rem + 1.2vw, 2.2rem); font-weight: 500; letter-spacing: -.045em; line-height: 1; font-variant-numeric: tabular-nums; }
+.f-frais span { font-size: 14.5px; color: var(--f-encre-2); max-width: 30ch; }
+.f-frais .est-or strong { color: var(--f-or); }
+@media (max-width: 760px) { .f-frais { grid-template-columns: 1fr; } .f-frais > div + div { padding-left: 0; border-left: 0; border-top: 1px dashed var(--f-guide); } }
+
+/* ---------- Pôles EasyLife ---------- */
+.f-poles { list-style: none; margin: 0; padding: 0; border-top: 1px dashed var(--f-guide); }
+.f-pole { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.1fr); gap: 16px clamp(20px, 3vw, 48px); align-items: start; padding: 24px 16px; margin-inline: -16px; border-bottom: 1px dashed var(--f-guide); border-radius: 6px; transition: background .35s var(--f-ease), color .35s; }
+.f-pole:hover { background: var(--f-marine); color: var(--f-papier); }
+.f-pole:hover .f-titre-l, .f-pole:hover .f-label { color: var(--f-papier); }
+.f-pole:hover .f-texte, .f-pole:hover .f-pole__offres { color: rgba(244, 244, 240, .78); }
+.f-pole:hover .f-numero { color: var(--f-or); }
+.f-pole__nom { display: flex; gap: 14px; align-items: baseline; }
+.f-pole__desc { display: grid; gap: 6px; }
+.f-pole__desc .f-texte { font-size: 15px; }
+.f-pole__offres { margin: 0; font-size: 14.5px; line-height: 1.6; color: var(--f-encre-2); }
+@media (max-width: 860px) { .f-pole { grid-template-columns: 1fr; gap: 10px; } }
+
+/* ---------- Valeurs ---------- */
+.f-valeurs { list-style: none; margin: clamp(32px, 5vw, 56px) 0 0; padding: 0; border-top: 1px dashed var(--f-guide); }
+.f-valeurs li { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 40px; align-items: center; padding: 14px 0; border-bottom: 1px dashed var(--f-guide); }
+.f-valeurs__nom { font-size: clamp(1.6rem, 1rem + 2.2vw, 3rem); font-weight: 500; letter-spacing: -.055em; line-height: 1; }
+@media (max-width: 700px) { .f-valeurs li { grid-template-columns: 1fr; } }
+
+.f-pile__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding-top: 4px; }

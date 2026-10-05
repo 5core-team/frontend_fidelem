@@ -86,23 +86,20 @@ export default function ConseillerFinancier() {
               </li>
             ))}
           </ol>
-          <div className="f-frais">
-            <div className="f-frais__bloc f-frais__bloc--or" data-revele>
-              <p className="f-label">Inscription</p>
-              <strong>{formatFcfa(FRAIS.inscription)}</strong>
-              <p>Non remboursables.</p>
+          <dl className="f-frais">
+            <div data-revele>
+              <dt className="f-label f-label--doux">Inscription</dt>
+              <dd><strong>{formatFcfa(FRAIS.inscription)}</strong><span>Non remboursables.</span></dd>
             </div>
-            <div className="f-frais__bloc" data-revele="120">
-              <p className="f-label">Formation</p>
-              <strong>Selon le niveau retenu</strong>
-              <p>Payable en 3 fois, au début de chaque mois.</p>
+            <div data-revele="100">
+              <dt className="f-label f-label--doux">Formation</dt>
+              <dd><strong>50 000 – 150 000 FCFA</strong><span>Selon le niveau, payable en 3 fois.</span></dd>
             </div>
-            <div className="f-frais__bloc f-frais__bloc--encre" data-revele="240">
-              <p className="f-label">Remboursement</p>
-              <strong>100 % remboursée</strong>
-              <p>Les frais de formation sont entièrement remboursés à la signature du contrat, après validation de la formation.</p>
+            <div className="est-or" data-revele="200">
+              <dt className="f-label">Remboursement</dt>
+              <dd><strong>100 %</strong><span>Frais de formation remboursés à la signature du contrat.</span></dd>
             </div>
-          </div>
+          </dl>
         </div>
       </section>
 

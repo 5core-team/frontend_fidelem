@@ -47,20 +47,24 @@ export function APropos() {
         </div>
       </section>
 
-      <section className="f-section">
-        <div className="f-conteneur f-poles">
-          <article className="f-carte f-pole" data-revele>
-            <p className="f-label f-label--doux">Le réseau</p>
-            <h2 className="f-titre-l">Des conseillers formés, dans chaque zone.</h2>
-            <p className="f-texte">Trois niveaux de formation, Inclusion, Croissance et Patrimoine, pour accompagner tous les profils de clients. Chaque conseiller reçoit une licence et une zone de gestion.</p>
-            <Link className="f-lien" to="/conseiller-financier">Le métier de conseiller <ArrowUpRight /></Link>
-          </article>
-          <article className="f-carte f-pole" data-revele="120">
-            <p className="f-label f-label--doux">L'écosystème</p>
-            <h2 className="f-titre-l">EasyLife, pour mieux vivre au quotidien.</h2>
-            <p className="f-texte">{EASYLIFE.presentation}</p>
-            <Link className="f-lien" to="/easylife">Découvrir EasyLife <ArrowUpRight /></Link>
-          </article>
+      <section className="f-section f-section--serree">
+        <div className="f-conteneur">
+          <ul className="f-reseau">
+            <li data-revele>
+              <span className="f-numero">01</span>
+              <p className="f-label f-label--doux">Le réseau</p>
+              <h2 className="f-titre-m">Des conseillers formés, dans chaque zone.</h2>
+              <p className="f-texte">Trois niveaux de formation, une licence et une zone de gestion pour chaque conseiller.</p>
+              <Link className="f-lien" to="/conseiller-financier">Le métier <ArrowUpRight /></Link>
+            </li>
+            <li data-revele="120">
+              <span className="f-numero">02</span>
+              <p className="f-label f-label--doux">L'écosystème</p>
+              <h2 className="f-titre-m">EasyLife, pour mieux vivre au quotidien.</h2>
+              <p className="f-texte">{EASYLIFE.presentation}</p>
+              <Link className="f-lien" to="/easylife">Découvrir EasyLife <ArrowUpRight /></Link>
+            </li>
+          </ul>
         </div>
       </section>
 
