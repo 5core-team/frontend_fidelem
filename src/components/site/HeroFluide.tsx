@@ -59,8 +59,14 @@ export default function HeroFluide() {
           </p>
           <p className="f-bgh__texte">Un conseiller financier formé monte votre dossier et le défend auprès des partenaires.</p>
           <div className="f-bgh__actions">
-            <Link className="f-btn f-btn--or f-btn--grand" to="/services">Demander un financement <ArrowRight /></Link>
-            <Link className="f-btn f-btn--gris f-btn--grand" to="/trouver-un-conseiller">Trouver un conseiller</Link>
+            <Link className="f-bgh__btn f-bgh__btn--plein" to="/services">
+              <span>Demander un financement</span>
+              <i aria-hidden="true"><ArrowRight /></i>
+            </Link>
+            <Link className="f-bgh__btn f-bgh__btn--ligne" to="/trouver-un-conseiller">
+              <span>Trouver un conseiller</span>
+              <i aria-hidden="true"><ArrowRight /></i>
+            </Link>
           </div>
         </div>
       </div>
