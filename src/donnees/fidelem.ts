@@ -110,11 +110,11 @@ export const TAUX = [
 
 export const EASYLIFE = {
   slogan: "Simplifier la vie, construire l'avenir.",
-  presentation: "EasyLife est un écosystème de solutions conçu pour améliorer durablement les conditions de vie, grâce à des services intégrés, accessibles et adaptés aux réalités africaines.",
+  presentation: "Des services intégrés pour mieux vivre au quotidien.",
   living: {
     nom: "EasyLife Living",
     accroche: "Le confort de vie tout-en-un",
-    texte: "Une solution intégrée pour les travailleurs qui veulent un cadre de vie confortable et sécurisé, tout en maîtrisant leur budget et en préparant leurs projets.",
+    texte: "Logement, charges, transport, santé et épargne réunis pour les travailleurs.",
     offre: [
       { titre: "Logement meublé", icone: "maison" },
       { titre: "Eau, électricité et gaz", icone: "energie" },

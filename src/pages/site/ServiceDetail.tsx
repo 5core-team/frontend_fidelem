@@ -54,7 +54,6 @@ function FormulaireDemande({ slug }: { slug: string }) {
       {etat === "erreur" && <MessageErreurEnvoi />}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 16, alignItems: "center" }}>
         <BoutonEnvoi etat={etat}>Envoyer ma demande</BoutonEnvoi>
-        <p className="f-note">Gratuit et sans engagement. Vos informations ne sont transmises qu'au conseiller de votre zone.</p>
       </div>
     </form>
   );
@@ -71,14 +70,13 @@ export default function ServiceDetail() {
       <EnTetePage
         label={`Services · ${f.court}`}
         lignes={[f.nom.split(" ")[0], <em key="e">{f.nom.split(" ").slice(1).join(" ")}</em>]}
-        chapo={f.resume}
+        chapo={f.accroche}
         enfants={<div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 32 }} data-revele="400">
           <a className="f-btn f-btn--or f-btn--grand" href="#demande">Faire ma demande</a>
           <Link className="f-btn f-btn--gris f-btn--grand" to="/trouver-un-conseiller">Trouver un conseiller</Link>
         </div>}
       />
 
-      <div className="f-conteneur"><div className="f-service-visuel f-guide" data-revele><img className="f-photo" src={f.image} alt="" /></div></div>
 
       <section className="f-section">
         <div className="f-conteneur f-detail">
@@ -89,14 +87,8 @@ export default function ServiceDetail() {
           </div>
           <div className="f-detail__bloc" data-revele>
             <span className="f-numero">02</span>
-            <h2 className="f-titre-m">Pour qui</h2>
-            <ul className="f-liste f-liste--grande">{f.pourQui.map((p) => <li key={p}>{p}</li>)}</ul>
-          </div>
-          <div className="f-detail__bloc" data-revele>
-            <span className="f-numero">03</span>
             <h2 className="f-titre-m">Les pièces à préparer</h2>
             <ul className="f-coches">{f.pieces.map((p) => <li key={p}><Check aria-hidden="true" />{p}</li>)}</ul>
-            <p className="f-note">La liste définitive dépend de votre dossier : votre conseiller la confirme au premier rendez-vous.</p>
           </div>
         </div>
       </section>

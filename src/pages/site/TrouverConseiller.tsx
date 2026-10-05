@@ -65,7 +65,7 @@ export default function TrouverConseiller() {
 
   return (
     <Gabarit>
-      <EnTetePage label="Conseiller Financier · près de chez vous" lignes={["Trouver", <em key="e">un conseiller.</em>]} chapo="Indiquez votre commune : vous voyez les conseillers FIDELEM de votre zone et vous leur demandez un rendez-vous." />
+      <EnTetePage label="Conseiller Financier · près de chez vous" lignes={["Trouver", <em key="e">un conseiller.</em>]} chapo="Indiquez votre commune." />
 
       <section className="f-section" style={{ paddingTop: 0 }}>
         <div className="f-conteneur">
@@ -87,7 +87,7 @@ export default function TrouverConseiller() {
             {etat === "repos" && (
               <div className="f-vide f-guide">
                 <p className="f-titre-m">Choisissez votre commune pour commencer.</p>
-                <p className="f-texte">Chaque conseiller FIDELEM travaille sur une zone de gestion attribuée avec sa licence. Vous êtes donc suivi par quelqu'un qui connaît votre ville.</p>
+                
               </div>
             )}
             {etat === "chargement" && <p className="f-texte" style={{ display: "flex", gap: 10, alignItems: "center" }}><Loader2 className="animate-spin" /> Recherche des conseillers de {zone}…</p>}

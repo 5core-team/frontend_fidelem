@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import Gabarit from "@/components/site/Gabarit";
 import EnTetePage from "@/components/site/EnTetePage";
@@ -6,39 +6,6 @@ import { MotBarres, TitreLignes } from "@/components/site/Mouvement";
 import { ICONES_LIVING } from "@/components/site/icones";
 import { NOTES_LIVING } from "@/components/site/notesLiving";
 import { EASYLIFE } from "@/donnees/fidelem";
-import { envoyerInteretEasyLife } from "@/config/apiPublic";
-import {
-  BlocCoordonnees, BlocRendezVous, BoutonEnvoi, Champ, Choix, Confirmation, MessageErreurEnvoi,
-  coordonneesVides, rendezVousVide, useEnvoi, validerCoordonnees, validerRendezVous,
-} from "@/components/site/Formulaires";
-
-const POLES = ["EasyLife Living", ...EASYLIFE.poles.map((p) => `EasyLife ${p.nom}`)];
-
-function FormulaireInteret() {
-  const [coord, setCoord] = useState(coordonneesVides());
-  const [rdv, setRdv] = useState(rendezVousVide());
-  const [profil, setProfil] = useState("Travailleur");
-  const [pole, setPole] = useState(POLES[0]);
-  const message = "";
-  const { etat, erreurs, envoyer } = useEnvoi();
-
-  if (etat === "succes") return (
-    <Confirmation titre="Merci, votre intérêt est bien noté.">
-      L'équipe EasyLife vous recontacte pour vous présenter {pole} et répondre à vos questions.
-    </Confirmation>
-  );
-
-  return (
-    <form className="f-form" noValidate onSubmit={(e) => { e.preventDefault(); envoyer({ ...validerCoordonnees(coord), ...validerRendezVous(rdv) }, () => envoyerInteretEasyLife({ ...coord, profil, pole, message, rendezVous: rdv })); }}>
-      <div className="f-champ"><span>Vous êtes</span><Choix nom="profil" options={["Travailleur", "Entreprise", "Partenaire"]} valeur={profil} onChange={(v) => setProfil(v as string)} /></div>
-      <Champ libelle="Ce qui vous intéresse"><select id="f-pole" value={pole} onChange={(e) => setPole(e.target.value)}>{POLES.map((p) => <option key={p}>{p}</option>)}</select></Champ>
-      <BlocCoordonnees valeur={coord} onChange={setCoord} erreurs={erreurs} />
-      <BlocRendezVous valeur={rdv} onChange={setRdv} erreurs={erreurs} titre="Pour en parler" />
-      {etat === "erreur" && <MessageErreurEnvoi />}
-      <BoutonEnvoi etat={etat}>Envoyer</BoutonEnvoi>
-    </form>
-  );
-}
 
 export default function EasyLife() {
   return (
@@ -47,10 +14,9 @@ export default function EasyLife() {
         label="EasyLife · l'écosystème"
         lignes={["Construire un", <em key="e">meilleur quotidien.</em>]}
         chapo={EASYLIFE.presentation}
-        note="Logement, mobilité, services, épargne et entreprises : EasyLife réunit les services essentiels du quotidien."
         enfants={<div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 32 }} data-revele="400">
           <a className="f-btn f-btn--or f-btn--grand" href="#living">Découvrir EasyLife Living</a>
-          <a className="f-btn f-btn--gris f-btn--grand" href="#interet">Je suis intéressé(e)</a>
+          <Link className="f-btn f-btn--gris f-btn--grand" to="/contact">Je suis intéressé(e)</Link>
         </div>}
       />
 
@@ -61,7 +27,7 @@ export default function EasyLife() {
             <p className="f-label f-label--doux">Offre phare · disponible en premier</p>
             <TitreLignes className="f-titre-xl" lignes={["EasyLife Living.", <em key="e">Le confort de vie tout-en-un.</em>]} />
             <p className="f-texte" data-revele>{EASYLIFE.living.texte}</p>
-            <div className="f-guide f-guide--serre" style={{ width: "fit-content" }} data-revele><a className="f-btn f-btn--or f-btn--grand" href="#interet">Je veux en bénéficier <ArrowRight /></a></div>
+            <div className="f-guide f-guide--serre" style={{ width: "fit-content" }} data-revele><Link className="f-btn f-btn--or f-btn--grand" to="/contact">Je veux en bénéficier <ArrowRight /></Link></div>
           </div>
           <ol className="f-liste-offre__items">
             {EASYLIFE.living.offre.map((o, i) => {
@@ -84,7 +50,7 @@ export default function EasyLife() {
         <div className="f-conteneur">
           <div className="f-entete">
             <MotBarres mot="Pôles" variante="or" />
-            <div className="f-guide" data-revele><p className="f-label">Après Living, l'écosystème se déploie autour de quatre pôles complémentaires, pour les particuliers, les travailleurs et les entreprises.</p></div>
+            <div className="f-guide" data-revele><p className="f-label">Quatre pôles pour compléter Living.</p></div>
           </div>
           <div className="f-poles">
             {EASYLIFE.poles.map((p, i) => (
@@ -102,29 +68,14 @@ export default function EasyLife() {
         </div>
       </section>
 
-      {/* Vision, mission, valeurs */}
-      <section className="f-section f-section--serree" style={{ background: "var(--f-papier-2)" }}>
-        <div className="f-conteneur f-vision">
-          <div className="f-vision__bloc" data-revele>
-            <p className="f-label f-label--doux">Vision</p>
-            <p className="f-titre-m">{EASYLIFE.vision}</p>
-          </div>
-          <div className="f-vision__bloc" data-revele>
-            <p className="f-label f-label--doux">Mission</p>
-            <p className="f-titre-m">{EASYLIFE.mission}</p>
-          </div>
-        </div>
-      </section>
 
-      {/* Intérêt */}
-      <section className="f-section" id="interet">
-        <div className="f-conteneur f-demande">
-          <div className="f-demande__cote">
-            <TitreLignes className="f-titre-l" lignes={["Rejoindre", "EasyLife."]} />
-            <p className="f-texte" data-revele>Travailleur, entreprise ou prestataire : dites-nous ce qui vous intéresse et quand vous êtes disponible. L'équipe vous recontacte.</p>
-            <p className="f-titre-m" style={{ color: "var(--f-encre-3)" }} data-revele>« {EASYLIFE.slogan} »</p>
+      {/* Rejoindre */}
+      <section className="f-section f-final">
+        <div className="f-conteneur f-final__grille">
+          <TitreLignes className="f-titre-xxl" lignes={["Rejoindre", "EasyLife."]} />
+          <div className="f-final__actions" data-revele>
+            <div className="f-guide f-guide--serre" style={{ width: "fit-content" }}><Link className="f-btn f-btn--or f-btn--grand" to="/contact">Rejoindre EasyLife <ArrowRight /></Link></div>
           </div>
-          <div className="f-carte" data-revele><FormulaireInteret /></div>
         </div>
       </section>
     </Gabarit>

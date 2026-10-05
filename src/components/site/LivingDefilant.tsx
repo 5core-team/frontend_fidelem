@@ -68,7 +68,7 @@ export default function LivingDefilant() {
             <h2 id="living-titre" className="f-titre-m">EasyLife Living, le confort de vie tout-en-un.</h2>
           </div>
           <div className="f-work__desc f-guide">
-            <p className="f-label">Pour les travailleurs : logement, charges, transport, santé, communication, alimentation et épargne, réunis dans une seule offre.</p>
+            <p className="f-label">Tout l'essentiel du quotidien, dans une seule offre.</p>
           </div>
           {CARTES.map((c, i) => {
             const place = (i - etape + n) % n;

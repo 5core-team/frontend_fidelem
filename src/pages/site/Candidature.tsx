@@ -37,7 +37,7 @@ export default function Candidature() {
 
   return (
     <Gabarit>
-      <EnTetePage label="Conseiller Financier · candidature" lignes={["Votre", <em key="e">candidature.</em>]} chapo="Quelques informations pour préparer l'échange et le test de niveau. Votre compte est créé en attente, puis activé avec votre licence et votre zone." />
+      <EnTetePage label="Conseiller Financier · candidature" lignes={["Votre", <em key="e">candidature.</em>]} chapo="Deux minutes pour préparer l'échange et le test de niveau." />
       <section className="f-section" style={{ paddingTop: 0 }}>
         <div className="f-conteneur f-demande">
           <aside className="f-demande__cote">
