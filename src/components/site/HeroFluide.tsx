@@ -5,7 +5,7 @@ import { mouvementReduit } from "./Mouvement";
 /**
  * Hero composé comme celui de bleibtgleich.dev : une colonne étroite à gauche (logo, petite mention),
  * un filet vertical, une colonne de droite (mentions en haut, grand titre en bas), puis un titre
- * qui repart de la colonne de gauche, et les deux moitiés du nom fixées dans les coins du bas.
+ * qui repart de la colonne de gauche.
  */
 export default function HeroFluide() {
   const section = useRef<HTMLElement>(null);
