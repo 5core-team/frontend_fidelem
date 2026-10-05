@@ -75,7 +75,8 @@ function Dock() {
             ))}
           </ul>
           <div className="f-panneau__pied">
-            <Link className="f-btn f-btn--gris" to="/trouver-un-conseiller">Trouver un conseiller</Link>
+            <Link className="f-btn f-btn--or" to="/trouver-un-conseiller">Trouver un conseiller</Link>
+            <Link className="f-btn f-btn--gris" to="/connexion">Connexion</Link>
             <Link className="f-btn f-btn--encre" to="/espace-conseiller/connexion">Espace Conseiller</Link>
           </div>
         </div>
