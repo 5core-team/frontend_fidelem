@@ -12,11 +12,22 @@ type User = {
   role: "user" | "advisor" | "manager";
 };
 
+export type DonneesInscription = {
+  name: string;
+  last_name: string;
+  email: string;
+  phone?: string;
+  address?: string;
+  password: string;
+  type_compte: string;
+  created_by?: number | string;
+};
+
 type AuthContextType = {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, last_name: string, email: string, phone: string, address: string, password: string, role: string) => Promise<void>;
+  register: (data: DonneesInscription) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
 };
@@ -62,20 +73,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const register = async (name: string, last_name: string, email: string, phone: string, address: string, password: string, role: string) => {
+  const register = async (data: DonneesInscription) => {
+    // Quand un conseiller ou un responsable crée un compte, il reste connecté sous son propre compte.
+    const creeParUnTiers = !!user;
     setLoading(true);
     try {
-      const response = await registerAPI(name, last_name, email, phone, address, password, role);
-      const { user: userData, token } = response.data; // Adjust according to your response structure
-      if (role === "user") {
+      const response = await registerAPI({ ...data, created_by: data.created_by as number | undefined });
+      const { user: userData, token } = response.data;
+      if (data.type_compte === "user" && !creeParUnTiers && token) {
         setUser(userData);
         localStorage.setItem("user", JSON.stringify(userData));
         localStorage.setItem("authToken", token);
-        setAuthToken(token); // Set the token for Axios requests
+        setAuthToken(token);
       }
-    } catch (error) {
-      console.error(error);
-      throw error;
     } finally {
       setLoading(false);
     }

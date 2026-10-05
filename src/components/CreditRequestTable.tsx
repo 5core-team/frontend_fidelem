@@ -64,8 +64,8 @@ const CreditRequestTable = ({ title, description }: CreditRequestTableProps) => 
           setCreditRequests([]);
         }
       } catch (error) {
-        console.error("Erreur lors de la récupération des demandes de crédit:", error);
-        toast.error("Erreur lors de la récupération des demandes de crédit");
+        console.error("Erreur lors de la récupération des demandes de financement:", error);
+        toast.error("Erreur lors de la récupération des demandes de financement");
       } finally {
         setLoading(false);
       }
@@ -80,9 +80,9 @@ const CreditRequestTable = ({ title, description }: CreditRequestTableProps) => 
       setCreditRequests(creditRequests.map(request =>
         request.id === requestId ? { ...request, status: "Approuvé" as const } : request
       ));
-      toast.success("Demande de crédit approuvée avec succès");
+      toast.success("Demande de financement approuvée avec succès");
     } catch (error) {
-      toast.error("Erreur lors de l'approbation de la demande de crédit");
+      toast.error("Erreur lors de l'approbation de la demande de financement");
     }
   };
 
@@ -92,9 +92,9 @@ const CreditRequestTable = ({ title, description }: CreditRequestTableProps) => 
       setCreditRequests(creditRequests.map(request =>
         request.id === requestId ? { ...request, status: "Rejeté" as const } : request
       ));
-      toast.success("Demande de crédit rejetée");
+      toast.success("Demande de financement rejetée");
     } catch (error) {
-      toast.error("Erreur lors du rejet de la demande de crédit");
+      toast.error("Erreur lors du rejet de la demande de financement");
     }
   };
 
@@ -104,9 +104,9 @@ const CreditRequestTable = ({ title, description }: CreditRequestTableProps) => 
       setCreditRequests(creditRequests.map(request =>
         request.id === requestId ? { ...request, status: "En attente" as const } : request
       ));
-      toast.success("Demande de crédit restaurée et mise en attente");
+      toast.success("Demande de financement restaurée et mise en attente");
     } catch (error) {
-      toast.error("Erreur lors de la restauration de la demande de crédit");
+      toast.error("Erreur lors de la restauration de la demande de financement");
     }
   };
 
@@ -143,7 +143,7 @@ const CreditRequestTable = ({ title, description }: CreditRequestTableProps) => 
         <div className="relative w-full sm:w-auto">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
           <Input
-            placeholder="Rechercher une demande de crédit..."
+            placeholder="Rechercher une demande de financement..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10 w-full sm:w-80"
@@ -211,7 +211,7 @@ const CreditRequestTable = ({ title, description }: CreditRequestTableProps) => 
             ) : (
               <TableRow>
                 <TableCell colSpan={7} className="h-24 text-center">
-                  Aucune demande de crédit trouvée.
+                  Aucune demande de financement trouvée.
                 </TableCell>
               </TableRow>
             )}

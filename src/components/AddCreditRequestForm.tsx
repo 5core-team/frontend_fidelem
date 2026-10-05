@@ -1,171 +1,89 @@
-import { useState, useEffect } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
+import { useState } from "react";
 import { toast } from "sonner";
-import { createCreditRequest } from "../config/api"; // Assurez-vous que le chemin est correct
-import { useAuth } from "@/context/AuthContext"; // Assurez-vous que le chemin est correct
-
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
-
-const formSchema = z.object({
-  amount: z.number().min(1000, {
-    message: "Le montant doit être d'au moins 1 000 F.",
-  }).max(100000, {
-    message: "Le montant ne peut pas dépasser 100 000 F.",
-  }),
-  duration: z.number().min(12, {
-    message: "La durée doit être d'au moins 12 mois.",
-  }).max(120, {
-    message: "La durée ne peut pas dépasser 120 mois.",
-  }),
-  purpose: z.string().min(1, {
-    message: "Veuillez sélectionner un objet pour le crédit.",
-  }),
-  additional_details: z.string().optional(),
-});
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { useAuth } from "@/context/AuthContext";
+import { FINANCEMENTS } from "@/donnees/fidelem";
+import { nouvelleDemandeUsager } from "@/config/apiEspace";
+import { BlocRendezVous, Champ, rendezVousVide, validerRendezVous } from "@/components/site/Formulaires";
 
 interface AddCreditRequestFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   isAdvisor?: boolean;
+  /** Clients du conseiller, pour choisir pour qui la demande est créée. */
+  clients?: { id: string | number; name?: string; last_name?: string }[];
+  onCree?: () => void;
 }
 
-export function AddCreditRequestForm({ open, onOpenChange, isAdvisor = false }: AddCreditRequestFormProps) {
-  const [amount, setAmount] = useState(25000);
-  const [duration, setDuration] = useState(48);
-  const { user } = useAuth(); // Récupérez l'utilisateur connecté depuis le contexte d'authentification
+/** Nouvelle demande de financement depuis un espace connecté (usager, ou conseiller pour un client). */
+export function AddCreditRequestForm({ open, onOpenChange, isAdvisor = false, clients = [], onCree }: AddCreditRequestFormProps) {
+  const { user } = useAuth();
+  const [financement, setFinancement] = useState<string>(FINANCEMENTS[0].slug);
+  const f = FINANCEMENTS.find((x) => x.slug === financement)!;
+  const [objet, setObjet] = useState(f.projets[0]);
+  const [montant, setMontant] = useState("");
+  const [duree, setDuree] = useState("36");
+  const [message, setMessage] = useState("");
+  const [clientId, setClientId] = useState("");
+  const [rdv, setRdv] = useState(rendezVousVide());
+  const [erreurs, setErreurs] = useState<Record<string, string>>({});
+  const [envoi, setEnvoi] = useState(false);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      amount: 25000,
-      duration: 48,
-      purpose: "",
-      additional_details: "",
-    },
-  });
-
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  const soumettre = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const v: Record<string, string> = isAdvisor ? {} : validerRendezVous(rdv);
+    if (!Number(montant)) v.montant = "Indiquez le montant.";
+    if (isAdvisor && !clientId) v.client = "Choisissez le client concerné.";
+    setErreurs(v);
+    if (Object.keys(v).length || !user) return;
+    setEnvoi(true);
     try {
-      const userId = user?.id; // Récupérez l'ID de l'utilisateur connecté
-      await createCreditRequest({ ...values, clientId: userId });
-      toast.success("Demande de crédit créée avec succès");
-      form.reset();
+      await nouvelleDemandeUsager(isAdvisor ? clientId : user.id, { montant: Number(montant), duree: Number(duree), objet: `${f.court} · ${objet}`, message, rendezVous: rdv });
+      toast.success("Demande de financement créée.");
       onOpenChange(false);
-    } catch (error) {
-      console.error('Error:', error.response);
-      toast.error("Échec de la création de la demande de crédit");
-    }
-  }
+      onCree?.();
+      setMontant(""); setMessage("");
+    } catch {
+      toast.error("La demande n'a pas pu être créée. Réessayez dans un instant.");
+    } finally { setEnvoi(false); }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[620px] max-h-[90vh] overflow-y-auto" style={{ background: "var(--f-papier)", borderRadius: 16, fontFamily: "var(--f-texte)" }}>
         <DialogHeader>
-          <DialogTitle>Nouvelle demande de crédit</DialogTitle>
+          <DialogTitle className="f-titre-m" style={{ textAlign: "left" }}>Nouvelle demande de financement</DialogTitle>
+          <DialogDescription>{isAdvisor ? "Créez une demande pour l'un de vos clients." : "Décrivez votre projet et vos disponibilités."}</DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="amount"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Montant du crédit</FormLabel>
-                  <div className="space-y-2">
-                    <p className="text-lg font-semibold">{amount.toLocaleString('fr-FR')} F</p>
-                    <Slider
-                      defaultValue={[amount]}
-                      max={100000}
-                      min={1000}
-                      step={1000}
-                      onValueChange={(values) => {
-                        setAmount(values[0]);
-                        field.onChange(values[0]);
-                      }}
-                    />
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="duration"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Durée du crédit</FormLabel>
-                  <div className="space-y-2">
-                    <p className="text-lg font-semibold">{duration} mois</p>
-                    <Slider
-                      defaultValue={[duration]}
-                      max={120}
-                      min={12}
-                      step={12}
-                      onValueChange={(values) => {
-                        setDuration(values[0]);
-                        field.onChange(values[0]);
-                      }}
-                    />
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="purpose"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Objet du crédit</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Sélectionner un objet" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="auto">Achat automobile</SelectItem>
-                      <SelectItem value="personal">Personnel</SelectItem>
-                      <SelectItem value="home">Rénovation</SelectItem>
-                      <SelectItem value="education">Études</SelectItem>
-                      <SelectItem value="business">Projet professionnel</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="additional_details"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Informations complémentaires</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Détails supplémentaires sur votre demande de crédit..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" className="w-full bg-fidelem hover:bg-fidelem/90">Soumettre la demande</Button>
-          </form>
-        </Form>
+        <form className="f-form" onSubmit={soumettre} noValidate>
+          {isAdvisor && (
+            <Champ libelle="Client" erreur={erreurs.client}>
+              <select id="f-nd-client" value={clientId} onChange={(e) => setClientId(e.target.value)} aria-invalid={!!erreurs.client}>
+                <option value="">Choisir un client</option>
+                {clients.map((c) => <option key={String(c.id)} value={String(c.id)}>{c.name} {c.last_name}</option>)}
+              </select>
+            </Champ>
+          )}
+          <div className="f-grille-2">
+            <Champ libelle="Financement">
+              <select id="f-nd-type" value={financement} onChange={(e) => { setFinancement(e.target.value); setObjet(FINANCEMENTS.find((x) => x.slug === e.target.value)!.projets[0]); }}>
+                {FINANCEMENTS.map((x) => <option key={x.slug} value={x.slug}>{x.court}</option>)}
+              </select>
+            </Champ>
+            <Champ libelle="Projet">
+              <select id="f-nd-objet" value={objet} onChange={(e) => setObjet(e.target.value)}>{f.projets.map((p) => <option key={p}>{p}</option>)}</select>
+            </Champ>
+            <Champ libelle="Montant (FCFA)" erreur={erreurs.montant}>
+              <input id="f-nd-montant" inputMode="numeric" value={montant} onChange={(e) => setMontant(e.target.value.replace(/\D/g, ""))} aria-invalid={!!erreurs.montant} />
+            </Champ>
+            <Champ libelle="Durée">
+              <select id="f-nd-duree" value={duree} onChange={(e) => setDuree(e.target.value)}>{[6, 12, 24, 36, 48, 60, 84, 120, 180, 240].map((d) => <option key={d} value={d}>{d < 24 ? `${d} mois` : `${d / 12} ans`}</option>)}</select>
+            </Champ>
+          </div>
+          <Champ libelle="Précisions" optionnel><textarea id="f-nd-message" value={message} onChange={(e) => setMessage(e.target.value)} /></Champ>
+          {!isAdvisor && <BlocRendezVous valeur={rdv} onChange={setRdv} erreurs={erreurs} />}
+          <button className="f-btn f-btn--or f-btn--grand" type="submit" disabled={envoi} style={{ justifyContent: "center" }}>{envoi ? "Envoi en cours" : "Envoyer la demande"}</button>
+        </form>
       </DialogContent>
     </Dialog>
   );

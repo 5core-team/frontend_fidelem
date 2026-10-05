@@ -18,6 +18,10 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				sans: ['Geist', 'Helvetica Neue', 'Arial', 'sans-serif'],
+				mono: ['Geist Mono', 'ui-monospace', 'monospace'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -63,11 +67,11 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				fidelem: {
-					DEFAULT: '#002060',
-					secondary: '#DAA520',
-					light: '#F7F7F7',
-					dark: '#16213E',
-					accent: '#1A73E8',
+					DEFAULT: '#1B2A5E',
+					secondary: '#D9A322',
+					light: '#F4F4F0',
+					dark: '#121A2E',
+					accent: '#D9A322',
 				}
 			},
 			borderRadius: {
@@ -124,9 +128,6 @@ export default {
 				'fade-out': 'fade-out 0.3s ease-out',
 				'slide-in': 'slide-in 0.5s ease-out'
 			},
-			fontFamily: {
-				sans: ['Inter', 'sans-serif']
-			}
 		}
 	},
 	plugins: [require("tailwindcss-animate")],

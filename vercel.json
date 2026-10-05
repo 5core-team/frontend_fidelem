@@ -1,18 +1,3 @@
 {
-  "routes": [
-    { "src": "/", "dest": "/" },
-    { "src": "/login", "dest": "/" },
-    { "src": "/about", "dest": "/" },
-    { "src": "/contact", "dest": "/" },
-    { "src": "/careers", "dest": "/" },
-    { "src": "/services", "dest": "/" },
-    { "src": "/faq", "dest": "/" },
-    { "src": "/user", "dest": "/" },
-    { "src": "/blog", "dest": "/" },
-    { "src": "/financial-manager", "dest": "/" },
-    { "src": "/advisor", "dest": "/" },
-    { "src": "/pending-approval", "dest": "/" }
-    
-  ]
+  "rewrites": [{ "source": "/((?!assets/|images/|brand/|favicon).*)", "destination": "/index.html" }]
 }
-
