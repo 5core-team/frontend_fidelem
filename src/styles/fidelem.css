@@ -169,7 +169,7 @@ html.lenis, html.lenis body { height: auto; }
 .f-pied__mot { display: block; text-align: center; font-weight: 600; font-size: calc(min(100vw - 2 * var(--f-marge), var(--f-largeur)) / 3.95); line-height: .78; letter-spacing: -.075em; white-space: nowrap; color: transparent; background: repeating-linear-gradient(180deg, rgba(18, 26, 46, .085) 0 .07em, transparent .07em .105em); -webkit-background-clip: text; background-clip: text; user-select: none; }
 @media (max-width: 860px) { .f-pied__haut { grid-template-columns: 1fr 1fr; } .f-pied__legal { grid-column: 1 / -1; justify-items: start; text-align: left; } .f-pied__legal .f-pied__liens { justify-items: start; } }
 @media (max-width: 860px) { .f-pied { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); } }
-@media (max-width: 480px) { .f-pied__haut { gap: 32px 20px; font-size: 13px; } .f-pied__liens { margin-top: 18px; } .f-pied__contact { grid-column: 1 / -1; grid-row: 1; } .f-pied__copy { position: static; display: block; margin-bottom: 10px; font-size: 13px; } }
+
 
 /* ---------- Formulaires ---------- */
 .f-form { display: grid; gap: 22px; }
@@ -639,11 +639,15 @@ html.lenis, html.lenis body { height: auto; }
 
 /* ---------- Pôles EasyLife ---------- */
 .f-poles { list-style: none; margin: 0; padding: 0; border-top: 1px dashed var(--f-guide); }
-.f-pole { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.1fr); gap: 16px clamp(20px, 3vw, 48px); align-items: start; padding: 24px 16px; margin-inline: -16px; border-bottom: 1px dashed var(--f-guide); border-radius: 6px; transition: background .35s var(--f-ease), color .35s; }
-.f-pole:hover { background: var(--f-marine); color: var(--f-papier); }
+.f-pole { position: relative; isolation: isolate; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.1fr); gap: 16px clamp(20px, 3vw, 48px); align-items: start; padding: 24px 16px; margin-inline: -16px; border-bottom: 1px dashed var(--f-guide); transition: color .6s var(--f-ease); }
+/* Le fond bleu se déploie doucement depuis la gauche au survol, et se retire de la même façon. */
+.f-pole::before { content: ''; position: absolute; inset: 4px 0; z-index: -1; border-radius: 8px; background: var(--f-marine); clip-path: inset(0 100% 0 0 round 8px); transition: clip-path .7s var(--f-ease); }
+.f-pole:hover::before { clip-path: inset(0 0% 0 0 round 8px); }
+.f-pole .f-titre-l, .f-pole .f-label, .f-pole .f-texte, .f-pole__offres, .f-pole .f-numero { transition: color .6s var(--f-ease); }
 .f-pole:hover .f-titre-l, .f-pole:hover .f-label { color: var(--f-papier); }
 .f-pole:hover .f-texte, .f-pole:hover .f-pole__offres { color: rgba(244, 244, 240, .78); }
 .f-pole:hover .f-numero { color: var(--f-or); }
+@media (hover: none) { .f-pole::before { display: none; } }
 .f-pole__nom { display: flex; gap: 14px; align-items: baseline; }
 .f-pole__desc { display: grid; gap: 6px; }
 .f-pole__desc .f-texte { font-size: 15px; }
@@ -669,4 +673,26 @@ html.lenis, html.lenis body { height: auto; }
   .f-choix span { min-height: 44px; }
   .f-titre-xxl { font-size: clamp(2.7rem, 1rem + 9vw, 4.4rem); }
   .f-page-tete { padding-top: calc(76px + 32px); }
+}
+
+@media (max-width: 760px) {
+  .f-entete-site__actions .f-btn { min-height: 0; height: 36px; padding: 0 12px; font-size: 11px; }
+  .f-logo img { height: 28px; }
+}
+
+/* Footer mobile compact : contact en haut, plan du site sur deux colonnes, liens secondaires en ligne. */
+@media (max-width: 760px) {
+  .f-pied { padding-top: 48px; }
+  .f-pied__haut { grid-template-columns: 1fr; gap: 28px; font-size: 13px; }
+  .f-pied__contact { order: -1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+  .f-pied__contact .f-pied__mail { margin: 0; }
+  .f-pied__contact .f-pied__liens { flex-basis: 100%; }
+  .f-pied__nav { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; padding-top: 20px; border-top: 1px dashed var(--f-guide); }
+  .f-pied__nav a { min-height: 38px; }
+  .f-pied__liens { display: flex; flex-wrap: wrap; gap: 0 18px; margin-top: 0; }
+  .f-pied__liens a { min-height: 38px; }
+  .f-pied__legal { justify-items: start; text-align: left; padding-top: 16px; border-top: 1px dashed var(--f-guide); }
+  .f-pied__legal .f-pied__liens { justify-content: flex-start; }
+  .f-pied__bas { margin-top: 28px; }
+  .f-pied__copy { position: static; display: block; margin-bottom: 8px; font-size: 13px; }
 }

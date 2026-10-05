@@ -18,9 +18,8 @@ export function brouiller(el: HTMLElement | null, texte: string) {
 export default function LienBrouille({ children, ...props }: Omit<ComponentProps<typeof NavLink>, "children"> & { children: string }) {
   const texte = useRef<HTMLSpanElement>(null);
   return (
-    <NavLink {...props} onMouseEnter={() => brouiller(texte.current, children)} onFocus={() => brouiller(texte.current, children)}>
+    <NavLink {...props} aria-label={children} onMouseEnter={() => brouiller(texte.current, children)} onFocus={() => brouiller(texte.current, children)}>
       <span ref={texte} aria-hidden="true">{children}</span>
-      <span className="f-sr">{children}</span>
     </NavLink>
   );
 }
