@@ -737,3 +737,36 @@ html.lenis, html.lenis body { height: auto; }
 .f-bgh__btn--ligne:hover { background: var(--f-encre); color: var(--f-papier); }
 .f-bgh__btn--ligne:hover i { background: var(--f-or); color: var(--f-encre); }
 @media (prefers-reduced-motion: reduce) { .f-bgh__btn:hover i svg { animation: none; } }
+
+/* ==========================================================================
+   Boutons, style unique pour tout le site (repris du hero) :
+   pilule, libellé en capitales, flèche dans une pastille ronde qui glisse au survol.
+   La barre flottante du bas (.f-dock) garde son style.
+   ========================================================================== */
+.f-site .f-btn:not(.f-dock .f-btn) { border-radius: 999px; height: 50px; padding: 0 22px; gap: 14px; border: 1px solid transparent; }
+.f-site .f-btn--grand:not(.f-dock .f-btn) { height: 56px; padding: 0 24px; }
+.f-site .f-btn:not(.f-dock .f-btn):has(> svg:last-child) { padding-right: 7px; justify-content: space-between; }
+.f-site .f-btn:not(.f-dock .f-btn) > svg:last-child { width: 38px; height: 38px; padding: 11px; border-radius: 50%; flex: none; transform: none; }
+.f-site .f-btn:not(.f-dock .f-btn):hover > svg:last-child { animation: f-fleche .5s var(--f-ease); transform: none; }
+.f-site .f-btn:not(.f-dock .f-btn) > svg:first-child:not(:last-child) { width: 16px; height: 16px; }
+
+/* Principal : encre, pastille or */
+.f-site .f-btn--or:not(.f-dock .f-btn) { background: var(--f-encre); color: var(--f-papier); }
+.f-site .f-btn--or:not(.f-dock .f-btn) > svg:last-child { background: var(--f-or); color: var(--f-encre); }
+.f-site .f-btn--or:not(.f-dock .f-btn):hover { background: var(--f-marine); }
+/* Encre : variante sombre avec pastille claire */
+.f-site .f-btn--encre:not(.f-dock .f-btn) > svg:last-child { background: rgba(244, 244, 240, .14); }
+.f-site .f-btn--encre:not(.f-dock .f-btn):hover > svg:last-child { background: var(--f-or); color: var(--f-encre); }
+/* Secondaire : contour fin */
+.f-site .f-btn--gris:not(.f-dock .f-btn) { background: transparent; border-color: var(--f-encre); color: var(--f-encre); }
+.f-site .f-btn--gris:not(.f-dock .f-btn) > svg:last-child { background: rgba(18, 26, 46, .07); }
+.f-site .f-btn--gris:not(.f-dock .f-btn):hover { background: var(--f-encre); color: var(--f-papier); }
+.f-site .f-btn--gris:not(.f-dock .f-btn):hover > svg:last-child { background: var(--f-or); color: var(--f-encre); }
+/* Les cadres en pointillés autour des boutons suivent la forme pilule */
+.f-guide--serre:has(> .f-btn) { border-radius: 999px; }
+@media (max-width: 760px) { .f-site .f-btn:not(.f-dock .f-btn) { white-space: normal; text-align: left; line-height: 1.2; } }
+@media (prefers-reduced-motion: reduce) { .f-site .f-btn:hover > svg:last-child { animation: none; } }
+/* Sur fond sombre, le bouton principal passe en or pour rester visible */
+.f-formation--mise .f-btn--or, .f-site .f-formation--mise .f-btn--or:not(.f-dock .f-btn) { background: var(--f-or); color: var(--f-encre); }
+.f-site .f-formation--mise .f-btn--or:not(.f-dock .f-btn) > svg:last-child { background: var(--f-encre); color: var(--f-or); }
+.f-site .f-formation--mise .f-btn--or:not(.f-dock .f-btn):hover { background: #E7B53A; }
