@@ -22,8 +22,9 @@ const VALEURS = [
 export function APropos() {
   return (
     <Gabarit>
-      <EnTetePage label="À propos" lignes={["À propos", <em key="e">de FIDELEM.</em>]} chapo="Un cabinet de finance qui facilite l'accès au financement et forme des conseillers de proximité." />
+      <EnTetePage label="À propos" lignes={["À propos", <em key="e">de FIDELEM.</em>]} chapo="Un cabinet de finance qui facilite l'accès au financement et forme les conseillers financiers de demain, au plus près des usagers." note="Financial Debt and Leasing Management" />
 
+      <div className="f-conteneur"><div className="f-guide" style={{ aspectRatio: "21 / 8" }} data-revele><img className="f-photo" src="/images/analyse.jpg" alt="Analyse de documents financiers" /></div></div>
 
       <section className="f-section">
         <div className="f-conteneur f-metier">
@@ -32,6 +33,7 @@ export function APropos() {
             <TitreLignes className="f-titre-l" lignes={["Rendre le financement", <em key="e">accessible à tous.</em>]} />
           </div>
           <div className="f-metier__texte" data-revele>
+            <p className="f-texte">FIDELEM est née d'un constat simple : trop de projets s'arrêtent faute d'accompagnement, pas faute d'idées. Notre plateforme met en relation les usagers avec des conseillers financiers qualifiés, qui montent leur dossier et le défendent auprès des partenaires financiers.</p>
             <p className="f-texte"><strong>Notre mission :</strong> faciliter l'accès au financement grâce à un service personnalisé et transparent, et aider chacun à vivre mieux avec une vie financière plus saine.</p>
           </div>
         </div>
@@ -45,12 +47,27 @@ export function APropos() {
         </div>
       </section>
 
+      <section className="f-section">
+        <div className="f-conteneur f-poles">
+          <article className="f-carte f-pole" data-revele>
+            <p className="f-label f-label--doux">Le réseau</p>
+            <h2 className="f-titre-l">Des conseillers formés, dans chaque zone.</h2>
+            <p className="f-texte">Trois niveaux de formation, Inclusion, Croissance et Patrimoine, pour accompagner tous les profils de clients. Chaque conseiller reçoit une licence et une zone de gestion.</p>
+            <Link className="f-lien" to="/conseiller-financier">Le métier de conseiller <ArrowUpRight /></Link>
+          </article>
+          <article className="f-carte f-pole" data-revele="120">
+            <p className="f-label f-label--doux">L'écosystème</p>
+            <h2 className="f-titre-l">EasyLife, pour mieux vivre au quotidien.</h2>
+            <p className="f-texte">{EASYLIFE.presentation}</p>
+            <Link className="f-lien" to="/easylife">Découvrir EasyLife <ArrowUpRight /></Link>
+          </article>
+        </div>
+      </section>
 
       <section className="f-section f-final">
         <div className="f-conteneur f-final__grille">
           <TitreLignes className="f-titre-xxl" lignes={["Parlons-en", "ensemble."]} />
           <div className="f-final__actions" data-revele>
-            
             <div className="f-guide f-guide--serre" style={{ width: "fit-content" }}><Link className="f-btn f-btn--or f-btn--grand" to="/contact">Nous contacter <ArrowRight /></Link></div>
           </div>
         </div>

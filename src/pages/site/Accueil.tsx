@@ -28,7 +28,7 @@ function Manifeste() {
     }, ref);
     return () => ctx.revert();
   }, []);
-  const texte = "Un projet mérite un conseiller, pas un formulaire.";
+  const texte = "Un projet mérite mieux qu'un formulaire. Il mérite un conseiller formé, dans votre commune, qui monte le dossier avec vous et vous suit jusqu'à la réponse.";
   return (
     <p ref={ref} className="f-manifeste">
       <span className="f-manifeste__guillemet" aria-hidden="true">“</span>

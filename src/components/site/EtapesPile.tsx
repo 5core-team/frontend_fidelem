@@ -60,6 +60,7 @@ export default function EtapesPile({ etapes, intro }: { etapes: Etape[]; intro: 
                   <div className="f-pile__tete"><h3 className="f-titre-l">{e.titre}</h3><span className="f-numero">0{i + 1} / 0{etapes.length}</span></div>
                   <div className="f-pile__bas">
                     <ul className="f-puces">{e.puces.map((p) => <li key={p} className="f-puce">{p}</li>)}</ul>
+                    <p className="f-texte">{e.texte}</p>
                   </div>
                 </div>
                 {e.image && <div className="f-pile__image"><img className="f-photo" src={e.image} alt="" loading="lazy" /></div>}
