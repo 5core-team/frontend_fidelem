@@ -19,7 +19,7 @@ function EnTete() {
         </Link>
         <nav className="f-nav-haut" aria-label="Navigation principale">
           {NAVIGATION.map((l) => (
-            <NavLink key={l.chemin} to={l.chemin} end={l.chemin === "/"}>{l.libelle}</NavLink>
+            <LienBrouille key={l.chemin} to={l.chemin} end={l.chemin === "/"}>{l.libelle}</LienBrouille>
           ))}
         </nav>
         <div className="f-entete-site__actions">
