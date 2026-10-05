@@ -1,5 +1,6 @@
 import axios from "axios";
-import { getCreditRequestsConseiller, getCreditRequests, getClientsByAdvisor, updateCreditRequestStatus, createCreditRequest } from "./api";
+import { brancherDemo } from "./demo";
+import { getCreditRequestsAdmin, getCreditRequestsConseiller, getCreditRequests, getClientsByAdvisor, updateCreditRequestStatus, createCreditRequest } from "./api";
 import type { RendezVous } from "./apiPublic";
 
 // Espaces connectés. Les demandes viennent de deux sources :
@@ -9,6 +10,7 @@ import type { RendezVous } from "./apiPublic";
 // Les deux formats sont ramenés au type Demande ci-dessous.
 
 const client = axios.create({ baseURL: import.meta.env.VITE_API_URL, headers: { "Content-Type": "application/json" }, timeout: 15000 });
+brancherDemo(client);
 client.interceptors.request.use((config) => {
   const token = localStorage.getItem("authToken");
   if (token) config.headers.Authorization = `Bearer ${token}`;
@@ -53,6 +55,7 @@ export const normaliser = (r: Brut): Demande => {
       usager: { nom: [r.user?.name, r.user?.last_name].filter(Boolean).join(" ") || "Usager", telephone: r.user?.phone, email: r.user?.email, id: r.user?.id ? String(r.user.id) : String(r.user_id ?? "") },
       financement: String(r.purpose ?? "Financement"), objet: String(r.purpose ?? ""),
       montant: Number(r.amount ?? 0), duree: Number(r.duration ?? 0), message: (r.additional_details as string) || undefined,
+      zone: (r.zone as string) || undefined, rendezVous: (r.rendez_vous as RendezVous) || undefined,
       statut: statutDepuisAncien(r.status as string), creeLe: String(r.created_at ?? new Date().toISOString()),
     };
   }
@@ -73,6 +76,9 @@ const liste = (d: unknown): Brut[] => (Array.isArray(d) ? d : Array.isArray((d a
 export const demandesDeMaZone = async (): Promise<Demande[]> => liste((await client.get("/conseiller/demandes-zone")).data).map(normaliser);
 
 /** Demandes suivies par le conseiller (route existante). */
+/** Toutes les demandes (back-office). */
+export const toutesLesDemandes = async (): Promise<Demande[]> => liste(await getCreditRequestsAdmin()).map(normaliser);
+
 export const mesDemandes = async (conseillerId: string): Promise<Demande[]> => liste(await getCreditRequestsConseiller(conseillerId)).map(normaliser);
 
 /** Demandes d'un usager (route existante). */

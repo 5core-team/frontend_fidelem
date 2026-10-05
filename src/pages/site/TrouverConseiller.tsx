@@ -76,7 +76,7 @@ export default function TrouverConseiller() {
               <input id="f-recherche" list="f-zones" placeholder="Votre commune, ex. Abomey-Calavi" value={saisie} onChange={(e) => setSaisie(e.target.value)} autoComplete="off" />
               <datalist id="f-zones">{ZONES.map((z) => <option key={z} value={z} />)}</datalist>
             </label>
-            <button className="f-btn f-btn--or f-btn--grand" type="submit"><Search /> Rechercher</button>
+            <button className="f-btn f-btn--icone f-btn--or f-btn--grand" type="submit"><Search /> Rechercher</button>
           </form>
           <div className="f-zones-rapides">
             <span className="f-label f-label--doux">Communes fréquentes</span>

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { brancherDemo } from "./demo";
 
 // Appels du site public. Ces routes sont NOUVELLES : le back-end doit les créer
 // (voir BACKEND-A-PREVOIR.md à la racine du projet). En attendant, les formulaires
@@ -10,6 +11,7 @@ const client = axios.create({
   timeout: 15000,
 });
 
+brancherDemo(client);
 client.interceptors.request.use((config) => {
   const token = localStorage.getItem("authToken");
   if (token) config.headers.Authorization = `Bearer ${token}`;

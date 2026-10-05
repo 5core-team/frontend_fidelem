@@ -30,7 +30,7 @@ function MesDemandes() {
 
   return (
     <>
-      <TetePage sur="Mon espace" titre={`Bonjour ${user?.name ?? ""}.`} texte="Suivez vos demandes de financement et vos rendez-vous." actions={<button type="button" className="f-btn f-btn--or" onClick={() => setNouvelle(true)}><Plus /> Nouvelle demande</button>} />
+      <TetePage sur="Mon espace" titre={`Bonjour ${user?.name ?? ""}.`} texte="Suivez vos demandes de financement et vos rendez-vous." actions={<button type="button" className="f-btn f-btn--icone f-btn--or" onClick={() => setNouvelle(true)}><Plus /> Nouvelle demande</button>} />
       <div className="f-chiffres">
         <Chiffre accent libelle="Demandes en cours" valeur={chargement ? "…" : enCours.length} />
         <Chiffre libelle="Demandes au total" valeur={chargement ? "…" : demandes.length} />
@@ -60,7 +60,7 @@ function MesDemandes() {
             {u?.conseiller_nom ? (
               <>
                 <p className="f-texte">{u.conseiller_nom}</p>
-                {u.conseiller_telephone && <a className="f-btn f-btn--encre" href={`tel:${u.conseiller_telephone}`}><Phone /> {u.conseiller_telephone}</a>}
+                {u.conseiller_telephone && <a className="f-btn f-btn--icone f-btn--encre" href={`tel:${u.conseiller_telephone}`}><Phone /> {u.conseiller_telephone}</a>}
               </>
             ) : <p className="f-texte">Un conseiller de votre zone vous est attribué dès votre première demande.</p>}
             <Link className="f-lien" to="/trouver-un-conseiller">Trouver un conseiller</Link>

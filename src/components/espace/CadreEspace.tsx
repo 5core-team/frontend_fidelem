@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { LogOut, Menu, X, ExternalLink, type LucideIcon } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { CONTACT } from "@/donnees/fidelem";
+import { modeDemo, quitterDemo } from "@/config/demo";
 
 export type LienEspace = { libelle: string; chemin: string; icone: LucideIcon; fin?: boolean; badge?: number };
 
@@ -35,7 +36,7 @@ export default function CadreEspace({ titreEspace, liens, children }: { titreEsp
             <span><strong>{user?.name} {user?.last_name}</strong><small>{user?.email}</small></span>
           </div>
           <Link className="f-app__lien-site" to="/">Voir le site <ExternalLink /></Link>
-          <button type="button" className="f-btn f-btn--gris" onClick={() => { logout(); nav("/"); }}><LogOut /> Déconnexion</button>
+          <button type="button" className="f-btn f-btn--icone f-btn--gris" onClick={() => { if (modeDemo()) { quitterDemo(); window.location.href = "/demo"; return; } logout(); nav("/"); }}><LogOut /> Déconnexion</button>
           <p className="f-note">Assistance : {CONTACT.telephone}</p>
         </div>
       </aside>
@@ -46,6 +47,12 @@ export default function CadreEspace({ titreEspace, liens, children }: { titreEsp
           <img src="/brand/fidelem-logo.png" alt="FIDELEM" />
           <span className="f-app__avatar">{initiales}</span>
         </header>
+        {modeDemo() && (
+          <div className="f-app__demo" role="status">
+            <span><strong>Mode démonstration</strong> · données d'exemple, actions simulées</span>
+            <button type="button" onClick={() => { quitterDemo(); window.location.href = "/demo"; }}>Changer d'espace</button>
+          </div>
+        )}
         <main id="contenu-espace" className="f-app__contenu">{children}</main>
       </div>
     </div>

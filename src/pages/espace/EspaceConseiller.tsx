@@ -57,13 +57,13 @@ const rdvTexte = (d: Demande) => (d.rendezVous?.date ? `${dateCourte(d.rendezVou
 
 /* ----------------------------- Liste de demandes ----------------------------- */
 
-function TableDemandes({ demandes, vide }: { demandes: Demande[]; vide: React.ReactNode }) {
+export function TableDemandes({ demandes, vide, compact = false, base = "/espace-conseiller/demandes" }: { demandes: Demande[]; vide: React.ReactNode; compact?: boolean; base?: string }) {
   const nav = useNavigate();
   if (!demandes.length) return <>{vide}</>;
-  const ouvrir = (d: Demande) => nav(`/espace-conseiller/demandes/${d.source}-${d.id}`);
+  const ouvrir = (d: Demande) => nav(`${base}/${d.source}-${d.id}`);
   return (
     <>
-      <div className="f-table-wrap f-defile-x">
+      <div className={`f-table-wrap f-defile-x ${compact ? "est-masque" : ""}`}>
         <table className="f-table">
           <thead><tr><th>Usager</th><th>Financement</th><th>Montant</th><th>Zone</th><th>Rendez-vous</th><th>Statut</th><th>Reçue le</th></tr></thead>
           <tbody>
@@ -81,7 +81,7 @@ function TableDemandes({ demandes, vide }: { demandes: Demande[]; vide: React.Re
           </tbody>
         </table>
       </div>
-      <div className="f-cartes-mobile">
+      <div className={`f-cartes-mobile ${compact ? "est-visible" : ""}`}>
         {demandes.map((d) => (
           <button key={`${d.source}-${d.id}`} type="button" className="f-carte-demande" onClick={() => ouvrir(d)}>
             <div><strong style={{ fontWeight: 500 }}>{d.usager.nom}</strong><PastilleStatut statut={d.statut} /></div>
@@ -104,7 +104,7 @@ function TableauDeBord() {
   const finalisees = miennes.filter((d) => d.statut === "Acceptée");
   return (
     <>
-      <TetePage sur="Espace Conseiller" titre={`Bonjour ${user?.name ?? ""}.`} texte="Voici les demandes de votre zone et vos prochains rendez-vous." actions={<Link className="f-btn f-btn--or" to="/espace-conseiller/demandes">Voir les demandes</Link>} />
+      <TetePage sur="Espace Conseiller" titre={`Bonjour ${user?.name ?? ""}.`} texte="Voici les demandes de votre zone et vos prochains rendez-vous." actions={<Link className="f-btn f-btn--icone f-btn--or" to="/espace-conseiller/demandes">Voir les demandes</Link>} />
       {chargement ? <p className="f-texte" style={{ display: "flex", gap: 10 }}><Loader2 className="animate-spin" /> Chargement</p> : (
         <>
           <div className="f-chiffres">
@@ -116,7 +116,7 @@ function TableauDeBord() {
           <div className="f-deux-col">
             <section className="f-panel">
               <div className="f-panel__tete"><h2 className="f-titre-m">Nouvelles demandes de ma zone</h2><Link className="f-lien" to="/espace-conseiller/demandes">Tout voir</Link></div>
-              <TableDemandes demandes={zone.slice(0, 5)} vide={<EtatVide titre={zoneIndisponible ? "Les demandes de zone arrivent bientôt." : "Aucune nouvelle demande."} texte={zoneIndisponible ? "Le service qui transmet les demandes du site à votre zone n'est pas encore activé. Vos dossiers en cours restent accessibles." : "Les nouvelles demandes des usagers de votre zone apparaîtront ici."} />} />
+              <TableDemandes compact demandes={zone.slice(0, 5)} vide={<EtatVide titre={zoneIndisponible ? "Les demandes de zone arrivent bientôt." : "Aucune nouvelle demande."} texte={zoneIndisponible ? "Le service qui transmet les demandes du site à votre zone n'est pas encore activé. Vos dossiers en cours restent accessibles." : "Les nouvelles demandes des usagers de votre zone apparaîtront ici."} />} />
             </section>
             <section className="f-panel">
               <div className="f-panel__tete"><h2 className="f-titre-m">Prochains rendez-vous</h2><Link className="f-lien" to="/espace-conseiller/rendez-vous">Agenda</Link></div>
@@ -156,7 +156,7 @@ function ListeDemandes() {
 
   return (
     <>
-      <TetePage sur="Espace Conseiller" titre="Demandes" texte="Les demandes de votre zone et les dossiers que vous suivez." actions={<button type="button" className="f-btn f-btn--encre" onClick={() => setNouveau(true)}><Plus /> Nouvelle demande</button>} />
+      <TetePage sur="Espace Conseiller" titre="Demandes" texte="Les demandes de votre zone et les dossiers que vous suivez." actions={<button type="button" className="f-btn f-btn--icone f-btn--encre" onClick={() => setNouveau(true)}><Plus /> Nouvelle demande</button>} />
       <section className="f-panel">
         <div className="f-panel__tete">
           <div className="f-onglets" role="tablist">
@@ -245,9 +245,9 @@ function FicheDemande() {
           <section className="f-panel">
             <h2 className="f-titre-m">Contacter</h2>
             <div style={{ display: "grid", gap: 8 }}>
-              {tel && <a className="f-btn f-btn--encre" href={`tel:${tel}`}><Phone /> {d.usager.telephone}</a>}
-              {tel && <a className="f-btn f-btn--gris" href={`https://wa.me/229${tel.replace(/^\+?229/, "")}`} target="_blank" rel="noreferrer"><MessageCircle /> WhatsApp</a>}
-              {d.usager.email && <a className="f-btn f-btn--gris" href={`mailto:${d.usager.email}`}><Mail /> {d.usager.email}</a>}
+              {tel && <a className="f-btn f-btn--icone f-btn--encre" href={`tel:${tel}`}><Phone /> {d.usager.telephone}</a>}
+              {tel && <a className="f-btn f-btn--icone f-btn--gris" href={`https://wa.me/229${tel.replace(/^\+?229/, "")}`} target="_blank" rel="noreferrer"><MessageCircle /> WhatsApp</a>}
+              {d.usager.email && <a className="f-btn f-btn--icone f-btn--gris" href={`mailto:${d.usager.email}`}><Mail /> {d.usager.email}</a>}
               {!tel && !d.usager.email && <p className="f-note">Coordonnées non transmises.</p>}
             </div>
           </section>
@@ -304,7 +304,7 @@ function RendezVousPage() {
             ))}
           </section>
         ))
-      ) : <EtatVide titre="Aucun rendez-vous prévu." texte="Les rendez-vous que vous confirmez depuis la fiche d'une demande apparaissent ici." action={<Link className="f-btn f-btn--gris" to="/espace-conseiller/demandes">Voir les demandes</Link>} />}
+      ) : <EtatVide titre="Aucun rendez-vous prévu." texte="Les rendez-vous que vous confirmez depuis la fiche d'une demande apparaissent ici." action={<Link className="f-btn f-btn--icone f-btn--gris" to="/espace-conseiller/demandes">Voir les demandes</Link>} />}
     </>
   );
 }

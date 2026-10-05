@@ -16,6 +16,7 @@ import { Connexion, ConnexionConseiller, MotDePasseOublie } from "./pages/site/C
 import EspaceConseiller from "./pages/espace/EspaceConseiller";
 import EspaceClient from "./pages/espace/EspaceClient";
 import EspaceResponsable from "./pages/espace/EspaceResponsable";
+import Demo from "./pages/site/Demo";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,8 @@ const App = () => (
             <Route path="/mentions-legales" element={<Legal page="mentions-legales" />} />
             <Route path="/confidentialite" element={<Legal page="confidentialite" />} />
             <Route path="/conditions" element={<Legal page="conditions" />} />
+
+            <Route path="/demo" element={<Demo />} />
 
             {/* Connexion */}
             <Route path="/connexion" element={<Connexion />} />

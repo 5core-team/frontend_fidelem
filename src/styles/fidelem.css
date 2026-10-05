@@ -771,3 +771,33 @@ html.lenis, html.lenis body { height: auto; }
 }
 /* Logo de l'en-tête plus présent sur grand écran */
 @media (min-width: 761px) { .f-logo img { height: clamp(52px, 4.6vw, 68px); } .f-entete-site__barre { height: 96px; } }
+
+/* Bandeau du mode démonstration */
+.f-app__demo { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 16px; padding: 10px clamp(20px, 3.4vw, 48px); background: var(--f-or-clair); font-size: 13.5px; }
+.f-app__demo button { border: 1px solid var(--f-encre); background: transparent; border-radius: 999px; padding: 6px 14px; font: 500 12px/1 var(--f-texte); text-transform: uppercase; letter-spacing: .03em; cursor: pointer; }
+.f-app__demo button:hover { background: var(--f-encre); color: var(--f-papier); }
+.f-demo { grid-template-columns: repeat(3, 1fr); }
+.f-demo li { gap: 14px; }
+@media (max-width: 860px) { .f-demo { grid-template-columns: 1fr; } .f-demo li + li { padding-left: 0; border-left: 0; border-top: 1px dashed var(--f-guide); } }
+/* Boutons avec icône en tête : pas de pastille, icône simple à gauche */
+.f-site .f-btn.f-btn--icone:not(.f-dock .f-btn) { padding: 0 20px; justify-content: center; }
+.f-site .f-btn.f-btn--icone:not(.f-dock .f-btn) > svg:last-child { width: 17px; height: 17px; padding: 0; background: none !important; color: inherit; animation: none; }
+/* Anciens tableaux (comptes) intégrés au style des espaces */
+.f-app .text-fidelem { color: var(--f-encre) !important; }
+.f-app .f-panel h2.text-2xl { font-size: clamp(1.45rem, 1.1rem + 1.2vw, 2.1rem); font-weight: 500; letter-spacing: -.04em; }
+.f-app .f-panel table { font-size: 14.5px; }
+.f-table-wrap.est-masque { display: none; }
+.f-cartes-mobile.est-visible { display: grid; gap: 8px; }
+.f-cartes-mobile.est-visible .f-carte-demande, .f-carte-demande { display: grid; gap: 8px; padding: 14px 16px; border: 1px dashed var(--f-guide); border-radius: 10px; text-align: left; background: transparent; font: inherit; color: inherit; cursor: pointer; transition: background .2s, border-color .2s; }
+.f-carte-demande:hover { background: var(--f-papier); border-color: var(--f-encre); }
+.f-carte-demande > div { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.f-site .f-btn.f-btn--icone:not(.f-dock .f-btn):has(> svg:last-child) { padding: 0 20px; justify-content: center; gap: 10px; }
+@media (max-width: 760px) {
+  .f-filtres select { flex: 1 1 calc(50% - 4px); min-width: 0; }
+  .f-panel { min-width: 0; grid-template-columns: minmax(0, 1fr); }
+  .f-panel > * { min-width: 0; }
+  .f-carte-demande { min-width: 0; }
+  .f-carte-demande > div { flex-wrap: wrap; }
+  .f-carte-demande .f-pastille { flex: none; }
+  .f-app__tete .f-btn { width: 100%; }
+}

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { brancherDemo } from './demo';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -10,6 +11,8 @@ const axiosInstance = axios.create({
     'Content-Type': 'application/json',
   }
 });
+
+brancherDemo(axiosInstance);
 
 // Ajoutez un intercepteur de requête pour inclure dynamiquement le token
 axiosInstance.interceptors.request.use(
