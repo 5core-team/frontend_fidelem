@@ -711,17 +711,13 @@ html.lenis, html.lenis body { height: auto; }
 .f-bgh__retrait { padding-left: 1.2em; }
 .f-bgh__texte { margin: 0; max-width: 36ch; font-size: 15px; line-height: 1.45; font-weight: 500; color: var(--f-encre); }
 .f-bgh__actions { display: flex; flex-wrap: wrap; gap: 10px; }
-.f-bgh__coin { position: absolute; top: calc(100svh - clamp(70px, 8vw, 120px)); font-size: clamp(2.6rem, 1.6rem + 3.4vw, 5.2rem); font-weight: 600; letter-spacing: -.06em; line-height: 1; color: rgba(18, 26, 46, .12); pointer-events: none; user-select: none; }
-.f-bgh__coin--g { left: var(--f-marge); }
-.f-bgh__coin--d { right: var(--f-marge); }
 @media (max-width: 760px) {
   .f-bgh { --g: 96px; padding-top: calc(76px + 12px); }
   .f-bgh__gauche { min-height: 300px; }
   .f-bgh__titre { font-size: clamp(2.5rem, .8rem + 9vw, 3.6rem); }
   .f-bgh__droite--2 { gap: 22px; }
   .f-bgh__btn { width: 100%; font-size: 12px; white-space: nowrap; padding-left: 18px; }
-  .f-bgh__coin { display: none; }
-}
+  }
 
 /* Boutons du hero : libellé + pastille flèche qui glisse au survol */
 .f-bgh__btn { display: inline-flex; align-items: center; justify-content: space-between; gap: 18px; height: 56px; padding: 0 8px 0 22px; border-radius: 999px; font: 500 13px/1 var(--f-texte); letter-spacing: .03em; text-transform: uppercase; transition: background .3s, color .3s, border-color .3s; }
