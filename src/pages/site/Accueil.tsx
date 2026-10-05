@@ -5,6 +5,7 @@ import { ArrowRight, ArrowUpRight } from "lucide-react";
 import Gabarit from "@/components/site/Gabarit";
 import LivingDefilant from "@/components/site/LivingDefilant";
 import EtapesPile from "@/components/site/EtapesPile";
+import HeroFluide from "@/components/site/HeroFluide";
 import { MotBarres, TitreLignes, mouvementReduit } from "@/components/site/Mouvement";
 import { FAQ, FINANCEMENTS, FORMATIONS, formatFcfa } from "@/donnees/fidelem";
 
@@ -61,25 +62,8 @@ function Niveaux() {
 export default function Accueil() {
   return (
     <Gabarit>
-      {/* Hero */}
-      <section className="f-hero">
-        <div className="f-conteneur f-hero__grille">
-          <div className="f-hero__texte">
-            <p className="f-label f-hero__sur" data-revele>Financement immobilier, transport et d'affaires · Bénin</p>
-            <TitreLignes as="h1" auChargement className="f-titre-xxl" lignes={["Vos projets,", <>enfin <em>financés.</em></>]} />
-            <p className="f-chapo" data-revele="250">Un conseiller financier de votre commune monte votre dossier avec vous.</p>
-            <div className="f-hero__actions" data-revele="400">
-              <div className="f-guide f-guide--serre"><Link className="f-btn f-btn--or f-btn--grand" to="/services">Demander un financement <ArrowRight /></Link></div>
-              <Link className="f-btn f-btn--gris f-btn--grand" to="/trouver-un-conseiller">Trouver un conseiller</Link>
-            </div>
-          </div>
-          <div className="f-hero__visuels" aria-hidden="true">
-            <div className="f-guide f-hero__photo f-hero__photo--1" data-revele="200"><img className="f-photo" src="/images/bureau.jpg" alt="" /></div>
-            <div className="f-guide f-hero__photo f-hero__photo--2" data-revele="320"><img className="f-photo" src="/images/diplome.jpg" alt="" /></div>
-            <div className="f-guide f-hero__photo f-hero__photo--3" data-revele="440"><img className="f-photo" src="/images/analyse.jpg" alt="" /></div>
-          </div>
-        </div>
-      </section>
+      {/* Hero composé comme celui de bleibtgleich.dev */}
+      <HeroFluide />
 
       {/* Manifeste */}
       <section className="f-section f-section--serree">
