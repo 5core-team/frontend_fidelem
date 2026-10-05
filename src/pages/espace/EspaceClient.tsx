@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, Navigate, Route, Routes } from "react-router-dom";
-import { LayoutDashboard, UserCircle, Plus, Loader2, Phone } from "lucide-react";
+import { LayoutDashboard, UserCircle, Plus, Loader2, Phone, MessageCircle, ArrowRight } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import CadreEspace, { Chiffre, EtatVide, PastilleStatut, TetePage } from "@/components/espace/CadreEspace";
 import { AddCreditRequestForm } from "@/components/AddCreditRequestForm";
@@ -55,15 +55,23 @@ function MesDemandes() {
             ) : <EtatVide titre="Aucune demande pour l'instant." texte="Décrivez votre projet : un conseiller de votre zone vous recontacte." action={<button type="button" className="f-btn f-btn--or" onClick={() => setNouvelle(true)}>Faire une demande</button>} />}
         </section>
         <aside style={{ display: "grid", gap: 16 }}>
-          <section className="f-panel">
-            <h2 className="f-titre-m">Mon conseiller</h2>
+          <section className="f-panel f-mon-conseiller">
+            <p className="f-label f-label--doux">Mon conseiller</p>
             {u?.conseiller_nom ? (
               <>
-                <p className="f-texte">{u.conseiller_nom}</p>
-                {u.conseiller_telephone && <a className="f-btn f-btn--icone f-btn--encre" href={`tel:${u.conseiller_telephone}`}><Phone /> {u.conseiller_telephone}</a>}
+                <div className="f-mon-conseiller__id">
+                  <span className="f-app__avatar">{u.conseiller_nom.split(" ").map((m) => m[0]).join("").slice(0, 2).toUpperCase()}</span>
+                  <span><strong>{u.conseiller_nom}</strong><small>Conseiller FIDELEM de votre zone</small></span>
+                </div>
+                {u.conseiller_telephone && (
+                  <div className="f-mon-conseiller__actions">
+                    <a className="f-btn f-btn--icone f-btn--encre" href={`tel:${u.conseiller_telephone.replace(/\s/g, "")}`}><Phone /> {u.conseiller_telephone}</a>
+                    <a className="f-btn f-btn--icone f-btn--gris" href={`https://wa.me/229${u.conseiller_telephone.replace(/\s/g, "")}`} target="_blank" rel="noreferrer"><MessageCircle /> WhatsApp</a>
+                  </div>
+                )}
               </>
             ) : <p className="f-texte">Un conseiller de votre zone vous est attribué dès votre première demande.</p>}
-            <Link className="f-lien" to="/trouver-un-conseiller">Trouver un conseiller</Link>
+            <Link className="f-mon-conseiller__lien" to="/trouver-un-conseiller">Trouver un autre conseiller <ArrowRight /></Link>
           </section>
         </aside>
       </div>

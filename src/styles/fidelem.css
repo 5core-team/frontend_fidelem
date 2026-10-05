@@ -801,3 +801,17 @@ html.lenis, html.lenis body { height: auto; }
   .f-carte-demande .f-pastille { flex: none; }
   .f-app__tete .f-btn { width: 100%; }
 }
+
+/* Espace usager : carte « Mon conseiller » */
+.f-mon-conseiller { display: grid; gap: 18px; }
+.f-mon-conseiller__id { display: flex; align-items: center; gap: 14px; }
+.f-mon-conseiller__id .f-app__avatar { width: 48px; height: 48px; font-size: 16px; }
+.f-mon-conseiller__id span:last-child { display: grid; gap: 3px; min-width: 0; }
+.f-mon-conseiller__id strong { font: 500 18px/1.2 var(--f-texte); color: var(--f-encre); letter-spacing: -.01em; }
+.f-mon-conseiller__id small { font-size: 13px; color: var(--f-encre-3); }
+.f-mon-conseiller__actions { display: grid; gap: 8px; }
+.f-site .f-mon-conseiller__actions .f-btn.f-btn--icone { width: 100%; height: 46px; font-size: 13px; }
+.f-mon-conseiller__lien { display: inline-flex; align-items: center; gap: 6px; justify-self: start; padding-top: 14px; border-top: 1px dashed var(--f-guide); width: 100%; font: 500 13.5px/1 var(--f-texte); color: var(--f-encre-2); text-decoration: none; transition: color .2s; }
+.f-mon-conseiller__lien svg { width: 15px; height: 15px; transition: transform .25s; }
+.f-mon-conseiller__lien:hover { color: var(--f-marine); }
+.f-mon-conseiller__lien:hover svg { transform: translateX(3px); }
