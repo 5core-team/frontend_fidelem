@@ -815,3 +815,8 @@ html.lenis, html.lenis body { height: auto; }
 .f-mon-conseiller__lien svg { width: 15px; height: 15px; transition: transform .25s; }
 .f-mon-conseiller__lien:hover { color: var(--f-marine); }
 .f-mon-conseiller__lien:hover svg { transform: translateX(3px); }
+
+/* Boutons ronds à icône seule (menu, fermer) hors du dock : vrai cercle */
+.f-site .f-btn.f-dock__plus:not(.f-dock .f-btn), .f-site .f-btn.f-dock__plus:not(.f-dock .f-btn):has(> svg:last-child) { width: 42px; height: 42px; min-height: 0; padding: 0 !important; justify-content: center; gap: 0; border: 1px solid var(--f-guide); background: var(--f-blanc); background-image: none; box-shadow: none; flex: none; }
+.f-site .f-btn.f-dock__plus:not(.f-dock .f-btn) > svg:last-child { width: 18px; height: 18px; padding: 0; border-radius: 0; background: none; animation: none; }
+.f-site .f-btn.f-dock__plus:not(.f-dock .f-btn):hover { border-color: var(--f-encre); }
