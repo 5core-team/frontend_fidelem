@@ -107,8 +107,6 @@ function PiedDePage() {
             <a className="f-pied__mail" href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a>
             <a href={`tel:${CONTACT.telephoneLien}`}>{CONTACT.telephone}</a>
             <div className="f-pied__liens">
-              <LienBrouille to="/trouver-un-conseiller">Trouver un conseiller</LienBrouille>
-              <LienBrouille to="/espace-conseiller/connexion">Espace Conseiller</LienBrouille>
               <LienBrouille to="/faq">FAQ</LienBrouille>
             </div>
           </div>
