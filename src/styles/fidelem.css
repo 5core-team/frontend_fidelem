@@ -766,3 +766,6 @@ html.lenis, html.lenis body { height: auto; }
 .f-formation--mise .f-btn--or, .f-site .f-formation--mise .f-btn--or:not(.f-dock .f-btn) { background: var(--f-or); color: var(--f-encre); }
 .f-site .f-formation--mise .f-btn--or:not(.f-dock .f-btn) > svg:last-child { background: var(--f-encre); color: var(--f-or); }
 .f-site .f-formation--mise .f-btn--or:not(.f-dock .f-btn):hover { background: #E7B53A; }
+@media (max-width: 760px) {
+  .f-site .f-entete-site__actions .f-btn:not(.f-dock .f-btn) { height: 32px; min-height: 0; padding: 0 12px; font-size: 10.5px; letter-spacing: .03em; white-space: nowrap; }
+}
