@@ -6,13 +6,13 @@ import { mouvementReduit } from "./Mouvement";
 
 gsap.registerPlugin(ScrambleTextPlugin);
 
+// Mêmes réglages que les liens du footer de a-lign : caractères, durée 0,6 s, vitesse 1, révélation à 0,1.
+const CARACTERES = '!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 /** Au survol, le libellé se brouille puis se recompose lettre par lettre. */
 export function brouiller(el: HTMLElement | null, texte: string) {
   if (!el || mouvementReduit() || !window.matchMedia("(hover: hover)").matches) return;
-  // Version douce : seules les lettres du mot défilent (pas de symboles), lentement et brièvement.
-  const lettres = Array.from(new Set(texte.replace(/\s/g, "").toUpperCase())).join("");
-  gsap.to(el, { duration: 0.45, ease: "power1.out", overwrite: true, scrambleText: { text: texte, chars: lettres, speed: 0.35, revealDelay: 0.05 }, onComplete: () => { el.textContent = texte; } });
+  gsap.to(el, { duration: 0.6, ease: "none", overwrite: true, scrambleText: { text: texte, chars: CARACTERES, speed: 1, revealDelay: 0.1 }, onComplete: () => { el.textContent = texte; } });
 }
 
 export default function LienBrouille({ children, ...props }: Omit<ComponentProps<typeof NavLink>, "children"> & { children: string }) {
