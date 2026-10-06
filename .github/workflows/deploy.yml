@@ -1,0 +1,40 @@
+name: Deploy
+
+# Se déclenche à chaque push (donc chaque merge de PR) sur main.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build (Vite)
+        env:
+          VITE_API_URL: https://api.fidelem.pro
+        run: npm run build
+
+      - name: Déploiement sur le VPS (rsync)
+        uses: burnett01/rsync-deployments@7.0.2
+        with:
+          switches: -avzr --delete
+          path: dist/
+          remote_path: /var/www/frontend_fidelem/dist/
+          remote_host: ${{ secrets.SSH_HOST }}
+          remote_port: ${{ secrets.SSH_PORT || 22 }}
+          remote_user: ${{ secrets.SSH_USER }}
+          remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
