@@ -22,7 +22,7 @@ export default function Candidature() {
   const [mdp, setMdp] = useState("");
   const [mdp2, setMdp2] = useState("");
   const [accord, setAccord] = useState(false);
-  const { etat, erreurs, envoyer } = useEnvoi();
+  const { etat, erreurs, envoyer, messageErreur } = useEnvoi();
   const choisi = FORMATIONS.find((f) => `CF ${f.nom}` === niveau);
 
   const soumettre = (e: React.FormEvent) => {
@@ -78,7 +78,7 @@ export default function Candidature() {
                   </label>
                   {erreurs.accord && <small className="f-erreur" role="alert">{erreurs.accord}</small>}
                 </div>
-                {etat === "erreur" && <MessageErreurEnvoi />}
+                {etat === "erreur" && <MessageErreurEnvoi message={messageErreur} />}
                 <BoutonEnvoi etat={etat}>Envoyer ma candidature</BoutonEnvoi>
               </form>
             )}

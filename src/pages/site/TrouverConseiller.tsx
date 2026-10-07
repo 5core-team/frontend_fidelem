@@ -17,7 +17,7 @@ function DemandeRendezVous({ zone, conseiller, onFermer }: { zone: string; conse
   const [rdv, setRdv] = useState(rendezVousVide(zone));
   const [financement, setFinancement] = useState<string>(FINANCEMENTS[0].slug);
   const message = "";
-  const { etat, erreurs, envoyer } = useEnvoi();
+  const { etat, erreurs, envoyer, messageErreur } = useEnvoi();
   if (etat === "succes") return (
     <Confirmation titre="Demande envoyée.">
       {conseiller ? `${conseiller.prenom} vous recontacte` : "Un responsable FIDELEM attribue votre demande à un conseiller et vous recontacte"} pour confirmer votre rendez-vous du {rdv.date}.
@@ -40,7 +40,7 @@ function DemandeRendezVous({ zone, conseiller, onFermer }: { zone: string; conse
       </Champ>
       <BlocCoordonnees valeur={coord} onChange={setCoord} erreurs={erreurs} />
       <BlocRendezVous valeur={rdv} onChange={setRdv} erreurs={erreurs} />
-      {etat === "erreur" && <MessageErreurEnvoi />}
+      {etat === "erreur" && <MessageErreurEnvoi message={messageErreur} />}
       <BoutonEnvoi etat={etat}>Demander le rendez-vous</BoutonEnvoi>
     </form>
   );

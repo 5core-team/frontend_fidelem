@@ -1,73 +1,143 @@
-# Welcome to your Lovable project
+# FIDELEM · Front-end
 
-## Project info
+Site public et espaces connectés de FIDELEM, plateforme d'accès au financement
+(immobilier, transport, affaires) et réseau de conseillers financiers au Bénin.
 
-**URL**: https://lovable.dev/projects/9a0104b2-5894-4009-8846-a2b2a13caf26
+- **Site public** : présentation des financements, simulateur, EasyLife, devenir
+  conseiller, recherche d'un conseiller par commune, contact.
+- **Mon espace** (usager) : suivi des demandes de financement et du conseiller attribué.
+- **Espace Conseiller** : demandes de la zone, prise en charge, rendez-vous, clients.
+- **Back-office** (responsable) : conseillers et candidatures, usagers, demandes,
+  zones, demandes EasyLife.
 
-## How can I edit this code?
+L'API est servie par le dépôt [`backend_fidelem`](https://github.com/5core-team/backend_fidelem).
+Le contrat entre les deux (routes, formats, statuts) est décrit dans
+`backend_fidelem/docs/CONTRAT-API.md`.
 
-There are several ways of editing your application.
+## Stack
 
-**Use Lovable**
+| Rôle | Outil |
+| --- | --- |
+| Build et serveur de développement | Vite 6 |
+| Interface | React 18, TypeScript |
+| Routage | React Router 7 |
+| Appels HTTP | Axios |
+| Formulaires | React Hook Form, Zod |
+| Composants de base | Radix UI (via shadcn/ui), Tailwind CSS |
+| Styles du site | `src/styles/fidelem.css` |
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/9a0104b2-5894-4009-8846-a2b2a13caf26) and start prompting.
+## Démarrage
 
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+Prérequis : Node.js 20 ou plus, et npm.
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+npm ci
+cp .env.example .env.local   # puis renseigner VITE_API_URL
+npm run dev                  # http://localhost:8080
 ```
 
-**Edit a file directly in GitHub**
+Pour travailler avec de vraies données, lancer l'API en local (voir le README de
+`backend_fidelem`) avec `php artisan migrate:fresh --seed` : elle crée les comptes
+`responsable@fidelem.test`, `conseillere@fidelem.test` et `usager@fidelem.test`,
+mot de passe `password`.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+| Commande | Effet |
+| --- | --- |
+| `npm run dev` | Serveur de développement sur le port 8080 |
+| `npm run build` | Build de production dans `dist/` |
+| `npm run build:dev` | Build en mode développement |
+| `npm run preview` | Sert le build localement |
+| `npm run lint` | ESLint |
 
-**Use GitHub Codespaces**
+## Variables d'environnement
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+| Variable | Rôle | Exemple |
+| --- | --- | --- |
+| `VITE_API_URL` | URL de base de l'API, préfixe `/api` compris | `http://127.0.0.1:8000/api` |
+| `VITE_DEMO` | `1` pour inclure le mode démonstration dans un build | `0` |
 
-## What technologies are used for this project?
+Les variables `VITE_*` sont lues au moment du build : changer l'URL de l'API
+impose de reconstruire le site.
 
-This project is built with:
+## Mode démonstration
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+En local, la page `/demo` ouvre les trois espaces connectés avec des données
+d'exemple, sans serveur. Toutes les requêtes Axios sont alors servies par
+`src/config/demo.ts` et les actions sont simulées en mémoire. La page n'existe
+pas dans le build de production, sauf si `VITE_DEMO=1`.
 
-## How can I deploy this project?
+## Organisation du code
 
-Simply open [Lovable](https://lovable.dev/projects/9a0104b2-5894-4009-8846-a2b2a13caf26) and click on Share -> Publish.
+```
+src/
+├── App.tsx                   Routes ; les espaces connectés sont chargés à la demande
+├── config/
+│   ├── http.ts               Client HTTP unique : jeton, session expirée, lecture des erreurs
+│   ├── api.ts                Authentification, profil, comptes du back-office
+│   ├── apiEspace.ts          Demandes, clients, conseillers, candidatures, messages
+│   ├── apiPublic.ts          Formulaires du site public
+│   ├── demo.ts               Activation du mode démonstration
+│   └── demoDonnees.ts        Données d'exemple, chargées seulement en démonstration
+├── context/AuthContext.tsx   Session : connexion, déconnexion, rafraîchissement du profil
+├── donnees/fidelem.ts        Contenus du site : financements, formations, zones, FAQ
+├── pages/
+│   ├── site/                 Pages publiques, connexion, mot de passe oublié et réinitialisation
+│   └── espace/               Espaces usager, conseiller et responsable
+├── components/
+│   ├── site/                 Gabarit, formulaires, simulateur, animations
+│   ├── espace/               Cadre des espaces, liste et fiche d'une demande
+│   └── ui/                   Composants de base (shadcn/ui)
+└── styles/fidelem.css        Feuille de style du site
+```
 
-## Can I connect a custom domain to my Lovable project?
+Quand l'API répond 401, la session est fermée et l'utilisateur renvoyé vers la
+connexion avec le message « Votre session a expiré ». Les erreurs de validation
+(422) s'affichent sur les champs concernés.
 
-Yes it is!
+Les contenus marqués « À CONFIRMER » dans `src/donnees/fidelem.ts` attendent une
+validation de FIDELEM : la liste à leur transmettre est dans
+[`docs/CONTENUS-A-CONFIRMER.md`](docs/CONTENUS-A-CONFIRMER.md).
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Déploiement
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Chaque push sur `main` déclenche `.github/workflows/deploy.yml` :
+
+1. job `build`, sans secret : `npm ci`, `npm audit`, build Vite avec l'URL de l'API
+   de production ;
+2. job `deploy` : envoi de `dist/` par rsync sur le VPS, dans `/var/www/frontend_fidelem/dist/`.
+
+Secrets GitHub attendus : `SSH_HOST`, `SSH_PORT` (22 par défaut), `SSH_USER`,
+`SSH_PRIVATE_KEY`.
+
+L'application utilise des routes côté navigateur : le serveur web doit renvoyer
+`index.html` pour toute adresse qui ne correspond pas à un fichier. Il pose aussi
+les en-têtes de sécurité qu'une page ne peut pas fixer elle-même. Exemple Nginx :
+
+```nginx
+add_header X-Frame-Options "DENY" always;
+add_header X-Content-Type-Options "nosniff" always;
+add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+add_header Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()" always;
+add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+server_tokens off;
+
+location / {
+    try_files $uri $uri/ /index.html;
+}
+```
+
+## Sécurité
+
+- **CSP** : le build ajoute à `index.html` une politique de sécurité du contenu
+  (`vite.config.ts`) : scripts du site uniquement, Google Fonts, et l'API indiquée par
+  `VITE_API_URL`. Tout nouveau domaine externe doit y être ajouté.
+- **Session** : le jeton est gardé dans `localStorage` ; l'API le refuse après
+  expiration ou révocation, et le front ferme alors la session.
+- **Démo** : le mode démonstration et ses données n'existent pas dans le build de production.
+- **Dépendances** : la CI bloque le déploiement si `npm audit` trouve une faille
+  haute ou critique dans les dépendances livrées au navigateur. Les alertes restantes
+  concernent Tailwind 3, un outil de build sans correctif publié.
+- **Déploiement** : le job de build (qui exécute `npm ci`) ne reçoit aucun secret ;
+  seul le job rsync reçoit la clé SSH.
+- **Serveur de dev** : il n'écoute que `localhost` ; `npm run dev -- --host` pour
+  l'ouvrir au réseau local.

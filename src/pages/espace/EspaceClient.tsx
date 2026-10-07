@@ -16,17 +16,20 @@ function MesDemandes() {
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState(false);
   const [nouvelle, setNouvelle] = useState(false);
-  const u = user as unknown as Record<string, string>;
 
   const charger = useCallback(async () => {
     if (!user) return;
     setChargement(true);
-    try { setDemandes(await demandesUsager(user.id)); setErreur(false); } catch { setErreur(true); } finally { setChargement(false); }
+    try { setDemandes(await demandesUsager()); setErreur(false); } catch { setErreur(true); } finally { setChargement(false); }
   }, [user]);
   useEffect(() => { charger(); }, [charger]);
 
   const enCours = demandes.filter((d) => !["Acceptée", "Refusée"].includes(d.statut));
   const prochain = demandes.find((d) => d.rendezVous?.date && new Date(d.rendezVous.date) >= new Date(new Date().toDateString()));
+  // Le conseiller attitré du compte, ou à défaut celui qui suit la dernière demande.
+  const suivi = demandes.find((d) => d.conseiller)?.conseiller;
+  const conseillerNom = user?.conseiller_nom ?? suivi?.nom;
+  const conseillerTel = user?.conseiller_telephone ?? suivi?.telephone;
 
   return (
     <>
@@ -57,16 +60,16 @@ function MesDemandes() {
         <aside style={{ display: "grid", gap: 16 }}>
           <section className="f-panel f-mon-conseiller">
             <p className="f-label f-label--doux">Mon conseiller</p>
-            {u?.conseiller_nom ? (
+            {conseillerNom ? (
               <>
                 <div className="f-mon-conseiller__id">
-                  <span className="f-app__avatar">{u.conseiller_nom.split(" ").map((m) => m[0]).join("").slice(0, 2).toUpperCase()}</span>
-                  <span><strong>{u.conseiller_nom}</strong><small>Conseiller FIDELEM de votre zone</small></span>
+                  <span className="f-app__avatar">{conseillerNom.split(" ").map((m) => m[0]).join("").slice(0, 2).toUpperCase()}</span>
+                  <span><strong>{conseillerNom}</strong><small>Conseiller FIDELEM de votre zone</small></span>
                 </div>
-                {u.conseiller_telephone && (
+                {conseillerTel && (
                   <div className="f-mon-conseiller__actions">
-                    <a className="f-btn f-btn--icone f-btn--encre" href={`tel:${u.conseiller_telephone.replace(/\s/g, "")}`}><Phone /> {u.conseiller_telephone}</a>
-                    <a className="f-btn f-btn--icone f-btn--gris" href={`https://wa.me/229${u.conseiller_telephone.replace(/\s/g, "")}`} target="_blank" rel="noreferrer"><MessageCircle /> WhatsApp</a>
+                    <a className="f-btn f-btn--icone f-btn--encre" href={`tel:${conseillerTel.replace(/\s/g, "")}`}><Phone /> {conseillerTel}</a>
+                    <a className="f-btn f-btn--icone f-btn--gris" href={`https://wa.me/229${conseillerTel.replace(/\s/g, "").replace(/^\+?229/, "")}`} target="_blank" rel="noreferrer"><MessageCircle /> WhatsApp</a>
                   </div>
                 )}
               </>

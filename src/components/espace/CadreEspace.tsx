@@ -81,9 +81,10 @@ const COULEURS: Record<string, [string, string]> = {
   "Refusée": ["#7A2B1D", "#F5DCD5"],
 };
 
-export function PastilleStatut({ statut }: { statut: string }) {
+/** Pastille colorée selon le statut ; `libelle` remplace le texte affiché (statut d'un compte, par exemple). */
+export function PastilleStatut({ statut, libelle }: { statut: string; libelle?: string }) {
   const [c, f] = COULEURS[statut] ?? ["#3C4256", "#E4E5EA"];
-  return <span className="f-pastille" style={{ color: c, background: f }}>{statut}</span>;
+  return <span className="f-pastille" style={{ color: c, background: f }}>{libelle ?? statut}</span>;
 }
 
 export function Chiffre({ libelle, valeur, aide, accent }: { libelle: string; valeur: ReactNode; aide?: string; accent?: boolean }) {

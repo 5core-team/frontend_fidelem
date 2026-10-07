@@ -6,30 +6,56 @@ on:
     branches: [main]
   workflow_dispatch: {}
 
+# Jeton GitHub en lecture seule.
+permissions:
+  contents: read
+
 concurrency:
   group: deploy-production
   cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
+  # Construction : installe les dépendances (et leurs scripts) sans aucun secret.
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 20
           cache: npm
 
       - run: npm ci
 
+      - name: Vulnérabilités connues des dépendances de production
+        run: npm audit --omit=dev --audit-level=high
+
       - name: Build (Vite)
         env:
-          VITE_API_URL: https://api.fidelem.pro
+          VITE_API_URL: https://api.fidelem.pro/api
         run: npm run build
 
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: site
+          path: dist/
+          retention-days: 7
+
+  # Déploiement : seul job qui reçoit la clé SSH, et il n'exécute aucun code du projet.
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: site
+          path: dist/
+
       - name: Déploiement sur le VPS (rsync)
-        uses: burnett01/rsync-deployments@7.0.2
+        uses: burnett01/rsync-deployments@fcf16a05b8650e3704a3871139dce6dde00aa472 # 7.0.2
         with:
           switches: -avzr --delete
           path: dist/

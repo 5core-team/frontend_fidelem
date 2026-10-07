@@ -1,12 +1,13 @@
 import { useState } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { Eye, EyeOff, ArrowRight, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { cheminEspace } from "@/components/site/Gabarit";
 import { DefilementFluide } from "@/components/site/Mouvement";
 import { Champ } from "@/components/site/Formulaires";
 import { CONTACT } from "@/donnees/fidelem";
-import { demanderReinitialisation } from "@/config/apiPublic";
+import { demanderReinitialisation, reinitialiserMotDePasse } from "@/config/api";
+import { lireErreur } from "@/config/http";
 
 /** Écran d'authentification en deux colonnes : formulaire à gauche, panneau de marque à droite. */
 function Ecran({ titre, sousTitre, panneau, children }: { titre: string; sousTitre: string; panneau: React.ReactNode; children: React.ReactNode }) {
@@ -29,10 +30,11 @@ function Ecran({ titre, sousTitre, panneau, children }: { titre: string; sousTit
 function FormulaireConnexion({ role }: { role: "usager" | "conseiller" }) {
   const { login, logout } = useAuth();
   const nav = useNavigate();
+  const [params] = useSearchParams();
   const [email, setEmail] = useState("");
   const [mdp, setMdp] = useState("");
   const [voir, setVoir] = useState(false);
-  const [erreur, setErreur] = useState("");
+  const [erreur, setErreur] = useState(params.get("session") === "expiree" ? "Votre session a expiré. Reconnectez-vous." : "");
   const [envoi, setEnvoi] = useState(false);
 
   const soumettre = async (e: React.FormEvent) => {
@@ -41,16 +43,19 @@ function FormulaireConnexion({ role }: { role: "usager" | "conseiller" }) {
     if (!email || !mdp) return setErreur("Indiquez votre e-mail et votre mot de passe.");
     setEnvoi(true);
     try {
-      await login(email, mdp);
-      const u = JSON.parse(localStorage.getItem("user") || "null");
-      if (role === "conseiller" && u?.role === "user") {
-        logout();
+      const u = await login(email, mdp);
+      if (role === "conseiller" && u.role === "user") {
+        await logout();
         setErreur("Ce compte est un compte usager. Connectez-vous depuis la connexion usager.");
-      } else nav(cheminEspace(u?.role));
+      } else nav(cheminEspace(u.role));
     } catch (err: unknown) {
-      const statut = (err as { response?: { status?: number; data?: { message?: string } } })?.response;
-      if (statut?.status === 403) setErreur("Votre compte conseiller est en attente de validation. Il sera activé avec votre licence et votre zone.");
-      else if (statut?.status === 401 || statut?.status === 422) setErreur("E-mail ou mot de passe incorrect.");
+      const { statut, code } = lireErreur(err);
+      if (code === "compte_rejete") setErreur(`Ce compte n'a pas été retenu. Pour en savoir plus, appelez le ${CONTACT.telephone}.`);
+      else if (code === "compte_en_attente") setErreur(role === "conseiller"
+        ? "Votre compte conseiller est en attente de validation. Il sera activé avec votre licence et votre zone."
+        : `Votre compte est en attente de validation. Appelez le ${CONTACT.telephone} si l'attente se prolonge.`);
+      else if (statut === 401 || statut === 422) setErreur("E-mail ou mot de passe incorrect.");
+      else if (statut === 429) setErreur("Trop de tentatives. Patientez une minute avant de réessayer.");
       else setErreur(`Connexion impossible pour le moment. Réessayez ou appelez le ${CONTACT.telephone}.`);
     } finally { setEnvoi(false); }
   };
@@ -120,6 +125,74 @@ export function MotDePasseOublie() {
           <Champ libelle="E-mail"><input id="f-oubli-email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} /></Champ>
           {etat === "erreur" && <div className="f-alerte f-alerte--erreur" role="alert"><AlertCircle style={{ flex: "none" }} />L'envoi n'a pas fonctionné. Appelez le {CONTACT.telephone} pour réinitialiser votre accès.</div>}
           <button className="f-btn f-btn--or f-btn--grand" type="submit" disabled={etat === "envoi"} style={{ justifyContent: "center" }}>Envoyer le lien <ArrowRight /></button>
+        </form>
+      )}
+      <p className="f-note"><Link to="/connexion" style={{ textDecoration: "underline" }}>Retour à la connexion</Link></p>
+    </Ecran>
+  );
+}
+
+/** Page ouverte depuis le lien de l'e-mail de réinitialisation : choisir un nouveau mot de passe. */
+export function ReinitialiserMotDePasse() {
+  const [params] = useSearchParams();
+  const token = params.get("token") ?? "";
+  const email = params.get("email") ?? "";
+  const [mdp, setMdp] = useState("");
+  const [mdp2, setMdp2] = useState("");
+  const [voir, setVoir] = useState(false);
+  const [erreurs, setErreurs] = useState<Record<string, string>>({});
+  const [etat, setEtat] = useState<"repos" | "envoi" | "ok" | "lien" | "erreur">(token && email ? "repos" : "lien");
+
+  const soumettre = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const v: Record<string, string> = {};
+    if (mdp.length < 8) v.mdp = "Au moins 8 caractères.";
+    if (mdp !== mdp2) v.mdp2 = "Les deux mots de passe ne correspondent pas.";
+    setErreurs(v);
+    if (Object.keys(v).length) return;
+    setEtat("envoi");
+    try {
+      await reinitialiserMotDePasse({ token, email, password: mdp, password_confirmation: mdp2 });
+      setEtat("ok");
+    } catch (err) {
+      const { statut, champs } = lireErreur(err);
+      if (statut === 422 && champs.password) { setErreurs({ mdp: champs.password }); setEtat("repos"); }
+      else setEtat(statut === 422 ? "lien" : "erreur");
+    }
+  };
+
+  return (
+    <Ecran titre="Nouveau mot de passe" sousTitre={etat === "lien" ? "Un lien de réinitialisation ne sert qu'une fois et reste valable une heure." : `Choisissez un nouveau mot de passe pour ${email}.`} panneau={<span className="f-barres f-barres--blanc">Accès</span>}>
+      {etat === "ok" ? (
+        <>
+          <div className="f-alerte f-alerte--succes" role="status"><CheckCircle2 style={{ flex: "none" }} />Mot de passe enregistré. Les sessions ouvertes avec l'ancien mot de passe sont fermées.</div>
+          <div className="f-auth__autres">
+            <Link className="f-btn f-btn--or f-btn--grand" to="/connexion" style={{ justifyContent: "center" }}>Se connecter <ArrowRight /></Link>
+            <p className="f-note">Vous êtes conseiller ? <Link to="/espace-conseiller/connexion" style={{ textDecoration: "underline" }}>Connexion à l'Espace Conseiller</Link></p>
+          </div>
+        </>
+      ) : etat === "lien" ? (
+        <>
+          <div className="f-alerte f-alerte--erreur" role="alert"><AlertCircle style={{ flex: "none" }} />Ce lien n'est plus valide : il a déjà servi, ou il a expiré. Demandez un nouveau lien.</div>
+          <Link className="f-btn f-btn--or f-btn--grand" to="/mot-de-passe-oublie" style={{ justifyContent: "center" }}>Demander un nouveau lien <ArrowRight /></Link>
+        </>
+      ) : (
+        <form className="f-form" noValidate onSubmit={soumettre}>
+          <div className="f-champ">
+            <label htmlFor="f-reinit-mdp" style={{ font: "500 12px/1.2 var(--f-texte)", letterSpacing: ".02em", textTransform: "uppercase", color: "var(--f-encre-2)" }}>Nouveau mot de passe</label>
+            <div style={{ position: "relative" }}>
+              <input id="f-reinit-mdp" type={voir ? "text" : "password"} autoComplete="new-password" value={mdp} onChange={(e) => setMdp(e.target.value)} aria-invalid={!!erreurs.mdp} aria-describedby="f-reinit-aide" style={{ paddingRight: 48 }} />
+              <button type="button" onClick={() => setVoir((x) => !x)} aria-label={voir ? "Masquer le mot de passe" : "Afficher le mot de passe"} style={{ position: "absolute", right: 6, top: "50%", transform: "translateY(-50%)", width: 38, height: 38, display: "grid", placeItems: "center", background: "transparent", border: 0, cursor: "pointer", color: "var(--f-encre-2)" }}>
+                {voir ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+            {erreurs.mdp ? <small id="f-reinit-aide" className="f-erreur" role="alert">{erreurs.mdp}</small> : <small id="f-reinit-aide" className="f-note">8 caractères au moins.</small>}
+          </div>
+          <Champ libelle="Confirmer le mot de passe" erreur={erreurs.mdp2}><input id="f-reinit-mdp2" type={voir ? "text" : "password"} autoComplete="new-password" value={mdp2} onChange={(e) => setMdp2(e.target.value)} aria-invalid={!!erreurs.mdp2} /></Champ>
+          {etat === "erreur" && <div className="f-alerte f-alerte--erreur" role="alert"><AlertCircle style={{ flex: "none" }} />Le mot de passe n'a pas pu être enregistré. Réessayez, ou appelez le {CONTACT.telephone}.</div>}
+          <button className="f-btn f-btn--or f-btn--grand" type="submit" disabled={etat === "envoi"} style={{ justifyContent: "center" }}>
+            {etat === "envoi" ? <><Loader2 className="animate-spin" /> Enregistrement</> : <>Enregistrer le mot de passe <ArrowRight /></>}
+          </button>
         </form>
       )}
       <p className="f-note"><Link to="/connexion" style={{ textDecoration: "underline" }}>Retour à la connexion</Link></p>

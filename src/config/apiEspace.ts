@@ -1,28 +1,18 @@
-import axios from "axios";
-import { brancherDemo } from "./demo";
-import { getCreditRequestsAdmin, getCreditRequestsConseiller, getCreditRequests, getClientsByAdvisor, updateCreditRequestStatus, createCreditRequest } from "./api";
+import { http } from "./http";
+import type { Compte } from "./api";
 import type { RendezVous } from "./apiPublic";
 
-// Espaces connectés. Les demandes viennent de deux sources :
-//  - l'API existante (/credit-requests-…), pour les demandes déjà en base ;
-//  - les nouvelles routes (/demandes-financement…), à créer côté back-end, pour les
-//    demandes envoyées depuis le site public avec la zone et le rendez-vous.
-// Les deux formats sont ramenés au type Demande ci-dessous.
-
-const client = axios.create({ baseURL: import.meta.env.VITE_API_URL, headers: { "Content-Type": "application/json" }, timeout: 15000 });
-brancherDemo(client);
-client.interceptors.request.use((config) => {
-  const token = localStorage.getItem("authToken");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
+// Espaces connectés : demandes de financement, clients, conseillers et back-office.
 
 export const STATUTS = ["Nouvelle", "Prise en charge", "Rendez-vous fixé", "Dossier en cours", "Acceptée", "Refusée"] as const;
 export type Statut = typeof STATUTS[number];
 
+export type Note = { id?: string | number; texte: string; date: string; auteur?: string | null };
+
 export type Demande = {
   id: string;
-  source: "historique" | "site";
+  /** site : formulaire public ; espace : créée depuis un espace ; historique : ancienne plateforme. */
+  origine: "site" | "espace" | "historique";
   usager: { nom: string; telephone?: string; email?: string; id?: string };
   financement: string;
   objet: string;
@@ -33,76 +23,99 @@ export type Demande = {
   rendezVous?: Partial<RendezVous>;
   statut: Statut;
   conseillerId?: string;
+  conseiller?: { id: string; nom: string; telephone?: string } | null;
   creeLe: string;
-  notes?: { texte: string; date: string; auteur?: string }[];
+  notes?: Note[];
 };
 
-const statutDepuisAncien = (s?: string): Statut => {
-  const v = (s || "").toLowerCase();
-  if (v.startsWith("approuv")) return "Acceptée";
-  if (v.includes("jet")) return "Refusée";
-  if (v.includes("attente")) return "Dossier en cours";
-  return (STATUTS as readonly string[]).includes(s || "") ? (s as Statut) : "Nouvelle";
-};
+type Brut = Record<string, unknown>;
 
-type Brut = Record<string, unknown> & { user?: { name?: string; last_name?: string; phone?: string; email?: string; id?: string } };
+const statut = (s: unknown): Statut => ((STATUTS as readonly string[]).includes(String(s)) ? (s as Statut) : "Nouvelle");
+const texte = (v: unknown) => (v === null || v === undefined || v === "" ? undefined : String(v));
 
+/** Convertit une demande de l'API (DemandeResource) au format de l'interface. */
 export const normaliser = (r: Brut): Demande => {
-  const ancien = "amount" in r || "purpose" in r;
-  if (ancien) {
-    return {
-      id: String(r.id), source: "historique",
-      usager: { nom: [r.user?.name, r.user?.last_name].filter(Boolean).join(" ") || "Usager", telephone: r.user?.phone, email: r.user?.email, id: r.user?.id ? String(r.user.id) : String(r.user_id ?? "") },
-      financement: String(r.purpose ?? "Financement"), objet: String(r.purpose ?? ""),
-      montant: Number(r.amount ?? 0), duree: Number(r.duration ?? 0), message: (r.additional_details as string) || undefined,
-      zone: (r.zone as string) || undefined, rendezVous: (r.rendez_vous as RendezVous) || undefined,
-      statut: statutDepuisAncien(r.status as string), creeLe: String(r.created_at ?? new Date().toISOString()),
-    };
-  }
+  const conseiller = r.conseiller as { id: number | string; nom: string; telephone?: string } | null | undefined;
   return {
-    id: String(r.id), source: "site",
-    usager: { nom: [r.prenom, r.nom].filter(Boolean).join(" ") || "Usager", telephone: r.telephone as string, email: r.email as string },
-    financement: String(r.financement ?? ""), objet: String(r.objet ?? ""),
-    montant: Number(r.montant ?? 0), duree: Number(r.duree ?? 0), message: r.message as string,
-    zone: (r.zone as string) ?? (r.rendezVous as RendezVous | undefined)?.zone, rendezVous: r.rendezVous as RendezVous,
-    statut: statutDepuisAncien(r.statut as string), conseillerId: r.conseillerId ? String(r.conseillerId) : undefined,
-    creeLe: String(r.created_at ?? r.creeLe ?? new Date().toISOString()), notes: (r.notes as Demande["notes"]) ?? [],
+    id: String(r.id),
+    origine: (["site", "espace", "historique"].includes(String(r.origine)) ? r.origine : "site") as Demande["origine"],
+    usager: {
+      nom: [r.prenom, r.nom].filter(Boolean).join(" ") || "Usager",
+      telephone: texte(r.telephone),
+      email: texte(r.email),
+      id: texte(r.usagerId),
+    },
+    financement: String(r.financement ?? ""),
+    objet: String(r.objet ?? ""),
+    montant: Number(r.montant ?? 0),
+    duree: Number(r.duree ?? 0),
+    message: texte(r.message),
+    zone: texte(r.zone) ?? texte((r.rendezVous as RendezVous | undefined)?.zone),
+    rendezVous: (r.rendezVous as RendezVous | null) ?? undefined,
+    statut: statut(r.statut),
+    conseillerId: texte(r.conseillerId),
+    conseiller: conseiller ? { id: String(conseiller.id), nom: conseiller.nom, telephone: conseiller.telephone } : null,
+    creeLe: String(r.created_at ?? new Date().toISOString()),
+    notes: ((r.notes as Note[] | undefined) ?? []).map((n) => ({ ...n, date: String(n.date) })),
   };
 };
 
-const liste = (d: unknown): Brut[] => (Array.isArray(d) ? d : Array.isArray((d as { data?: unknown })?.data) ? (d as { data: Brut[] }).data : []) as Brut[];
+const liste = <T = Brut>(d: unknown): T[] => (Array.isArray(d) ? d : Array.isArray((d as { data?: unknown })?.data) ? (d as { data: T[] }).data : []) as T[];
+const demandes = async (url: string) => liste((await http.get(url)).data).map(normaliser);
 
-/** Demandes de la zone du conseiller, pas encore prises en charge (nouvelle route). */
-export const demandesDeMaZone = async (): Promise<Demande[]> => liste((await client.get("/conseiller/demandes-zone")).data).map(normaliser);
+/* Demandes */
 
-/** Demandes suivies par le conseiller (route existante). */
-/** Toutes les demandes (back-office). */
-export const toutesLesDemandes = async (): Promise<Demande[]> => liste(await getCreditRequestsAdmin()).map(normaliser);
+/** Espace Conseiller : demandes de la zone et demandes adressées au conseiller, pas encore prises en charge. */
+export const demandesDeMaZone = () => demandes("/conseiller/demandes-zone");
+/** Espace Conseiller : dossiers suivis par le conseiller connecté. */
+export const mesDemandes = () => demandes("/credit-requests-conseiller");
+/** Mon espace : demandes de l'usager connecté. */
+export const demandesUsager = () => demandes("/credit-requests-client");
+/** Back-office : toutes les demandes. */
+export const toutesLesDemandes = () => demandes("/credit-requests-admin");
 
-export const mesDemandes = async (conseillerId: string): Promise<Demande[]> => liste(await getCreditRequestsConseiller(conseillerId)).map(normaliser);
+export const prendreEnCharge = (d: Demande) => http.post(`/demandes-financement/${d.id}/prise-en-charge`);
+export const changerStatut = (d: Demande, s: Statut) => http.put(`/demandes-financement/${d.id}/statut`, { statut: s });
+export const ajouterNote = (d: Demande, texteNote: string) => http.post(`/demandes-financement/${d.id}/notes`, { texte: texteNote });
+export const confirmerRendezVous = (d: Demande, rdv: Partial<RendezVous>) => http.put(`/demandes-financement/${d.id}/rendez-vous`, rdv);
 
-/** Demandes d'un usager (route existante). */
-export const demandesUsager = async (usagerId: string): Promise<Demande[]> => liste(await getCreditRequests(usagerId)).map(normaliser);
+/** Nouvelle demande depuis un espace : pour soi (usager) ou pour un client (conseiller, avec clientId). */
+export const nouvelleDemande = (d: { montant: number; duree: number; financement: string; objet: string; message: string; rendezVous?: RendezVous; clientId?: string }) =>
+  http.post("/credit-requests", {
+    amount: d.montant,
+    duration: d.duree,
+    financement: d.financement,
+    purpose: d.objet,
+    additional_details: d.message,
+    ...(d.clientId ? { clientId: d.clientId } : {}),
+    rendez_vous: d.rendezVous,
+    zone: d.rendezVous?.zone || undefined,
+  });
 
-export const clientsConseiller = async (conseillerId: string) => liste((await getClientsByAdvisor(conseillerId)).data);
+/* Clients et conseillers */
 
-export const prendreEnCharge = (d: Demande) => client.post(`/demandes-financement/${d.id}/prise-en-charge`);
+export type NouveauCompte = { name: string; last_name: string; email: string; phone: string; address?: string; password: string };
 
-export const changerStatut = (d: Demande, statut: Statut) => {
-  if (d.source === "historique") {
-    const ancien = statut === "Acceptée" ? "Approuvé" : statut === "Refusée" ? "Rejeté" : "En attente";
-    return updateCreditRequestStatus(d.id, ancien);
-  }
-  return client.put(`/demandes-financement/${d.id}/statut`, { statut });
+export const clientsConseiller = async (conseillerId: string | number) => liste<Compte>((await http.get(`/advisor/${conseillerId}/clients`)).data);
+export const creerClient = (d: NouveauCompte) => http.post<Compte>("/conseiller/clients", d);
+export const creerConseiller = (d: NouveauCompte & { zone?: string; niveau?: string; financements?: string[] }) => http.post<Compte>("/responsable/conseillers", d);
+export const attribuerZone = (conseillerId: string | number, zone: string | null) => http.put<Compte>(`/conseillers/${conseillerId}/zone`, { zone });
+
+/* Back-office */
+
+export type CandidatureRecue = {
+  id: string | number; prenom: string; nom: string; telephone: string; email: string;
+  niveauVise: string; situation: string; rendezVous?: Partial<RendezVous> | null; statutCompte?: string; created_at: string;
+};
+export type MessageRecu = {
+  id: string | number; prenom: string; nom: string; telephone: string; email?: string | null;
+  objet: string; message: string; rendezVous?: Partial<RendezVous> | null; created_at: string;
+};
+export type InteretRecu = {
+  id: string | number; prenom: string; nom: string; telephone: string; email?: string | null;
+  profil?: string | null; pole?: string | null; message?: string | null; created_at?: string;
 };
 
-export const ajouterNote = (d: Demande, texte: string) => client.post(`/demandes-financement/${d.id}/notes`, { texte });
-export const confirmerRendezVous = (d: Demande, rdv: Partial<RendezVous>) => client.put(`/demandes-financement/${d.id}/rendez-vous`, rdv);
-
-export const nouvelleDemandeUsager = (usagerId: string, d: { montant: number; duree: number; objet: string; message: string; rendezVous: RendezVous }) =>
-  createCreditRequest({ amount: d.montant, duration: d.duree, purpose: d.objet, additional_details: d.message, clientId: usagerId, rendez_vous: d.rendezVous, zone: d.rendezVous.zone });
-
-// Back-office responsable
-export const candidaturesConseillers = async () => liste((await client.get("/candidatures-conseiller")).data);
-export const interetsEasyLife = async () => liste((await client.get("/easylife/interets")).data);
-export const attribuerZone = (conseillerId: string, zone: string) => client.put(`/conseillers/${conseillerId}/zone`, { zone });
+export const candidaturesConseillers = async () => liste<CandidatureRecue>((await http.get("/candidatures-conseiller")).data);
+export const messagesContact = async () => liste<MessageRecu>((await http.get("/messages-contact")).data);
+export const interetsEasyLife = async () => liste<InteretRecu>((await http.get("/easylife/interets")).data);

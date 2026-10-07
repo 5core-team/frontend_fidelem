@@ -89,7 +89,7 @@ export function Contact() {
   const [rdv, setRdv] = useState(rendezVousVide());
   const [objet, setObjet] = useState(OBJETS[0]);
   const [message, setMessage] = useState("");
-  const { etat, erreurs, envoyer } = useEnvoi();
+  const { etat, erreurs, envoyer, messageErreur } = useEnvoi();
 
   const infos = [
     { icone: Phone, libelle: "Téléphone", valeur: CONTACT.telephone, lien: `tel:${CONTACT.telephoneLien}` },
@@ -132,7 +132,7 @@ export function Contact() {
                 <Champ libelle="Message" erreur={erreurs.message}><textarea id="f-message-contact" rows={3} style={{ minHeight: 96 }} value={message} onChange={(e) => setMessage(e.target.value)} aria-invalid={!!erreurs.message} placeholder="En quelques mots, ce que vous souhaitez." /></Champ>
                 <BlocCoordonnees valeur={coord} onChange={setCoord} erreurs={erreurs} />
                 <BlocRendezVous valeur={rdv} onChange={setRdv} erreurs={erreurs} />
-                {etat === "erreur" && <MessageErreurEnvoi />}
+                {etat === "erreur" && <MessageErreurEnvoi message={messageErreur} />}
                 <BoutonEnvoi etat={etat}>Envoyer</BoutonEnvoi>
               </form>
             )}

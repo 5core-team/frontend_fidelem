@@ -12,14 +12,16 @@ import ConseillerFinancier from "./pages/site/ConseillerFinancier";
 import Candidature from "./pages/site/Candidature";
 import TrouverConseiller from "./pages/site/TrouverConseiller";
 import { APropos, Contact, FAQPage, Legal, PageIntrouvable } from "./pages/site/PagesInfo";
-import { Connexion, ConnexionConseiller, MotDePasseOublie } from "./pages/site/Connexion";
-import EspaceConseiller from "./pages/espace/EspaceConseiller";
-import EspaceClient from "./pages/espace/EspaceClient";
-import EspaceResponsable from "./pages/espace/EspaceResponsable";
+import { Connexion, ConnexionConseiller, MotDePasseOublie, ReinitialiserMotDePasse } from "./pages/site/Connexion";
 import { DEMO_DISPONIBLE } from "./config/demo";
 import { lazy, Suspense } from "react";
 
-const Demo = lazy(() => import("./pages/site/Demo"));
+// Les espaces connectés et la démo sont chargés à la demande : le site public reste léger.
+const EspaceConseiller = lazy(() => import("./pages/espace/EspaceConseiller"));
+const EspaceClient = lazy(() => import("./pages/espace/EspaceClient"));
+const EspaceResponsable = lazy(() => import("./pages/espace/EspaceResponsable"));
+// La condition est résolue au build : en production, la page et ses données d'exemple ne sont pas générées.
+const Demo = import.meta.env.DEV || import.meta.env.VITE_DEMO === "1" ? lazy(() => import("./pages/site/Demo")) : null;
 
 const queryClient = new QueryClient();
 
@@ -46,17 +48,18 @@ const App = () => (
             <Route path="/confidentialite" element={<Legal page="confidentialite" />} />
             <Route path="/conditions" element={<Legal page="conditions" />} />
 
-            {DEMO_DISPONIBLE && <Route path="/demo" element={<Suspense fallback={null}><Demo /></Suspense>} />}
+            {DEMO_DISPONIBLE && Demo && <Route path="/demo" element={<Suspense fallback={null}><Demo /></Suspense>} />}
 
             {/* Connexion */}
             <Route path="/connexion" element={<Connexion />} />
             <Route path="/espace-conseiller/connexion" element={<ConnexionConseiller />} />
             <Route path="/mot-de-passe-oublie" element={<MotDePasseOublie />} />
+            <Route path="/reinitialiser-mot-de-passe" element={<ReinitialiserMotDePasse />} />
 
             {/* Espaces connectés */}
-            <Route path="/espace-conseiller/*" element={<EspaceConseiller />} />
-            <Route path="/mon-espace/*" element={<EspaceClient />} />
-            <Route path="/responsable/*" element={<EspaceResponsable />} />
+            <Route path="/espace-conseiller/*" element={<Suspense fallback={null}><EspaceConseiller /></Suspense>} />
+            <Route path="/mon-espace/*" element={<Suspense fallback={null}><EspaceClient /></Suspense>} />
+            <Route path="/responsable/*" element={<Suspense fallback={null}><EspaceResponsable /></Suspense>} />
 
             {/* Anciennes adresses */}
             <Route path="/about" element={<Navigate to="/a-propos" replace />} />

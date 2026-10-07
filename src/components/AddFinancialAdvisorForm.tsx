@@ -1,228 +1,108 @@
 import { useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { useAuth } from "@/context/AuthContext";
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Eye, EyeOff } from "lucide-react"; // Assurez-vous d'avoir installé lucide-react ou une autre bibliothèque d'icônes
-
-const formSchema = z.object({
-  name: z.string().min(2, {
-    message: "Le prénom doit contenir au moins 2 caractères.",
-  }),
-  last_name: z.string().min(2, {
-    message: "Le nom doit contenir au moins 2 caractères.",
-  }),
-  email: z.string().email({
-    message: "Veuillez entrer une adresse email valide.",
-  }),
-  phone: z.string().min(10, {
-    message: "Le numéro de téléphone doit contenir au moins 10 caractères.",
-  }),
-  address: z.string().min(1, {
-    message: "Veuillez entrer une adresse.",
-  }),
-  password: z.string().min(8, {
-    message: "Le mot de passe doit contenir au moins 8 caractères.",
-  }),
-  confirmPassword: z.string().min(8, {
-    message: "Le mot de passe doit contenir au moins 8 caractères.",
-  }),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Les mots de passe ne correspondent pas.",
-  path: ["confirmPassword"],
-});
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Champ, Choix } from "@/components/site/Formulaires";
+import { creerConseiller } from "@/config/apiEspace";
+import { lireErreur } from "@/config/http";
+import { FORMATIONS, ZONES } from "@/donnees/fidelem";
 
 interface AddFinancialAdvisorFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Appelé une fois le conseiller créé, pour rafraîchir la liste. */
+  onCree?: () => void;
 }
 
-export function AddFinancialAdvisorForm({ open, onOpenChange }: AddFinancialAdvisorFormProps) {
-  const { register } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+const SPECIALITES = ["Immobilier", "Transport", "Affaires"];
+const vide = { prenom: "", nom: "", email: "", telephone: "", zone: "", niveau: "", specialites: [] as string[], mdp: "", mdp2: "" };
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      last_name: "",
-      email: "",
-      phone: "",
-      address: "",
-      password: "",
-      confirmPassword: "",
-    },
-  });
+/** Back-office : crée un conseiller financier, actif tout de suite, avec sa zone et son niveau. */
+export function AddFinancialAdvisorForm({ open, onOpenChange, onCree }: AddFinancialAdvisorFormProps) {
+  const [v, setV] = useState(vide);
+  const [voir, setVoir] = useState(false);
+  const [erreurs, setErreurs] = useState<Record<string, string>>({});
+  const [envoi, setEnvoi] = useState(false);
+  const maj = <K extends keyof typeof vide>(k: K, val: (typeof vide)[K]) => setV((x) => ({ ...x, [k]: val }));
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsLoading(true);
-    try {
-      await register({
-        name: values.name,
-        last_name: values.last_name,
-        email: values.email,
-        phone: values.phone,
-        address: values.address,
-        password: values.password,
-        type_compte: "advisor",
-      });
-      toast.success("Conseiller financier créé avec succès");
-      form.reset();
-      onOpenChange(false);
-    } catch (error) {
-      if (error.response && error.response.data && error.response.data.errors) {
-        const errorMessages = Object.values(error.response.data.errors).flat();
-        toast.error("Échec de la création", {
-          description: errorMessages.join(", "),
-        });
-      } else {
-        toast.error("Échec de la création", {
-          description: "Une erreur est survenue. Veuillez réessayer.",
-        });
-      }
-    } finally {
-      setIsLoading(false);
+  const soumettre = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const err: Record<string, string> = {};
+    if (!v.prenom.trim()) err.name = "Indiquez le prénom.";
+    if (!v.nom.trim()) err.last_name = "Indiquez le nom.";
+    if (!/^\S+@\S+\.\S+$/.test(v.email)) err.email = "Indiquez une adresse e-mail valide.";
+    if (v.telephone.replace(/\D/g, "").length < 8) err.phone = "Indiquez un numéro de téléphone complet.";
+    if (v.mdp.length < 8) err.password = "Au moins 8 caractères.";
+    if (v.mdp !== v.mdp2) err.mdp2 = "Les deux mots de passe ne correspondent pas.";
+    setErreurs(err);
+    if (Object.keys(err).length) {
+      setTimeout(() => document.querySelector<HTMLElement>('[role="dialog"] [aria-invalid="true"]')?.focus(), 0);
+      return;
     }
-  }
+    setEnvoi(true);
+    try {
+      await creerConseiller({
+        name: v.prenom.trim(), last_name: v.nom.trim(), email: v.email.trim(), phone: v.telephone.trim(), password: v.mdp,
+        zone: v.zone || undefined, niveau: v.niveau || undefined, financements: v.specialites,
+      });
+      toast.success(`Conseiller créé. ${v.prenom} peut se connecter dès maintenant avec son e-mail.`);
+      setV(vide);
+      onOpenChange(false);
+      onCree?.();
+    } catch (e) {
+      const { message, champs } = lireErreur(e);
+      setErreurs(champs);
+      toast.error("Le conseiller n'a pas été créé.", { description: message ?? "Réessayez dans un instant." });
+    } finally { setEnvoi(false); }
+  };
+
+  const niveaux = FORMATIONS.map((f) => `CF ${f.nom}`);
+  const niveauChoisi = FORMATIONS.find((f) => f.id === v.niveau);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[620px] max-h-[90vh] overflow-y-auto" style={{ background: "var(--f-papier)", borderRadius: 16, fontFamily: "var(--f-texte)" }}>
         <DialogHeader>
-          <DialogTitle>Ajouter un conseiller financier</DialogTitle>
+          <DialogTitle className="f-titre-m" style={{ textAlign: "left" }}>Nouveau conseiller</DialogTitle>
+          <DialogDescription>Le compte est actif dès sa création. La zone peut être attribuée plus tard depuis la page Zones.</DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Prénom</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Jean" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="last_name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nom</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Dupont" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+        <form className="f-form" onSubmit={soumettre} noValidate>
+          <div className="f-grille-2">
+            <Champ libelle="Prénom" erreur={erreurs.name}><input id="f-cf-prenom" autoComplete="off" value={v.prenom} onChange={(e) => maj("prenom", e.target.value)} aria-invalid={!!erreurs.name} /></Champ>
+            <Champ libelle="Nom" erreur={erreurs.last_name}><input id="f-cf-nom" autoComplete="off" value={v.nom} onChange={(e) => maj("nom", e.target.value)} aria-invalid={!!erreurs.last_name} /></Champ>
+            <Champ libelle="E-mail" erreur={erreurs.email}><input id="f-cf-email" type="email" autoComplete="off" placeholder="prenom.nom@exemple.bj" value={v.email} onChange={(e) => maj("email", e.target.value)} aria-invalid={!!erreurs.email} /></Champ>
+            <Champ libelle="Téléphone" erreur={erreurs.phone}><input id="f-cf-tel" type="tel" inputMode="tel" placeholder="01 00 00 00 00" value={v.telephone} onChange={(e) => maj("telephone", e.target.value)} aria-invalid={!!erreurs.phone} /></Champ>
+          </div>
+          <Champ libelle="Zone de gestion" optionnel erreur={erreurs.zone}>
+            <select id="f-cf-zone" value={v.zone} onChange={(e) => maj("zone", e.target.value)}>
+              <option value="">À attribuer plus tard</option>
+              {ZONES.map((z) => <option key={z}>{z}</option>)}
+            </select>
+          </Champ>
+          <div className="f-champ"><span>Niveau <em>· facultatif</em></span>
+            <Choix nom="f-cf-niveau" options={niveaux} valeur={niveauChoisi ? `CF ${niveauChoisi.nom}` : ""} onChange={(o) => maj("niveau", FORMATIONS.find((f) => `CF ${f.nom}` === o)?.id ?? "")} />
+          </div>
+          <div className="f-champ"><span>Spécialités <em>· affichées aux usagers qui cherchent un conseiller</em></span>
+            <Choix nom="f-cf-specialites" multiple options={SPECIALITES} valeur={v.specialites} onChange={(o) => maj("specialites", o as string[])} />
+          </div>
+          <div className="f-form__groupe">
+            <div className="f-grille-2">
+              <Champ libelle="Mot de passe provisoire" erreur={erreurs.password}>
+                <span style={{ position: "relative", display: "block" }}>
+                  <input id="f-cf-mdp" type={voir ? "text" : "password"} autoComplete="new-password" value={v.mdp} onChange={(e) => maj("mdp", e.target.value)} aria-invalid={!!erreurs.password} style={{ paddingRight: 48 }} />
+                  <button type="button" onClick={() => setVoir((x) => !x)} aria-label={voir ? "Masquer le mot de passe" : "Afficher le mot de passe"} style={{ position: "absolute", right: 6, top: "50%", transform: "translateY(-50%)", width: 38, height: 38, display: "grid", placeItems: "center", background: "transparent", border: 0, cursor: "pointer", color: "var(--f-encre-2)" }}>
+                    {voir ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </span>
+              </Champ>
+              <Champ libelle="Confirmer" erreur={erreurs.mdp2}><input id="f-cf-mdp2" type={voir ? "text" : "password"} autoComplete="new-password" value={v.mdp2} onChange={(e) => maj("mdp2", e.target.value)} aria-invalid={!!erreurs.mdp2} /></Champ>
             </div>
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input type="email" placeholder="jean.dupont@fidelem.fr" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Téléphone</FormLabel>
-                  <FormControl>
-                    <Input placeholder="+33 6 12 34 56 78" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Adresse</FormLabel>
-                  <FormControl>
-                    <Input placeholder="123 Rue de la Paix" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Mot de passe</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Input type={showPassword ? "text" : "password"} placeholder="••••••••" {...field} />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                      >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="confirmPassword"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Confirmer le mot de passe</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Input type={showConfirmPassword ? "text" : "password"} placeholder="••••••••" {...field} />
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                      >
-                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" className="w-full bg-fidelem hover:bg-fidelem/90" disabled={isLoading}>
-              {isLoading ? "Création en cours..." : "Créer le compte"}
-            </Button>
-          </form>
-        </Form>
+            <p className="f-note" style={{ margin: 0 }}>Transmettez ce mot de passe au conseiller : il le remplace depuis son profil.</p>
+          </div>
+          <button className="f-btn f-btn--or f-btn--grand" type="submit" disabled={envoi} style={{ justifyContent: "center" }}>
+            {envoi ? <><Loader2 className="animate-spin" /> Création en cours</> : "Créer le conseiller"}
+          </button>
+        </form>
       </DialogContent>
     </Dialog>
   );
