@@ -6,6 +6,10 @@ on:
     branches: [main]
   workflow_dispatch: {}
 
+# Jeton GitHub en lecture seule.
+permissions:
+  contents: read
+
 concurrency:
   group: deploy-production
   cancel-in-progress: false
@@ -14,22 +18,27 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 20
           cache: npm
 
       - run: npm ci
 
+      - name: Vulnérabilités connues des dépendances de production
+        run: npm audit --omit=dev --audit-level=high
+
       - name: Build (Vite)
         env:
-          VITE_API_URL: https://api.fidelem.pro
+          VITE_API_URL: https://api.fidelem.pro/api
         run: npm run build
 
       - name: Déploiement sur le VPS (rsync)
-        uses: burnett01/rsync-deployments@7.0.2
+        uses: burnett01/rsync-deployments@fcf16a05b8650e3704a3871139dce6dde00aa472 # 7.0.2
         with:
           switches: -avzr --delete
           path: dist/
