@@ -20,7 +20,8 @@ import { lazy, Suspense } from "react";
 const EspaceConseiller = lazy(() => import("./pages/espace/EspaceConseiller"));
 const EspaceClient = lazy(() => import("./pages/espace/EspaceClient"));
 const EspaceResponsable = lazy(() => import("./pages/espace/EspaceResponsable"));
-const Demo = lazy(() => import("./pages/site/Demo"));
+// La condition est résolue au build : en production, la page et ses données d'exemple ne sont pas générées.
+const Demo = import.meta.env.DEV || import.meta.env.VITE_DEMO === "1" ? lazy(() => import("./pages/site/Demo")) : null;
 
 const queryClient = new QueryClient();
 
@@ -47,7 +48,7 @@ const App = () => (
             <Route path="/confidentialite" element={<Legal page="confidentialite" />} />
             <Route path="/conditions" element={<Legal page="conditions" />} />
 
-            {DEMO_DISPONIBLE && <Route path="/demo" element={<Suspense fallback={null}><Demo /></Suspense>} />}
+            {DEMO_DISPONIBLE && Demo && <Route path="/demo" element={<Suspense fallback={null}><Demo /></Suspense>} />}
 
             {/* Connexion */}
             <Route path="/connexion" element={<Connexion />} />

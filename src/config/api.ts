@@ -40,7 +40,7 @@ export const login = (email: string, password: string) => http.post<{ token: str
 export const logout = () => http.post("/logout");
 export const moi = () => http.get<Utilisateur>("/me");
 
-export const updateProfile = (d: { firstName: string; lastName: string; email: string; phone?: string; address?: string }) =>
+export const updateProfile = (d: { firstName: string; lastName: string; email: string; phone?: string; address?: string; currentPassword?: string }) =>
   http.post<{ message: string; user: Utilisateur }>("/update-profile", d);
 export const updatePassword = (d: { currentPassword: string; newPassword: string; newPassword_confirmation: string }) =>
   http.post<{ message: string }>("/update-password", d);

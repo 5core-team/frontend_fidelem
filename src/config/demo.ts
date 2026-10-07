@@ -17,6 +17,7 @@ export function quitterDemo() {
 
 /** Branche le mode démonstration sur une instance axios (sans effet si le mode n'est pas actif). */
 export function brancherDemo(instance: AxiosInstance) {
-  if (!DEMO_DISPONIBLE || !modeDemo()) return;
+  // Condition écrite en toutes lettres pour que le build de production retire l'import.
+  if (!(import.meta.env.DEV || import.meta.env.VITE_DEMO === "1") || !modeDemo()) return;
   instance.defaults.adapter = async (config) => (await import("./demoDonnees")).adaptateur(config);
 }

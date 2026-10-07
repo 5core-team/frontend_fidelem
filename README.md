@@ -102,9 +102,9 @@ validation de FIDELEM : la liste à leur transmettre est dans
 
 Chaque push sur `main` déclenche `.github/workflows/deploy.yml` :
 
-1. installation des dépendances (`npm ci`) ;
-2. build Vite avec l'URL de l'API de production ;
-3. envoi de `dist/` par rsync sur le VPS, dans `/var/www/frontend_fidelem/dist/`.
+1. job `build`, sans secret : `npm ci`, `npm audit`, build Vite avec l'URL de l'API
+   de production ;
+2. job `deploy` : envoi de `dist/` par rsync sur le VPS, dans `/var/www/frontend_fidelem/dist/`.
 
 Secrets GitHub attendus : `SSH_HOST`, `SSH_PORT` (22 par défaut), `SSH_USER`,
 `SSH_PRIVATE_KEY`.
@@ -137,5 +137,7 @@ location / {
 - **Dépendances** : la CI bloque le déploiement si `npm audit` trouve une faille
   haute ou critique dans les dépendances livrées au navigateur. Les alertes restantes
   concernent Tailwind 3, un outil de build sans correctif publié.
+- **Déploiement** : le job de build (qui exécute `npm ci`) ne reçoit aucun secret ;
+  seul le job rsync reçoit la clé SSH.
 - **Serveur de dev** : il n'écoute que `localhost` ; `npm run dev -- --host` pour
   l'ouvrir au réseau local.

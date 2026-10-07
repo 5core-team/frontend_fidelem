@@ -36,6 +36,8 @@ const profileSchema = z.object({
     message: "Indiquez un numéro de téléphone complet.",
   }),
   address: z.string().max(255),
+  // Demandé par l'API quand l'adresse e-mail change.
+  currentPassword: z.string().optional(),
 });
 
 const passwordSchema = z.object({
@@ -74,6 +76,7 @@ export function EditProfileForm({ open, onOpenChange }: EditProfileFormProps) {
     email: user?.email || "",
     phone: user?.phone || "",
     address: user?.address || "",
+    currentPassword: "",
   });
 
   const profileForm = useForm<z.infer<typeof profileSchema>>({
@@ -95,7 +98,9 @@ export function EditProfileForm({ open, onOpenChange }: EditProfileFormProps) {
 
   async function onProfileSubmit(values: z.infer<typeof profileSchema>) {
     try {
-      const response = await updateProfile(values as Parameters<typeof updateProfile>[0]);
+      const { currentPassword, ...profil } = values;
+      const emailChange = profil.email?.trim().toLowerCase() !== user?.email?.toLowerCase();
+      const response = await updateProfile({ ...(profil as Parameters<typeof updateProfile>[0]), ...(emailChange ? { currentPassword } : {}) });
       if (response.data.user) majUtilisateur(response.data.user);
       toast.success(response.data.message || "Profil mis à jour.");
       onOpenChange(false);
@@ -227,6 +232,23 @@ async function onPasswordSubmit(values: z.infer<typeof passwordSchema>) {
                     </FormItem>
                   )}
                 />
+
+                {!isRegularUser && profileForm.watch("email")?.trim().toLowerCase() !== user?.email?.toLowerCase() && (
+                  <FormField
+                    control={profileForm.control}
+                    name="currentPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Mot de passe actuel</FormLabel>
+                        <FormControl>
+                          <Input type="password" autoComplete="current-password" {...field} />
+                        </FormControl>
+                        <p className="text-sm text-muted-foreground">Demandé pour changer l'adresse qui sert à vous connecter.</p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
                 
                 <Button 
                   type="submit" 
