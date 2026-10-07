@@ -5,14 +5,17 @@
 // Les éléments marqués « À CONFIRMER » n'existent dans aucun document reçu.
 // ============================================================================
 
+// Coordonnees donnees par FIDELEM (document « Correction pour le site »).
 export const CONTACT = {
-  telephone: "01 66 11 11 64",
-  telephoneLien: "+2290166111164",
+  telephone: "01 55 57 32 10",
+  telephoneLien: "+2290155573210",
   site: "www.fidelem.pro",
   pays: "Bénin",
-  // À CONFIRMER : adresse, ville, e-mail, WhatsApp et horaires ne figurent dans aucun document.
-  email: "contact@fidelem.pro",
-  adresse: "Adresse de l'agence à confirmer",
+  // Adresse professionnelle de Kennethe : la boite doit exister chez
+  // l'hebergeur du domaine fidelem.pro pour recevoir les messages.
+  email: "kennethe@fidelem.pro",
+  adresse: "Menontin, Von Fifa, Cotonou",
+  // À CONFIRMER : horaires (aucun document ne les donne).
   horaires: "Du lundi au vendredi, 8 h – 18 h",
 };
 
@@ -126,6 +129,23 @@ export const EASYLIFE = {
       { titre: "Assistance et accompagnement", icone: "assistance" },
     ],
   },
+  // Les deux volets de financement d'EasyLife (document « Correction pour le
+  // site » : EasyLife, moyen de financement pour obtenir des biens, et
+  // financement de la consommation). Offres reprises du document EasyLife.
+  volets: [
+    {
+      nom: "Obtention de biens",
+      titre: "Financer les biens dont vous avez besoin.",
+      texte: "EasyLife vous aide à acquérir un bien sans tout payer d'un coup : vous épargnez et remboursez progressivement, accompagné par un conseiller FIDELEM et nos partenaires bancaires.",
+      points: ["Équipement de la maison", "Matériel de travail", "Moyen de transport", "Logement", "Épargne programmée", "Partenaires banques et institutions financières"],
+    },
+    {
+      nom: "Consommation",
+      titre: "Financer les dépenses du quotidien.",
+      texte: "Logement, énergie, transport, alimentation, santé : EasyLife réunit vos dépenses essentielles en une offre unique, réglée chaque mois, pour maîtriser votre budget et préparer vos projets.",
+      points: ["Logement meublé", "Eau, électricité et gaz", "Transport domicile-travail", "Panier alimentaire", "Assurance maladie", "Forfait de communication"],
+    },
+  ],
   poles: [
     { nom: "Services", titre: "Les services du quotidien", texte: "Pour faire gagner du temps aux particuliers et aux professionnels.", offres: ["Livraison de courses", "Conciergerie", "Entretien ménager", "Blanchisserie", "Assistance administrative", "Courses et commissions", "Services à domicile"] },
     { nom: "Finance", titre: "Épargner et réaliser ses projets", texte: "Pour construire progressivement son patrimoine.", offres: ["Solutions d'épargne", "Acquisition de biens", "Éducation financière", "Produits financiers adaptés", "Partenariats bancaires"] },

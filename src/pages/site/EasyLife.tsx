@@ -11,14 +11,36 @@ export default function EasyLife() {
   return (
     <Gabarit>
       <EnTetePage
-        label="EasyLife · l'écosystème"
+        label="EasyLife · financer ses biens et sa consommation"
         lignes={["Construire un", <em key="e">meilleur quotidien.</em>]}
         chapo={EASYLIFE.presentation}
         enfants={<div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 32 }} data-revele="400">
-          <a className="f-btn f-btn--or f-btn--grand" href="#living">Découvrir EasyLife Living</a>
+          <a className="f-btn f-btn--or f-btn--grand" href="#financer">Voir les financements</a>
           <Link className="f-btn f-btn--gris f-btn--grand" to="/contact">Je suis intéressé(e)</Link>
         </div>}
       />
+
+      {/* Les deux volets de financement */}
+      <section id="financer" className="f-section">
+        <div className="f-conteneur">
+          <div className="f-entete">
+            <MotBarres mot="Financer" variante="or" />
+            <div className="f-guide" data-revele><p className="f-label">Deux façons de financer avec EasyLife.</p></div>
+          </div>
+          <ul className="f-poles">
+            {EASYLIFE.volets.map((v, i) => (
+              <li key={v.nom} className="f-pole" data-revele={i * 80}>
+                <div className="f-pole__nom"><span className="f-numero">0{i + 1}</span><h3 className="f-titre-l">{v.nom}</h3></div>
+                <div className="f-pole__desc"><p className="f-label">{v.titre}</p><p className="f-texte">{v.texte}</p></div>
+                <p className="f-pole__offres">{v.points.join(" · ")}</p>
+              </li>
+            ))}
+          </ul>
+          <div className="f-guide f-guide--serre" style={{ width: "fit-content", marginTop: 28 }} data-revele>
+            <Link className="f-btn f-btn--or f-btn--grand" to="/contact">Parler à un conseiller <ArrowRight /></Link>
+          </div>
+        </div>
+      </section>
 
       {/* EasyLife Living */}
       <section id="living" className="f-section">

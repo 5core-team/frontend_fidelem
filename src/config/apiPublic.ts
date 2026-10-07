@@ -19,6 +19,10 @@ export type DemandeFinancement = Coordonnees & {
   duree: number;
   objet: string;
   message: string;
+  // Situation de l'usager (revenus mensuels, contrat, activite actuelle).
+  revenus?: string;
+  contrat?: string;
+  activite?: string;
   conseillerId?: string;
   rendezVous: RendezVous;
 };

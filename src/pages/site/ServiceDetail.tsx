@@ -8,8 +8,8 @@ import { TitreLignes } from "@/components/site/Mouvement";
 import { FINANCEMENTS, formatFcfa } from "@/donnees/fidelem";
 import { envoyerDemandeFinancement } from "@/config/apiPublic";
 import {
-  BlocCoordonnees, BlocRendezVous, BoutonEnvoi, Champ, Confirmation, MessageErreurEnvoi,
-  coordonneesVides, rendezVousVide, useEnvoi, validerCoordonnees, validerRendezVous,
+  BlocCoordonnees, BlocRendezVous, BlocSituation, BoutonEnvoi, Champ, Confirmation, MessageErreurEnvoi,
+  coordonneesVides, rendezVousVide, situationVide, useEnvoi, validerCoordonnees, validerRendezVous, validerSituation,
 } from "@/components/site/Formulaires";
 
 type Choix = { montant: number; duree: number; n: number };
@@ -23,14 +23,17 @@ function FormulaireDemande({ slug, choix }: { slug: string; choix: Choix | null 
   // Le simulateur pré-remplit le montant et la durée.
   useEffect(() => { if (choix) { setMontant(String(choix.montant)); setDuree(String(choix.duree)); } }, [choix]);
   const [objet, setObjet] = useState(f.projets[0]);
-  const message = "";
+  const [situation, setSituation] = useState(situationVide());
   const { etat, erreurs, envoyer, messageErreur } = useEnvoi();
 
   const soumettre = (e: React.FormEvent) => {
     e.preventDefault();
-    const v = { ...validerCoordonnees(coord), ...validerRendezVous(rdv) };
+    const v = { ...validerSituation(situation), ...validerCoordonnees(coord), ...validerRendezVous(rdv) };
     if (!Number(montant)) v.montant = "Indiquez le montant dont vous avez besoin.";
-    envoyer(v, () => envoyerDemandeFinancement({ ...coord, financement: f.slug, montant: Number(montant), duree: Number(duree), objet, message, rendezVous: rdv }));
+    // La situation part en champs dedies et, en attendant que l'API les
+    // stocke, en tete du message que le conseiller lit deja.
+    const message = `Revenus mensuels : ${situation.revenus} · Contrat : ${situation.contrat} · Activité actuelle : ${situation.activite.trim()}`;
+    envoyer(v, () => envoyerDemandeFinancement({ ...coord, financement: f.slug, montant: Number(montant), duree: Number(duree), objet, message, ...situation, rendezVous: rdv }));
   };
 
   if (etat === "succes") return (
@@ -42,18 +45,19 @@ function FormulaireDemande({ slug, choix }: { slug: string; choix: Choix | null 
   return (
     <form className="f-form" onSubmit={soumettre} noValidate>
       <div className="f-grille-3">
-        <Champ libelle="Projet">
+        <Champ libelle="Projet à financer">
           <select id="f-objet" value={objet} onChange={(e) => setObjet(e.target.value)}>{f.projets.map((p) => <option key={p}>{p}</option>)}</select>
         </Champ>
         <Champ libelle="Montant (FCFA)" erreur={erreurs.montant}>
           <input id="f-montant" inputMode="numeric" placeholder={formatFcfa(f.simulateur.defaut).replace(" FCFA", "")} value={montant ? Number(montant).toLocaleString("fr-FR") : ""} onChange={(e) => setMontant(e.target.value.replace(/\D/g, ""))} aria-invalid={!!erreurs.montant} />
         </Champ>
-        <Champ libelle="Durée">
+        <Champ libelle="Durée de remboursement">
           <select id="f-duree" value={duree} onChange={(e) => setDuree(e.target.value)}>
             {[6, 12, 18, 24, 36, 48, 60, 72, 84, 120, 180, 240].filter((d) => d >= f.simulateur.dureeMin && d <= f.simulateur.dureeMax).map((d) => <option key={d} value={d}>{d < 24 ? `${d} mois` : `${d / 12} ans`}</option>)}
           </select>
         </Champ>
       </div>
+      <BlocSituation valeur={situation} onChange={setSituation} erreurs={erreurs} />
       <BlocCoordonnees valeur={coord} onChange={setCoord} erreurs={erreurs} />
       <BlocRendezVous valeur={rdv} onChange={setRdv} erreurs={erreurs} />
       {etat === "erreur" && <MessageErreurEnvoi message={messageErreur} />}

@@ -93,6 +93,48 @@ export function BlocRendezVous({ valeur, onChange, erreurs, titre = "Rendez-vous
   );
 }
 
+// Situation de l'usager : ce que le conseiller examine pour un financement
+// (revenus, contrat, activite ; le projet et la duree sont choisis a cote).
+// Tranches de revenus reprises des trois niveaux de conseiller FIDELEM.
+export type Situation = { revenus: string; contrat: string; activite: string };
+export const situationVide = (): Situation => ({ revenus: "", contrat: "", activite: "" });
+const REVENUS = ["Moins de 100 000 FCFA", "100 000 à 500 000 FCFA", "500 000 à 1 500 000 FCFA", "Plus de 1 500 000 FCFA"];
+const CONTRATS = ["CDI", "CDD", "Fonctionnaire", "Indépendant ou commerçant", "Contrat temporaire ou stage", "Sans contrat"];
+
+export function BlocSituation({ valeur, onChange, erreurs }: { valeur: Situation; onChange: (v: Situation) => void; erreurs: Record<string, string> }) {
+  const maj = <K extends keyof Situation>(k: K, v: Situation[K]) => onChange({ ...valeur, [k]: v });
+  return (
+    <div className="f-form__groupe">
+      <p className="f-label f-label--doux" style={{ margin: 0 }}>Votre situation</p>
+      <div className="f-grille-3">
+        <Champ libelle="Revenus mensuels" erreur={erreurs.revenus}>
+          <select id="f-revenus" value={valeur.revenus} onChange={(e) => maj("revenus", e.target.value)} aria-invalid={!!erreurs.revenus}>
+            <option value="">Choisir</option>
+            {REVENUS.map((r) => <option key={r}>{r}</option>)}
+          </select>
+        </Champ>
+        <Champ libelle="Contrat" erreur={erreurs.contrat}>
+          <select id="f-contrat" value={valeur.contrat} onChange={(e) => maj("contrat", e.target.value)} aria-invalid={!!erreurs.contrat}>
+            <option value="">Choisir</option>
+            {CONTRATS.map((c) => <option key={c}>{c}</option>)}
+          </select>
+        </Champ>
+        <Champ libelle="Activité actuelle" erreur={erreurs.activite}>
+          <input id="f-activite" placeholder="Ex. commerçante, enseignant, chauffeur" value={valeur.activite} onChange={(e) => maj("activite", e.target.value)} aria-invalid={!!erreurs.activite} />
+        </Champ>
+      </div>
+    </div>
+  );
+}
+
+export const validerSituation = (s: Situation) => {
+  const e: Record<string, string> = {};
+  if (!s.revenus) e.revenus = "Choisissez la tranche de vos revenus.";
+  if (!s.contrat) e.contrat = "Choisissez votre type de contrat.";
+  if (!s.activite.trim()) e.activite = "Indiquez votre activité actuelle.";
+  return e;
+};
+
 export const validerCoordonnees = (c: Coordonnees) => {
   const e: Record<string, string> = {};
   if (!c.prenom.trim() || !c.nom.trim()) e.prenom = "Indiquez votre nom et votre prénom.";
