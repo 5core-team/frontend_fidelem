@@ -24,7 +24,7 @@ function FormulaireDemande({ slug, choix }: { slug: string; choix: Choix | null 
   useEffect(() => { if (choix) { setMontant(String(choix.montant)); setDuree(String(choix.duree)); } }, [choix]);
   const [objet, setObjet] = useState(f.projets[0]);
   const message = "";
-  const { etat, erreurs, envoyer } = useEnvoi();
+  const { etat, erreurs, envoyer, messageErreur } = useEnvoi();
 
   const soumettre = (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,7 +56,7 @@ function FormulaireDemande({ slug, choix }: { slug: string; choix: Choix | null 
       </div>
       <BlocCoordonnees valeur={coord} onChange={setCoord} erreurs={erreurs} />
       <BlocRendezVous valeur={rdv} onChange={setRdv} erreurs={erreurs} />
-      {etat === "erreur" && <MessageErreurEnvoi />}
+      {etat === "erreur" && <MessageErreurEnvoi message={messageErreur} />}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 16, alignItems: "center" }}>
         <BoutonEnvoi etat={etat}>Envoyer ma demande</BoutonEnvoi>
       </div>

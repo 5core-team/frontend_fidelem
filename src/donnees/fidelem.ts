@@ -226,4 +226,4 @@ export const FAQ: { theme: string; questions: { q: string; r: string }[] }[] = [
   },
 ];
 
-export const formatFcfa = (n: number) => `${new Intl.NumberFormat("fr-FR").format(Math.round(n)).replace(/ | /g, " ")} FCFA`;
+export const formatFcfa = (n: number) => `${new Intl.NumberFormat("fr-FR").format(Math.round(n)).replace(/\u202F|\u00A0/g, " ")} FCFA`;

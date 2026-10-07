@@ -2,6 +2,7 @@ import { ReactNode, useState } from "react";
 import { CheckCircle2, AlertCircle, ArrowRight, Loader2 } from "lucide-react";
 import { CONTACT, ZONES } from "@/donnees/fidelem";
 import type { Coordonnees, RendezVous } from "@/config/apiPublic";
+import { lireErreur } from "@/config/http";
 
 export function Champ({ libelle, optionnel, erreur, children }: { libelle: string; optionnel?: boolean; erreur?: string; children: ReactNode }) {
   return (
@@ -108,20 +109,33 @@ export const validerRendezVous = (r: RendezVous) => {
 
 export type Etat = "repos" | "envoi" | "succes" | "erreur";
 
-/** Gère l'envoi : validation, état, défilement vers la première erreur. */
+/** Noms de champs de l'API qui diffèrent de ceux du formulaire. */
+const CHAMPS_API: Record<string, string> = { motDePasse: "mdp" };
+
+/** Gère l'envoi : validation, état, défilement vers la première erreur, erreurs renvoyées par l'API. */
 export function useEnvoi() {
   const [etat, setEtat] = useState<Etat>("repos");
   const [erreurs, setErreurs] = useState<Record<string, string>>({});
-  const envoyer = async (validation: Record<string, string>, action: () => Promise<unknown>) => {
-    setErreurs(validation);
-    if (Object.keys(validation).length) {
-      setTimeout(() => document.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus(), 0);
-      return;
-    }
-    setEtat("envoi");
-    try { await action(); setEtat("succes"); } catch { setEtat("erreur"); }
+  const [messageErreur, setMessageErreur] = useState<string | undefined>();
+  const signaler = (e: Record<string, string>) => {
+    setErreurs(e);
+    setTimeout(() => document.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus(), 0);
   };
-  return { etat, setEtat, erreurs, envoyer };
+  const envoyer = async (validation: Record<string, string>, action: () => Promise<unknown>) => {
+    setMessageErreur(undefined);
+    if (Object.keys(validation).length) return signaler(validation);
+    setErreurs({});
+    setEtat("envoi");
+    try { await action(); setEtat("succes"); } catch (e) {
+      const { statut, message, champs } = lireErreur(e);
+      if (statut === 422) {
+        signaler(Object.fromEntries(Object.entries(champs).map(([cle, m]) => [CHAMPS_API[cle] ?? cle, m])));
+        setMessageErreur(message ? `Certaines informations sont à corriger. ${message}` : "Certaines informations sont à corriger.");
+      } else if (statut === 429) setMessageErreur("Trop d'envois en peu de temps. Patientez une minute avant de réessayer.");
+      setEtat("erreur");
+    }
+  };
+  return { etat, setEtat, erreurs, envoyer, messageErreur };
 }
 
 export function BoutonEnvoi({ etat, children }: { etat: Etat; children: ReactNode }) {
@@ -132,11 +146,13 @@ export function BoutonEnvoi({ etat, children }: { etat: Etat; children: ReactNod
   );
 }
 
-export function MessageErreurEnvoi() {
+export function MessageErreurEnvoi({ message }: { message?: string }) {
   return (
     <div className="f-alerte f-alerte--erreur" role="alert">
       <AlertCircle style={{ flex: "none", marginTop: 2 }} />
-      <span>Votre demande n'a pas pu être envoyée. Réessayez dans un instant, ou appelez-nous au <a href={`tel:${CONTACT.telephoneLien}`} style={{ textDecoration: "underline" }}>{CONTACT.telephone}</a>.</span>
+      {message ? <span>{message}</span> : (
+        <span>Votre demande n'a pas pu être envoyée. Réessayez dans un instant, ou appelez-nous au <a href={`tel:${CONTACT.telephoneLien}`} style={{ textDecoration: "underline" }}>{CONTACT.telephone}</a>.</span>
+      )}
     </div>
   );
 }

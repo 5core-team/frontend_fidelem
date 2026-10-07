@@ -30,19 +30,10 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { getUsers, approveUser, rejectUser, deleteUser } from '../config/api'; // Import API functions
+import { getUsers, approveUser, rejectUser, deleteUser, type Compte } from "@/config/api";
+import { lireErreur } from "@/config/http";
 
-interface User {
-  id: string;
-  name: string;
-  last_name: string;
-  email: string;
-  phone: string;
-  address: string;
-  type_compte: string;
-  statut: "Actif" | "En attente" | "Rejeté";
-  created_at: string;
-}
+type User = Compte;
 
 interface UserTableProps {
   title: string;
@@ -70,7 +61,7 @@ const UserTable = ({ title, description, filterType }: UserTableProps) => {
     fetchUsers();
   }, []);
 
-  const handleApprove = async (userId: string) => {
+  const handleApprove = async (userId: User["id"]) => {
     try {
       await approveUser(userId);
       setUsers(users.map(user =>
@@ -82,7 +73,7 @@ const UserTable = ({ title, description, filterType }: UserTableProps) => {
     }
   };
 
-  const handleReject = async (userId: string) => {
+  const handleReject = async (userId: User["id"]) => {
     try {
       await rejectUser(userId);
       setUsers(users.map(user =>
@@ -94,13 +85,13 @@ const UserTable = ({ title, description, filterType }: UserTableProps) => {
     }
   };
 
-  const handleDelete = async (userId: string) => {
+  const handleDelete = async (userId: User["id"]) => {
     try {
       await deleteUser(userId);
       setUsers(users.filter(user => user.id !== userId));
       toast.success("Utilisateur supprimé avec succès");
     } catch (error) {
-      toast.error("Erreur lors de la suppression de l'utilisateur");
+      toast.error(lireErreur(error).message ?? "Le compte n'a pas pu être supprimé.");
     }
   };
 

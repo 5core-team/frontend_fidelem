@@ -3,7 +3,8 @@ import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useAuth } from "@/context/AuthContext";
 import { FINANCEMENTS } from "@/donnees/fidelem";
-import { nouvelleDemandeUsager } from "@/config/apiEspace";
+import { nouvelleDemande } from "@/config/apiEspace";
+import { lireErreur } from "@/config/http";
 import { BlocRendezVous, Champ, rendezVousVide, validerRendezVous } from "@/components/site/Formulaires";
 
 interface AddCreditRequestFormProps {
@@ -11,7 +12,7 @@ interface AddCreditRequestFormProps {
   onOpenChange: (open: boolean) => void;
   isAdvisor?: boolean;
   /** Clients du conseiller, pour choisir pour qui la demande est créée. */
-  clients?: { id: string | number; name?: string; last_name?: string }[];
+  clients?: { id: string | number; name?: string | null; last_name?: string | null }[];
   onCree?: () => void;
 }
 
@@ -38,13 +39,18 @@ export function AddCreditRequestForm({ open, onOpenChange, isAdvisor = false, cl
     if (Object.keys(v).length || !user) return;
     setEnvoi(true);
     try {
-      await nouvelleDemandeUsager(isAdvisor ? clientId : user.id, { montant: Number(montant), duree: Number(duree), objet: `${f.court} · ${objet}`, message, rendezVous: rdv });
+      await nouvelleDemande({
+        montant: Number(montant), duree: Number(duree), financement, objet, message,
+        ...(isAdvisor ? { clientId } : { rendezVous: rdv }),
+      });
       toast.success("Demande de financement créée.");
       onOpenChange(false);
       onCree?.();
       setMontant(""); setMessage("");
-    } catch {
-      toast.error("La demande n'a pas pu être créée. Réessayez dans un instant.");
+    } catch (e) {
+      const { champs, message: m } = lireErreur(e);
+      if (Object.keys(champs).length) setErreurs({ ...champs, montant: champs.amount ?? champs.montant, client: champs.clientId });
+      toast.error(m ?? "La demande n'a pas pu être créée. Réessayez dans un instant.");
     } finally { setEnvoi(false); }
   };
 

@@ -3,7 +3,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { toast } from "sonner";
-import { useAuth } from "@/context/AuthContext";
+import { creerClient } from "@/config/apiEspace";
+import { lireErreur } from "@/config/http";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -16,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Eye, EyeOff } from "lucide-react"; // Assurez-vous d'avoir installé lucide-react ou une autre bibliothèque d'icônes
+import { Eye, EyeOff } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -28,12 +29,10 @@ const formSchema = z.object({
   email: z.string().email({
     message: "Veuillez entrer une adresse email valide.",
   }),
-  phone: z.string().min(10, {
-    message: "Le numéro de téléphone doit contenir au moins 10 caractères.",
+  phone: z.string().refine((v) => v.replace(/\D/g, "").length >= 8, {
+    message: "Indiquez un numéro de téléphone complet.",
   }),
-  address: z.string().min(10, {
-    message: "L'adresse doit contenir au moins 10 caractères.",
-  }),
+  address: z.string().max(255),
   password: z.string().min(8, {
     message: "Le mot de passe doit contenir au moins 8 caractères.",
   }),
@@ -51,7 +50,6 @@ interface AddClientFormProps {
 }
 
 export function AddClientForm({ open, onOpenChange }: AddClientFormProps) {
-  const { register, user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -72,32 +70,21 @@ export function AddClientForm({ open, onOpenChange }: AddClientFormProps) {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
-      const createdBy = user?.id;
-      const userData = {
+      await creerClient({
         name: values.name,
         last_name: values.last_name,
         email: values.email,
         phone: values.phone,
-        address: values.address,
-        type_compte: "user",
+        address: values.address || undefined,
         password: values.password,
-        created_by: createdBy
-      };
-      await register(userData);
-      toast.success("Client ajouté avec succès");
+      });
+      toast.success("Client ajouté. Il peut se connecter dès maintenant avec son e-mail.");
       form.reset();
       onOpenChange(false);
     } catch (error) {
-      if (error.response && error.response.data && error.response.data.errors) {
-        const errorMessages = Object.values(error.response.data.errors).flat();
-        toast.error("Échec de la création", {
-          description: errorMessages.join(", "),
-        });
-      } else {
-        toast.error("Échec de la création", {
-          description: "Une erreur est survenue. Veuillez réessayer.",
-        });
-      }
+      const { message, champs } = lireErreur(error);
+      Object.entries(champs).forEach(([champ, m]) => form.setError(champ as keyof z.infer<typeof formSchema>, { message: m }));
+      toast.error("Le client n'a pas été créé.", { description: message ?? "Réessayez dans un instant." });
     } finally {
       setIsLoading(false);
     }
@@ -119,7 +106,7 @@ export function AddClientForm({ open, onOpenChange }: AddClientFormProps) {
                   <FormItem>
                     <FormLabel>Prénom</FormLabel>
                     <FormControl>
-                      <Input placeholder="Marie" {...field} />
+                      <Input placeholder="Florence" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -132,7 +119,7 @@ export function AddClientForm({ open, onOpenChange }: AddClientFormProps) {
                   <FormItem>
                     <FormLabel>Nom</FormLabel>
                     <FormControl>
-                      <Input placeholder="Dubois" {...field} />
+                      <Input placeholder="Adjovi" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -146,7 +133,7 @@ export function AddClientForm({ open, onOpenChange }: AddClientFormProps) {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="marie.dubois@example.com" {...field} />
+                    <Input type="email" placeholder="florence.adjovi@exemple.bj" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -159,7 +146,7 @@ export function AddClientForm({ open, onOpenChange }: AddClientFormProps) {
                 <FormItem>
                   <FormLabel>Téléphone</FormLabel>
                   <FormControl>
-                    <Input placeholder="+33 6 12 34 56 78" {...field} />
+                    <Input type="tel" inputMode="tel" placeholder="01 91 22 33 44" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -170,9 +157,9 @@ export function AddClientForm({ open, onOpenChange }: AddClientFormProps) {
               name="address"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Adresse</FormLabel>
+                  <FormLabel>Adresse <span className="text-muted-foreground">· facultatif</span></FormLabel>
                   <FormControl>
-                    <Textarea placeholder="123 Rue de Paris, 75001 Paris" {...field} />
+                    <Textarea placeholder="Quartier, commune" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

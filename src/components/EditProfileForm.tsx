@@ -1,17 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import { Eye, EyeOff } from "lucide-react"; 
-import { updateProfile, updatePassword } from '../config/api';// Import the API functions
+import { updateProfile, updatePassword } from "@/config/api";
+import { lireErreur } from "@/config/http";
 
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -32,23 +32,21 @@ const profileSchema = z.object({
   email: z.string().email({
     message: "Veuillez entrer une adresse email valide.",
   }),
-  phone: z.string().min(10, {
-    message: "Le numéro de téléphone doit contenir au moins 10 caractères.",
+  phone: z.string().refine((v) => !v || v.replace(/\D/g, "").length >= 8, {
+    message: "Indiquez un numéro de téléphone complet.",
   }),
-  address: z.string().min(10, {
-    message: "L'adresse doit contenir au moins 10 caractères.",
-  }),
+  address: z.string().max(255),
 });
 
 const passwordSchema = z.object({
-  currentPassword: z.string().min(6, {
-    message: "Le mot de passe doit contenir au moins 6 caractères.",
+  currentPassword: z.string().min(1, {
+    message: "Indiquez votre mot de passe actuel.",
   }),
-  newPassword: z.string().min(6, {
-    message: "Le nouveau mot de passe doit contenir au moins 6 caractères.",
+  newPassword: z.string().min(8, {
+    message: "Le nouveau mot de passe doit contenir au moins 8 caractères.",
   }),
-  confirmPassword: z.string().min(6, {
-    message: "La confirmation du mot de passe doit contenir au moins 6 caractères.",
+  confirmPassword: z.string().min(8, {
+    message: "La confirmation doit contenir au moins 8 caractères.",
   }),
 }).refine((data) => data.newPassword === data.confirmPassword, {
   message: "Les mots de passe ne correspondent pas.",
@@ -61,7 +59,7 @@ interface EditProfileFormProps {
 }
 
 export function EditProfileForm({ open, onOpenChange }: EditProfileFormProps) {
-  const { user } = useAuth();
+  const { user, majUtilisateur } = useAuth();
   const [activeTab, setActiveTab] = useState("profile");
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -70,16 +68,21 @@ export function EditProfileForm({ open, onOpenChange }: EditProfileFormProps) {
 
   const isRegularUser = user?.role === "user";
 
+  const valeursProfil = () => ({
+    firstName: user?.name || "",
+    lastName: user?.last_name || "",
+    email: user?.email || "",
+    phone: user?.phone || "",
+    address: user?.address || "",
+  });
+
   const profileForm = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
-    defaultValues: {
-      firstName: user?.name?.split(" ")[0] || "",
-      lastName: user?.last_name || "",
-      email: user?.email || "",
-      phone: user?.phone || "",
-      address: user?.address || "",
-    },
+    defaultValues: valeursProfil(),
   });
+
+  // À chaque ouverture, le formulaire repart des informations à jour.
+  useEffect(() => { if (open) profileForm.reset(valeursProfil()); }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const passwordForm = useForm<z.infer<typeof passwordSchema>>({
     resolver: zodResolver(passwordSchema),
@@ -92,11 +95,14 @@ export function EditProfileForm({ open, onOpenChange }: EditProfileFormProps) {
 
   async function onProfileSubmit(values: z.infer<typeof profileSchema>) {
     try {
-      const response = await updateProfile(values);
-      toast.success(response.data.message || "Profil mis à jour avec succès");
+      const response = await updateProfile(values as Parameters<typeof updateProfile>[0]);
+      if (response.data.user) majUtilisateur(response.data.user);
+      toast.success(response.data.message || "Profil mis à jour.");
       onOpenChange(false);
     } catch (error) {
-      toast.error(error.response?.data?.message || "Échec de la mise à jour du profil");
+      const { message, champs } = lireErreur(error);
+      Object.entries(champs).forEach(([champ, m]) => profileForm.setError(champ as keyof z.infer<typeof profileSchema>, { message: m }));
+      toast.error(message || "Le profil n'a pas pu être mis à jour.");
     }
   }
 
@@ -107,11 +113,14 @@ async function onPasswordSubmit(values: z.infer<typeof passwordSchema>) {
       newPassword: values.newPassword,
       newPassword_confirmation: values.confirmPassword, // Utilisez newPassword_confirmation
     });
-    toast.success(response.data.message || "Mot de passe modifié avec succès");
+    toast.success(response.data.message || "Mot de passe modifié.");
     passwordForm.reset();
     onOpenChange(false);
   } catch (error) {
-    toast.error(error.response?.data?.message || "Échec de la modification du mot de passe");
+    const { message, champs } = lireErreur(error);
+    if (champs.currentPassword) passwordForm.setError("currentPassword", { message: champs.currentPassword });
+    if (champs.newPassword) passwordForm.setError("newPassword", { message: champs.newPassword });
+    toast.error(message || "Le mot de passe n'a pas pu être modifié.");
   }
 }
 
@@ -144,7 +153,7 @@ async function onPasswordSubmit(values: z.infer<typeof passwordSchema>) {
                 
                 {showContactAdvisorMessage && (
                   <div className="p-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-700">
-                    <p>Pour modifier vos informations, veuillez contacter votre conseiller Fidelem.</p>
+                    <p>Pour modifier vos informations, contactez votre conseiller FIDELEM.</p>
                   </div>
                 )}
                 

@@ -1,7 +1,7 @@
 import { ArrowRight, Briefcase, User, ShieldCheck } from "lucide-react";
 import Gabarit from "@/components/site/Gabarit";
 import EnTetePage from "@/components/site/EnTetePage";
-import { activerDemo, COMPTES_DEMO } from "@/config/demo";
+import { activerDemo, COMPTES_DEMO } from "@/config/demoDonnees";
 
 const ESPACES = [
   { role: "advisor" as const, titre: "Espace Conseiller", texte: "Demandes de la zone de Cotonou, fiche d'une demande, rendez-vous, clients.", chemin: "/espace-conseiller", icone: Briefcase },

@@ -1,107 +1,87 @@
-import React, { createContext, useState, useContext, useEffect } from "react";
-import { register as registerAPI, login as loginAPI } from '../config/api'; // Import API functions
-import { setAuthToken } from '../config/api'; // Import the function to set the auth token
+import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { login as loginAPI, logout as logoutAPI, moi, type Utilisateur } from "@/config/api";
+import { CLE_JETON, CLE_UTILISATEUR, quandSessionExpire } from "@/config/http";
+import { modeDemo } from "@/config/demo";
 
-type User = {
-  id: string;
-  name: string;
-  last_name: string;
-  email: string;
-  phone: string;
-  address: string;
-  role: "user" | "advisor" | "manager";
-};
-
-export type DonneesInscription = {
-  name: string;
-  last_name: string;
-  email: string;
-  phone?: string;
-  address?: string;
-  password: string;
-  type_compte: string;
-  created_by?: number | string;
-};
+export type { Utilisateur };
 
 type AuthContextType = {
-  user: User | null;
+  user: Utilisateur | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (data: DonneesInscription) => Promise<void>;
-  logout: () => void;
   isAuthenticated: boolean;
+  login: (email: string, password: string) => Promise<Utilisateur>;
+  logout: () => Promise<void>;
+  /** Recharge l'utilisateur depuis l'API (après une modification du profil, par exemple). */
+  rafraichir: () => Promise<void>;
+  /** Remplace l'utilisateur en session par la version renvoyée par l'API. */
+  majUtilisateur: (u: Utilisateur) => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const stocker = (u: Utilisateur | null, jeton?: string) => {
+  try {
+    if (u) localStorage.setItem(CLE_UTILISATEUR, JSON.stringify(u)); else localStorage.removeItem(CLE_UTILISATEUR);
+    if (jeton) localStorage.setItem(CLE_JETON, jeton);
+    if (!u) localStorage.removeItem(CLE_JETON);
+  } catch { /* stockage indisponible : la session ne survivra pas au rechargement */ }
+};
+
+const lireSession = (): Utilisateur | null => {
+  try {
+    const u = localStorage.getItem(CLE_UTILISATEUR);
+    return u && localStorage.getItem(CLE_JETON) ? (JSON.parse(u) as Utilisateur) : null;
+  } catch {
+    stocker(null);
+    return null;
+  }
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<Utilisateur | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    const token = localStorage.getItem("authToken");
+  const fermer = useCallback(() => { stocker(null); setUser(null); }, []);
 
-    if (storedUser && token) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-        setAuthToken(token); // Set the token for Axios requests
-      } catch (error) {
-        console.error("Failed to parse user data from localStorage", error);
-        localStorage.removeItem("user");
-        localStorage.removeItem("authToken");
-      }
-    }
+  const majUtilisateur = useCallback((u: Utilisateur) => { stocker(u); setUser(u); }, []);
+
+  const rafraichir = useCallback(async () => {
+    const { data } = await moi();
+    majUtilisateur(data);
+  }, [majUtilisateur]);
+
+  useEffect(() => {
+    const enSession = lireSession();
+    setUser(enSession);
     setLoading(false);
-  }, []);
+    // Le jeton est revérifié en arrière-plan : un compte rejeté ou une session expirée est déconnecté.
+    if (enSession && !modeDemo()) rafraichir().catch(() => {});
+  }, [rafraichir]);
+
+  // Quand l'API refuse le jeton, la session est fermée et l'usager renvoyé vers la connexion.
+  useEffect(() => {
+    quandSessionExpire(() => {
+      const role = lireSession()?.role;
+      fermer();
+      const chemin = role === "user" ? "/connexion" : "/espace-conseiller/connexion";
+      if (!window.location.pathname.endsWith("/connexion")) window.location.assign(`${chemin}?session=expiree`);
+    });
+  }, [fermer]);
 
   const login = async (email: string, password: string) => {
-    setLoading(true);
-    try {
-      const response = await loginAPI(email, password);
-      const { user: userData, token } = response.data; // Adjust according to your response structure
-      setUser(userData);
-      localStorage.setItem("user", JSON.stringify(userData));
-      localStorage.setItem("authToken", token);
-      setAuthToken(token); // Set the token for Axios requests
-    } catch (error) {
-      console.error(error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
+    const { data } = await loginAPI(email, password);
+    stocker(data.user, data.token);
+    setUser(data.user);
+    return data.user;
   };
 
-  const register = async (data: DonneesInscription) => {
-    // Quand un conseiller ou un responsable crée un compte, il reste connecté sous son propre compte.
-    const creeParUnTiers = !!user;
-    setLoading(true);
-    try {
-      const response = await registerAPI({ ...data, created_by: data.created_by as number | undefined });
-      const { user: userData, token } = response.data;
-      if (data.type_compte === "user" && !creeParUnTiers && token) {
-        setUser(userData);
-        localStorage.setItem("user", JSON.stringify(userData));
-        localStorage.setItem("authToken", token);
-        setAuthToken(token);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("user");
-    localStorage.removeItem("authToken");
-    setAuthToken(null); // Clear the token for Axios requests
+  const logout = async () => {
+    try { if (!modeDemo()) await logoutAPI(); } catch { /* la session locale est fermée quoi qu'il arrive */ }
+    fermer();
   };
 
   return (
-    <AuthContext.Provider
-      value={{ user, loading, login, register, logout, isAuthenticated: !!user }}
-    >
+    <AuthContext.Provider value={{ user, loading, isAuthenticated: !!user, login, logout, rafraichir, majUtilisateur }}>
       {children}
     </AuthContext.Provider>
   );
