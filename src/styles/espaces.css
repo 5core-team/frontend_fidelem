@@ -1,0 +1,12 @@
+/* Espaces connectés aux couleurs du site : bleu Fidelem, or du logo, Inter. */
+.f-site.f-app {
+  --f-papier: #F7F7F7;
+  --f-papier-2: #ECEEF3;
+  --f-encre: #16213E;
+  --f-encre-2: #4B5368;
+  --f-marine: #002060;
+  --f-or: #DAA520;
+  --f-or-clair: #F6E7BF;
+  --f-texte: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --f-rayon: 0.75rem;
+}

@@ -8,12 +8,18 @@ import {
   Users, 
   ChevronRight, 
   CheckCircle2,
-  CreditCard,
-  Lock,
-  Clock
+  Clock,
+  Home,
+  Car,
+  Briefcase,
+  ArrowRight,
+  GraduationCap,
+  MapPin
 } from "lucide-react";
 import Navbar from "../components/Navbar";
-import { QuickCreditSimulator } from "@/components/QuickCreditSimulator";
+import Footer from "../components/Footer";
+import { SimulateurRapide } from "@/components/SimulateurRapide";
+import { FINANCEMENTS, EASYLIFE } from "@/donnees/fidelem";
 
 const Index = () => {
   return (
@@ -21,7 +27,9 @@ const Index = () => {
       <Navbar />
       <HeroSection />
       <FeaturesSection />
+      <FinancementsSection />
       <HowItWorksSection />
+      <EcosystemeSection />
       <TestimonialsSection />
       <CTASection />
       <Footer />
@@ -37,26 +45,26 @@ const HeroSection = () => {
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
             <h1 className="text-4xl sm:text-5xl font-bold leading-tight">
-              Facilitez l'accès au crédit pour vos projets
+              Facilitez l'accès au financement de vos projets
             </h1>
             <p className="text-xl opacity-90">
-              Fidelem connecte les usagers et les conseillers financiers pour un accès simplifié et sécurisé aux solutions de crédit.
+              Fidelem met en relation les usagers et les conseillers financiers de chaque zone pour un accès simple et sécurisé aux solutions de financement.
             </p>
             <div className="flex flex-wrap gap-4 pt-4">
-              <Link to="/contact">
-                <Button className="bg-white text-fidelem hover:bg-white/90 text-lg py-6 px-8">
-                  Démarrer maintenant
-                </Button>
-              </Link>
               <Link to="/services">
                 <Button className="bg-white text-fidelem hover:bg-white/90 text-lg py-6 px-8">
-                Découvrir nos services
+                  Découvrir nos services
+                </Button>
+              </Link>
+              <Link to="/trouver-un-conseiller">
+                <Button className="bg-fidelem-secondary text-fidelem hover:bg-fidelem-secondary/90 text-lg py-6 px-8">
+                  Trouver un conseiller
                 </Button>
               </Link>
              
             </div>
           </div>
-          <QuickCreditSimulator />
+          <SimulateurRapide />
         </div>
       </div>
       
@@ -90,13 +98,13 @@ const FeaturesSection = () => {
       icon: <LineChart size={40} className="text-fidelem" />,
       title: "Simulateur avancé",
       description:
-        "Estimez précisément vos mensualités et le coût total de votre crédit avec notre simulateur facile à utiliser.",
+        "Estimez vos mensualités pour un financement immobilier, transport ou d'affaires avec notre simulateur facile à utiliser.",
     },
     {
       icon: <Users size={40} className="text-fidelem" />,
       title: "Accompagnement personnalisé",
       description:
-        "Chaque usager est accompagné par un conseiller financier dédié qui l'aide à trouver la meilleure solution de crédit.",
+        "Chaque usager est accompagné par un conseiller financier de sa zone, qui l'aide à trouver la meilleure solution de financement.",
     },
   ];
 
@@ -106,7 +114,7 @@ const FeaturesSection = () => {
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold text-fidelem mb-4">Pourquoi choisir Fidelem</h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Notre plateforme innovante vous offre des outils puissants pour faciliter vos démarches de crédit
+            Notre plateforme vous offre des outils simples pour faciliter vos démarches de financement
           </p>
         </div>
 
@@ -128,6 +136,66 @@ const FeaturesSection = () => {
   );
 };
 
+// Financements
+const ICONES_FINANCEMENT = { immobilier: Home, transport: Car, affaires: Briefcase };
+
+const FinancementsSection = () => (
+  <section className="py-20 bg-white">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="text-center mb-16">
+        <h2 className="text-3xl font-bold text-fidelem mb-4">Nos financements</h2>
+        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          Trois familles de financement, un conseiller pour monter votre dossier
+        </p>
+      </div>
+      <div className="grid md:grid-cols-3 gap-8">
+        {FINANCEMENTS.map((f) => {
+          const Icone = ICONES_FINANCEMENT[f.slug];
+          return (
+            <Link key={f.slug} to={`/services/${f.slug}`}
+              className="group bg-fidelem-light rounded-xl p-6 shadow-sm hover:shadow-lg transition-shadow flex flex-col">
+              <Icone size={40} className="text-fidelem mb-4" />
+              <h3 className="text-xl font-semibold mb-2">{f.nom}</h3>
+              <p className="text-gray-600 flex-1">{f.resume}</p>
+              <span className="mt-4 inline-flex items-center gap-1 font-medium text-fidelem">
+                En savoir plus <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+              </span>
+            </Link>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+);
+
+// EasyLife et conseillers
+const EcosystemeSection = () => (
+  <section className="py-20 bg-fidelem-light">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-8">
+      <div className="bg-white rounded-xl p-8 shadow-md flex flex-col">
+        <span className="text-sm font-semibold uppercase tracking-wide text-fidelem-secondary">EasyLife</span>
+        <h3 className="text-2xl font-bold text-fidelem mt-2 mb-3">Financer vos biens et votre quotidien</h3>
+        <p className="text-gray-600 flex-1">{EASYLIFE.volets[0].texte}</p>
+        <Link to="/easylife" className="mt-6">
+          <Button className="bg-fidelem hover:bg-fidelem/90">Découvrir EasyLife</Button>
+        </Link>
+      </div>
+      <div className="bg-white rounded-xl p-8 shadow-md flex flex-col">
+        <span className="text-sm font-semibold uppercase tracking-wide text-fidelem-secondary">Conseiller financier</span>
+        <h3 className="text-2xl font-bold text-fidelem mt-2 mb-3">Un conseiller dans chaque zone</h3>
+        <ul className="space-y-3 text-gray-600 flex-1">
+          <li className="flex gap-3"><MapPin className="text-fidelem shrink-0" size={20} />Trouvez le conseiller financier de votre commune.</li>
+          <li className="flex gap-3"><GraduationCap className="text-fidelem shrink-0" size={20} />Devenez conseiller : trois niveaux de formation, une licence et une zone.</li>
+        </ul>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Link to="/trouver-un-conseiller"><Button className="bg-fidelem hover:bg-fidelem/90">Trouver un conseiller</Button></Link>
+          <Link to="/conseiller-financier"><Button variant="outline">Devenir conseiller</Button></Link>
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
 // How It Works Section
 const HowItWorksSection = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -143,23 +211,23 @@ const HowItWorksSection = () => {
   const steps = [
     {
       number: "01",
-      title: "Inscription sur la plateforme",
+      title: "Votre demande en ligne",
       description:
-        "Créez votre compte en tant qu'usager ou conseiller financier en quelques minutes.",
+        "Choisissez votre financement, décrivez votre projet et indiquez vos disponibilités.",
       icon: <Users size={24} />,
     },
     {
       number: "02",
-      title: "Validation du compte",
+      title: "Un conseiller de votre zone",
       description:
-        "Les comptes conseillers sont validés par nos responsables financiers pour garantir la qualité de service.",
+        "Un conseiller financier formé par Fidelem, installé dans votre zone, vous contacte et fixe le rendez-vous.",
       icon: <CheckCircle2 size={24} />,
     },
     {
       number: "03",
-      title: "Simulation de crédit",
+      title: "Le montage du dossier",
       description:
-        "Utilisez notre simulateur pour estimer vos mensualités et le coût total de votre crédit.",
+        "Il étudie vos revenus, votre contrat et votre projet, puis monte le dossier avec vous.",
       icon: <LineChart size={24} />,
     },
     {
@@ -177,7 +245,7 @@ const HowItWorksSection = () => {
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold text-fidelem mb-4">Comment ça fonctionne</h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Un processus simple et transparent pour accéder à votre crédit
+            Un processus simple et transparent pour financer votre projet
           </p>
         </div>
 
@@ -218,7 +286,7 @@ const TestimonialsSection = () => {
   const testimonials = [
     {
       content:
-        "Grâce à Fidelem, j'ai pu obtenir un prêt immobilier avec des conditions exceptionnelles. Le conseiller a été d'une aide précieuse tout au long du processus.",
+        "Grâce à Fidelem, j'ai pu obtenir un financement immobilier dans de très bonnes conditions. Le conseiller a été d'une aide précieuse tout au long du processus.",
       author: "Sophie Martin",
       role: "Propriétaire",
     },
@@ -230,7 +298,7 @@ const TestimonialsSection = () => {
     },
     {
       content:
-        "L'interface est intuitive et le simulateur de crédit très précis. J'ai pu financer ma voiture en quelques jours seulement.",
+        "L'interface est intuitive et le simulateur très clair. J'ai pu financer mon véhicule de travail en quelques jours seulement.",
       author: "Julie Lefèvre",
       role: "Cliente",
     },
@@ -279,6 +347,11 @@ const CTASection = () => {
               </p>
             </div>
             <div className="flex flex-wrap gap-4">
+              <Link to="/conseiller-financier">
+                <Button className="bg-fidelem-secondary text-fidelem hover:bg-fidelem-secondary/90 text-lg py-6 px-8">
+                Devenir conseiller
+                </Button>
+              </Link>
               <Link to="/contact">
                 <Button className="bg-white text-fidelem hover:bg-white/90 text-lg py-6 px-8">
                 Nous contacter
@@ -290,76 +363,6 @@ const CTASection = () => {
         </div>
       </div>
     </section>
-  );
-};
-
-// Footer
-const Footer = () => {
-  return (
-    <footer className="bg-gray-900 text-white py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid md:grid-cols-4 gap-8">
-          <div>
-            <h3 className="text-xl font-bold mb-4">Fidelem</h3>
-            <p className="text-gray-400">
-              Plateforme de facilitation de crédit innovante et sécurisée pour tous vos projets financiers.
-            </p>
-          </div>
-          <div>
-            <h4 className="text-lg font-semibold mb-4">Services</h4>
-            <ul className="space-y-2 text-gray-400">
-              <li><a href="#" className="hover:text-white transition-colors">Crédits immobiliers</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Prêts personnels</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Crédits auto</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Refinancement</a></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-lg font-semibold mb-4">Entreprise</h4>
-            <ul className="space-y-2 text-gray-400">
-              <li><a href="#" className="hover:text-white transition-colors">À propos</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Carrières</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-lg font-semibold mb-4">Légal</h4>
-            <ul className="space-y-2 text-gray-400">
-              <li><a href="#" className="hover:text-white transition-colors">Confidentialité</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Conditions d'utilisation</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Protection des données</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Cookies</a></li>
-            </ul>
-          </div>
-        </div>
-        <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-400 text-sm mb-4 md:mb-0">
-            © {new Date().getFullYear()} Fidelem. Tous droits réservés.
-          </p>
-          <div className="flex space-x-4">
-            <a href="#" className="text-gray-400 hover:text-white transition-colors">
-              <span className="sr-only">Facebook</span>
-              <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path fillRule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clipRule="evenodd" />
-              </svg>
-            </a>
-            <a href="#" className="text-gray-400 hover:text-white transition-colors">
-              <span className="sr-only">Twitter</span>
-              <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
-              </svg>
-            </a>
-            <a href="#" className="text-gray-400 hover:text-white transition-colors">
-              <span className="sr-only">LinkedIn</span>
-              <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path fillRule="evenodd" d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" clipRule="evenodd" />
-              </svg>
-            </a>
-          </div>
-        </div>
-      </div>
-    </footer>
   );
 };
 

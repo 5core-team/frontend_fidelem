@@ -1,81 +1,73 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Home, Car, CreditCard, Building2, ShieldCheck } from "lucide-react";
-import Navbar from "../components/Navbar";
+import { Home, Car, Briefcase, ShoppingBag, ShieldCheck } from "lucide-react";
+import Gabarit, { EnTetePage } from "@/components/Gabarit";
+import { FINANCEMENTS, EASYLIFE } from "@/donnees/fidelem";
 
-const Services = () => {
-  const services = [
-    {
-      title: "Crédit Immobilier",
-      description: "Financez l'achat de votre bien immobilier avec nos solutions adaptées",
-      icon: <Home className="h-8 w-8 text-fidelem" />,
-      features: ["Taux compétitifs", "Durée flexible", "Accompagnement personnalisé"]
-    },
-    {
-      title: "Crédit Auto",
-      description: "Obtenez le financement idéal pour votre véhicule",
-      icon: <Car className="h-8 w-8 text-fidelem" />,
-      features: ["Réponse rapide", "Mensualités adaptées", "Assurance avantageuse"]
-    },
-    {
-      title: "Crédit Consommation",
-      description: "Réalisez vos projets personnels avec nos solutions de financement",
-      icon: <CreditCard className="h-8 w-8 text-fidelem" />,
-      features: ["Montant jusqu'à 75 000 F", "Taux fixe", "Sans frais cachés"]
-    },
-    {
-      title: "Crédit Professionnel",
-      description: "Des solutions sur mesure pour les entrepreneurs et professionnels",
-      icon: <Building2 className="h-8 w-8 text-fidelem" />,
-      features: ["Expertise dédiée", "Financement adapté", "Conseil personnalisé"]
-    }
-  ];
+const ICONES = { immobilier: Home, transport: Car, affaires: Briefcase };
 
-  return (
-    <div className="min-h-screen bg-fidelem-light">
-      <Navbar />
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-fidelem mb-4">Nos Services</h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Découvrez nos solutions de financement adaptées à tous vos projets
-          </p>
-        </div>
+const Services = () => (
+  <Gabarit>
+    <div className="max-w-7xl mx-auto px-4 py-12">
+      <EnTetePage titre="Nos Services" sousTitre="Découvrez nos solutions de financement adaptées à tous vos projets" />
 
-        <div className="grid md:grid-cols-2 gap-8">
-          {services.map((service, index) => (
-            <Card key={index} className="relative overflow-hidden">
+      <div className="grid md:grid-cols-2 gap-8">
+        {FINANCEMENTS.map((f) => {
+          const Icone = ICONES[f.slug];
+          return (
+            <Card key={f.slug} className="relative overflow-hidden flex flex-col">
               <div className="absolute top-0 right-0 w-32 h-32 -mr-16 -mt-16 bg-fidelem/5 rounded-full" />
               <CardHeader>
                 <div className="flex items-center gap-4 mb-4">
-                  {service.icon}
-                  <CardTitle className="text-2xl">{service.title}</CardTitle>
+                  <Icone className="h-8 w-8 text-fidelem" />
+                  <CardTitle className="text-2xl">{f.nom}</CardTitle>
                 </div>
-                <p className="text-gray-600">{service.description}</p>
+                <p className="text-gray-600">{f.resume}</p>
               </CardHeader>
-              <CardContent>
+              <CardContent className="mt-auto">
                 <ul className="space-y-2 mb-6">
-                  {service.features.map((feature, fIndex) => (
-                    <li key={fIndex} className="flex items-center gap-2">
-                      <ShieldCheck className="h-5 w-5 text-fidelem" />
-                      <span>{feature}</span>
+                  {f.projets.slice(0, 3).map((p) => (
+                    <li key={p} className="flex items-center gap-2">
+                      <ShieldCheck className="h-5 w-5 text-fidelem shrink-0" />
+                      <span>{p}</span>
                     </li>
                   ))}
                 </ul>
-                <Link to="/contact">
-                  <Button className="w-full bg-fidelem hover:bg-fidelem/90">
-                    En savoir plus
-                  </Button>
+                <Link to={`/services/${f.slug}`}>
+                  <Button className="w-full bg-fidelem hover:bg-fidelem/90">En savoir plus</Button>
                 </Link>
               </CardContent>
             </Card>
-          ))}
-        </div>
+          );
+        })}
+
+        <Card className="relative overflow-hidden flex flex-col">
+          <div className="absolute top-0 right-0 w-32 h-32 -mr-16 -mt-16 bg-fidelem-secondary/10 rounded-full" />
+          <CardHeader>
+            <div className="flex items-center gap-4 mb-4">
+              <ShoppingBag className="h-8 w-8 text-fidelem" />
+              <CardTitle className="text-2xl">Financement des biens et de la consommation</CardTitle>
+            </div>
+            <p className="text-gray-600">Avec EasyLife, financez l'obtention de vos biens et vos dépenses du quotidien.</p>
+          </CardHeader>
+          <CardContent className="mt-auto">
+            <ul className="space-y-2 mb-6">
+              {EASYLIFE.volets.map((v) => (
+                <li key={v.nom} className="flex items-center gap-2">
+                  <ShieldCheck className="h-5 w-5 text-fidelem shrink-0" />
+                  <span>{v.nom}</span>
+                </li>
+              ))}
+            </ul>
+            <Link to="/easylife">
+              <Button className="w-full bg-fidelem hover:bg-fidelem/90">En savoir plus</Button>
+            </Link>
+          </CardContent>
+        </Card>
       </div>
     </div>
-  );
-};
+  </Gabarit>
+);
 
 export default Services;
