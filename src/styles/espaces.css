@@ -1,12 +1,137 @@
-/* Espaces connectés aux couleurs du site : bleu Fidelem, or du logo, Inter. */
-.f-site.f-app {
+/* ==========================================================================
+   Espaces connectés et fenêtres de saisie, dans le style des tableaux de bord
+   d'origine : cartes blanches, tableaux à en-tête gris, bleu Fidelem, Inter.
+   (Les fenêtres s'ouvrent hors du cadre : ces classes ne sont pas imbriquées.)
+   ========================================================================== */
+
+:root {
+  /* Couleurs encore citées dans quelques styles en ligne des espaces. */
   --f-papier: #F7F7F7;
-  --f-papier-2: #ECEEF3;
-  --f-encre: #16213E;
-  --f-encre-2: #4B5368;
-  --f-marine: #002060;
-  --f-or: #DAA520;
   --f-or-clair: #F6E7BF;
-  --f-texte: 'Inter', 'Helvetica Neue', Arial, sans-serif;
-  --f-rayon: 0.75rem;
+  --f-guide: #E2E8F0;
+  --f-succes: #16A34A;
+  --f-encre-2: #4B5563;
+  --f-texte: 'Inter', sans-serif;
 }
+
+/* Textes */
+.f-titre-l { @apply text-3xl font-bold text-fidelem; }
+.f-titre-m { @apply text-lg font-semibold text-gray-900; }
+.f-texte { @apply text-gray-600; }
+.f-note { @apply text-sm text-gray-500; }
+.f-label { @apply text-sm font-medium text-gray-700; }
+.f-label--doux { @apply text-gray-500 font-normal; }
+.f-lien { @apply inline-flex items-center gap-1 text-sm font-medium text-fidelem hover:underline; }
+.f-lien svg { @apply h-4 w-4; }
+.f-sr { @apply sr-only; }
+.f-erreur { @apply block text-sm text-red-600; }
+.f-evitement { @apply sr-only; }
+
+/* Boutons */
+.f-btn { @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md px-4 h-10 text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 cursor-pointer; }
+.f-btn svg { @apply h-4 w-4; }
+.f-btn--encre, .f-btn--or { @apply bg-fidelem text-white hover:bg-fidelem/90; }
+.f-btn--gris { @apply border border-input bg-background text-gray-800 hover:bg-gray-50; }
+.f-btn--blanc { @apply bg-white text-fidelem hover:bg-white/90; }
+.f-btn--grand { @apply h-11 px-6 text-base; }
+
+/* Cartes et panneaux */
+.f-panel, .f-carte { @apply rounded-lg border bg-card text-card-foreground shadow-sm p-6 space-y-4; }
+.f-carte--blanche { @apply bg-white; }
+.f-panel__tete { @apply flex flex-wrap items-center justify-between gap-3; }
+.f-deux-col { @apply grid gap-6 lg:grid-cols-2; }
+.f-fiche { @apply grid gap-6 lg:grid-cols-3; }
+.f-fiche > div:first-child { @apply lg:col-span-2; }
+.f-vide { @apply text-center py-10 space-y-2; }
+
+/* Chiffres : bleu, ambre, vert, indigo, comme l'ancien résumé */
+.f-chiffres { @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6; }
+.f-chiffres > .f-chiffre:nth-child(4n+1) { @apply bg-blue-50 text-blue-600 border-blue-200; }
+.f-chiffres > .f-chiffre:nth-child(4n+2) { @apply bg-amber-50 text-amber-600 border-amber-200; }
+.f-chiffres > .f-chiffre:nth-child(4n+3) { @apply bg-green-50 text-green-600 border-green-200; }
+.f-chiffres > .f-chiffre:nth-child(4n+4) { @apply bg-indigo-50 text-indigo-600 border-indigo-200; }
+
+/* Alertes */
+.f-alerte { @apply flex gap-3 rounded-md p-4 text-sm; }
+.f-alerte--info { @apply bg-blue-50 text-blue-800 border border-blue-200; }
+.f-alerte--erreur { @apply bg-red-50 text-red-700 border border-red-200; }
+
+/* Tableaux */
+.f-table-wrap, .f-defile-x { @apply border rounded-lg overflow-x-auto; }
+.f-table { @apply w-full text-sm caption-bottom; }
+.f-table thead tr { @apply bg-gray-50 border-b; }
+.f-table th { @apply h-12 px-4 text-left align-middle font-medium text-muted-foreground whitespace-nowrap; }
+.f-table td { @apply p-4 align-middle; }
+.f-table tbody tr { @apply border-b last:border-0 transition-colors hover:bg-muted/50 cursor-pointer; }
+.f-table td.num { @apply whitespace-nowrap tabular-nums; }
+.f-table__usager { @apply flex flex-col; }
+.f-table__usager small { @apply text-xs text-gray-500; }
+/* Liste compacte : tableau sur grand écran, cartes sur téléphone */
+.f-cartes-mobile { @apply hidden; }
+.f-table-wrap.est-masque { @apply hidden md:block; }
+.f-cartes-mobile.est-visible { @apply grid gap-2 md:hidden; }
+.f-carte-demande { @apply grid gap-1 w-full text-left rounded-lg border bg-white p-4 hover:shadow-md transition-shadow; }
+.f-carte-demande > div { @apply flex items-center justify-between gap-2; }
+
+/* Onglets et filtres */
+.f-onglets { @apply inline-flex h-10 items-center rounded-md bg-muted p-1 text-muted-foreground flex-wrap; }
+.f-onglets button { @apply inline-flex items-center gap-2 rounded-sm px-3 py-1.5 text-sm font-medium transition-all; }
+.f-onglets button[aria-selected="true"] { @apply bg-background text-fidelem shadow-sm; }
+.f-onglets em { @apply not-italic rounded-full bg-fidelem-secondary/30 text-fidelem text-xs px-2; }
+.f-filtres { @apply flex flex-col sm:flex-row gap-3; }
+.f-filtres select, .f-recherche__champ input { @apply h-10 rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fidelem; }
+.f-recherche__champ { @apply relative flex-1; }
+.f-recherche__champ svg { @apply absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400; }
+.f-recherche__champ input { @apply w-full pl-10; }
+
+/* Fiche d'une demande */
+.f-dl { @apply grid gap-3 sm:grid-cols-2; }
+.f-dl dt { @apply text-xs uppercase tracking-wide text-gray-500; }
+.f-dl dd { @apply font-medium text-gray-900; }
+.f-historique { @apply space-y-2 border-l-2 border-fidelem/20 pl-4; }
+.f-historique li { @apply flex flex-col; }
+.f-historique small { @apply text-xs text-gray-500; }
+
+/* Rendez-vous */
+.f-rdv-jour { @apply grid gap-2; }
+.f-rdv { @apply grid grid-cols-[auto_1fr_auto] items-center gap-4 rounded-lg border bg-white p-4 hover:shadow-md transition-shadow; }
+.f-rdv__heure { @apply text-sm font-semibold text-fidelem whitespace-nowrap; }
+
+/* Mon conseiller (espace client) */
+.f-mon-conseiller__id { @apply flex items-center gap-3; }
+.f-mon-conseiller__id small { @apply block text-sm text-gray-500; }
+.f-mon-conseiller__actions { @apply grid gap-2; }
+.f-mon-conseiller__lien { @apply inline-flex items-center gap-1 text-sm font-medium text-fidelem hover:underline; }
+.f-mon-conseiller__lien svg { @apply h-4 w-4; }
+.f-app__avatar { @apply grid place-items-center h-10 w-10 shrink-0 rounded-full bg-fidelem text-white text-sm font-semibold; }
+.f-app__actions { @apply flex flex-wrap gap-2; }
+
+/* Messages reçus (back-office) */
+.f-messages { @apply grid gap-3; }
+.f-message { @apply rounded-lg border bg-white p-4 space-y-2; }
+.f-message__tete, .f-message__pied { @apply flex flex-wrap items-center justify-between gap-2 text-sm; }
+.f-message__texte { @apply text-gray-700; }
+
+/* Pastille (statut d'un compte) */
+.f-pastille { @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold; }
+
+/* Formulaires (fenêtres de saisie et fiche) */
+.f-form { @apply grid gap-4; }
+.f-form__groupe { @apply grid gap-3; }
+.f-grille-2 { @apply grid gap-4 sm:grid-cols-2; }
+.f-grille-3 { @apply grid gap-4 sm:grid-cols-3; }
+.f-champ { @apply grid gap-2 text-sm font-medium; }
+.f-champ > span em { @apply not-italic font-normal text-gray-400; }
+.f-champ input, .f-champ select, .f-champ textarea { @apply w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-normal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fidelem aria-[invalid=true]:border-red-500; }
+.f-champ input, .f-champ select { @apply h-10; }
+.f-choix { @apply flex flex-wrap gap-2; }
+.f-choix label { @apply cursor-pointer; }
+.f-choix input { @apply sr-only; }
+.f-choix span { @apply inline-block rounded-full border border-gray-300 bg-white px-3 py-1.5 text-sm font-normal text-gray-700 transition-colors; }
+.f-choix input:checked + span { @apply bg-fidelem text-white border-fidelem; }
+.f-choix input:focus-visible + span { @apply ring-2 ring-fidelem ring-offset-1; }
+.f-choix input:disabled + span { @apply opacity-50; }
+.f-options { @apply rounded-md border p-3; }
+.f-options summary { @apply cursor-pointer text-sm font-medium text-fidelem; }
+.f-options summary span { @apply font-normal text-gray-500; }
+.f-options__corps { @apply grid gap-4 pt-3; }
