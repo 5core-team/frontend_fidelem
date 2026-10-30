@@ -1,27 +1,30 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
-import Accueil from "./pages/site/Accueil";
-import Services from "./pages/site/Services";
-import ServiceDetail from "./pages/site/ServiceDetail";
-import EasyLife from "./pages/site/EasyLife";
-import ConseillerFinancier from "./pages/site/ConseillerFinancier";
-import Candidature from "./pages/site/Candidature";
-import TrouverConseiller from "./pages/site/TrouverConseiller";
-import { APropos, Contact, FAQPage, Legal, PageIntrouvable } from "./pages/site/PagesInfo";
-import { Connexion, ConnexionConseiller, MotDePasseOublie, ReinitialiserMotDePasse } from "./pages/site/Connexion";
+import Index from "./pages/Index";
+import Services from "./pages/Services";
+import ServiceDetail from "./pages/ServiceDetail";
+import EasyLife from "./pages/EasyLife";
+import ConseillerFinancier from "./pages/ConseillerFinancier";
+import Candidature from "./pages/Candidature";
+import TrouverConseiller from "./pages/TrouverConseiller";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import FAQ from "./pages/FAQ";
+import { Legal, PageIntrouvable } from "./pages/Legal";
+import { Connexion, ConnexionConseiller, MotDePasseOublie, ReinitialiserMotDePasse } from "./pages/Connexion";
 import { DEMO_DISPONIBLE } from "./config/demo";
-import { lazy, Suspense } from "react";
 
-// Les espaces connectés et la démo sont chargés à la demande : le site public reste léger.
+// Les espaces connectés sont chargés à la demande : le site public reste léger.
 const EspaceConseiller = lazy(() => import("./pages/espace/EspaceConseiller"));
 const EspaceClient = lazy(() => import("./pages/espace/EspaceClient"));
 const EspaceResponsable = lazy(() => import("./pages/espace/EspaceResponsable"));
-// La condition est résolue au build : en production, la page et ses données d'exemple ne sont pas générées.
-const Demo = import.meta.env.DEV || import.meta.env.VITE_DEMO === "1" ? lazy(() => import("./pages/site/Demo")) : null;
+// Résolu au build : sans VITE_DEMO=1, la démonstration n'est pas incluse.
+const Demo = import.meta.env.DEV || import.meta.env.VITE_DEMO === "1" ? lazy(() => import("./pages/Demo")) : null;
 
 const queryClient = new QueryClient();
 
@@ -33,17 +36,17 @@ const App = () => (
         <Sonner position="top-center" />
         <BrowserRouter>
           <Routes>
-            {/* Site public */}
-            <Route path="/" element={<Accueil />} />
+            {/* Site public, dans l'ordre du menu */}
+            <Route path="/" element={<Index />} />
             <Route path="/services" element={<Services />} />
             <Route path="/services/:slug" element={<ServiceDetail />} />
             <Route path="/easylife" element={<EasyLife />} />
             <Route path="/conseiller-financier" element={<ConseillerFinancier />} />
             <Route path="/conseiller-financier/candidature" element={<Candidature />} />
             <Route path="/trouver-un-conseiller" element={<TrouverConseiller />} />
-            <Route path="/a-propos" element={<APropos />} />
+            <Route path="/a-propos" element={<About />} />
             <Route path="/contact" element={<Contact />} />
-            <Route path="/faq" element={<FAQPage />} />
+            <Route path="/faq" element={<FAQ />} />
             <Route path="/mentions-legales" element={<Legal page="mentions-legales" />} />
             <Route path="/confidentialite" element={<Legal page="confidentialite" />} />
             <Route path="/conditions" element={<Legal page="conditions" />} />
@@ -61,7 +64,7 @@ const App = () => (
             <Route path="/mon-espace/*" element={<Suspense fallback={null}><EspaceClient /></Suspense>} />
             <Route path="/responsable/*" element={<Suspense fallback={null}><EspaceResponsable /></Suspense>} />
 
-            {/* Anciennes adresses */}
+            {/* Anciennes adresses du site */}
             <Route path="/about" element={<Navigate to="/a-propos" replace />} />
             <Route path="/levee" element={<Navigate to="/easylife" replace />} />
             <Route path="/login" element={<Navigate to="/connexion" replace />} />
