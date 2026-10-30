@@ -11,9 +11,7 @@ export const CONTACT = {
   telephoneLien: "+2290155573210",
   site: "www.fidelem.pro",
   pays: "Bénin",
-  // Adresse de contact donnée par FIDELEM (correction du 9 octobre, postérieure
-  // à kennethe@fidelem.pro utilisée jusqu'ici — la boîte doit exister chez
-  // l'hébergeur du domaine fidelem.pro pour recevoir les messages).
+  // Adresse de contact donnée par FIDELEM.
   email: "prendrecontact@fidelem.pro",
   adresse: "Menontin, Von Fifa, Cotonou",
   // À CONFIRMER : horaires (aucun document ne les donne).

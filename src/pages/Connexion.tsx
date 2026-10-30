@@ -10,12 +10,13 @@ import { CONTACT } from "@/donnees/fidelem";
 import { demanderReinitialisation, reinitialiserMotDePasse } from "@/config/api";
 import { lireErreur } from "@/config/http";
 import { cheminEspace } from "@/lib/espaces";
+import logo from "@/assets/logo.png";
 
 /** Carte centrée sur fond clair, comme l'ancienne page de connexion. */
 function Ecran({ titre, description, pied, children }: { titre: string; description: string; pied?: ReactNode; children: ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-fidelem-light p-4">
-      <Link to="/" aria-label="Fidelem, accueil" className="mb-2"><img src="/brand/fidelem-logo.png" alt="Fidelem" className="h-32 w-auto" /></Link>
+      <Link to="/" aria-label="Fidelem, accueil" className="mb-2"><img src={logo} alt="Fidelem" className="h-32 w-auto" /></Link>
       <div className="w-full max-w-md">
         <Card className="border-none shadow-lg">
           <CardHeader className="space-y-1">

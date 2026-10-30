@@ -24,7 +24,7 @@ Le contrat entre les deux (routes, formats, statuts) est décrit dans
 | Appels HTTP | Axios |
 | Formulaires | React Hook Form, Zod |
 | Composants de base | Radix UI (via shadcn/ui), Tailwind CSS |
-| Styles du site | `src/styles/fidelem.css` |
+| Styles du site | `src/index.css`, Tailwind et `src/styles/espaces.css` |
 
 ## Démarrage
 
@@ -87,7 +87,8 @@ src/
 │   ├── site/                 Gabarit, formulaires, simulateur, animations
 │   ├── espace/               Cadre des espaces, liste et fiche d'une demande
 │   └── ui/                   Composants de base (shadcn/ui)
-└── styles/fidelem.css        Feuille de style du site
+├── index.css                Styles globaux du site
+└── styles/espaces.css        Styles des espaces connectés
 ```
 
 Quand l'API répond 401, la session est fermée et l'utilisateur renvoyé vers la
@@ -141,3 +142,12 @@ location / {
   seul le job rsync reçoit la clé SSH.
 - **Serveur de dev** : il n'écoute que `localhost` ; `npm run dev -- --host` pour
   l'ouvrir au réseau local.
+
+## Interface de production
+
+Depuis le 30 octobre 2026, l’interface de `main` reprend celle de la branche
+`version-finale`, référence de https://fidelem-premiere-version.vercel.app.
+Les styles globaux Inter, couleurs, assets et composants correspondent à cette
+version. Les anciens composants de refonte non utilisés ont été retirés.
+La configuration de déploiement et `VITE_API_URL=https://api.fidelem.pro/api`
+sont conservées pour les formulaires et les espaces connectés de production.
