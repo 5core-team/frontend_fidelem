@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { NAVIGATION } from "@/donnees/fidelem";
 import { cheminEspace, libelleRole } from "@/lib/espaces";
-import logo from "@/assets/logo.png";
 
 const lienClasse = ({ isActive }: { isActive: boolean }) =>
   `px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive ? "text-fidelem" : "text-gray-600 hover:text-fidelem"}`;
@@ -32,7 +31,7 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link to="/" className="flex items-center" aria-label="Fidelem, accueil">
-            <img src={logo} alt="Fidelem" className="h-40 w-auto" />
+            <img src="/brand/fidelem-logo.png" alt="Fidelem" className="h-40 w-auto" />
           </Link>
 
           {/* Navigation (ordre demandé par FIDELEM) */}
